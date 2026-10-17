@@ -1,0 +1,43 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Simple Budgeting",
+  "@appTitle": { "description": "Application title (task switcher, splash screen)." },
+
+  "bootstrapOpeningDatabase": "Opening your local database…",
+  "bootstrapRecordingLaunch": "Preparing your data…",
+  "bootstrapFinishing": "Almost ready…",
+  "bootstrapFailedTitle": "Something went wrong while starting the app",
+  "bootstrapRetry": "Try again",
+
+  "homeTitle": "Foundation check",
+  "homeIntro": "Phase 0 is running. Everything below is read from your local database.",
+
+  "homeLaunchCount": "Launch #{count}",
+  "@homeLaunchCount": { "placeholders": { "count": { "type": "int" } } },
+
+  "homeFirstLaunch": "First launch: {date}",
+  "@homeFirstLaunch": {
+    "placeholders": { "date": { "type": "DateTime", "format": "yMMMd" } }
+  },
+
+  "homeStartupThisLaunch": "This startup took {milliseconds} ms",
+  "@homeStartupThisLaunch": {
+    "placeholders": { "milliseconds": { "type": "int" } }
+  },
+
+  "homeStartupPreviousLaunch": "Previous startup took {milliseconds} ms",
+  "@homeStartupPreviousLaunch": {
+    "placeholders": { "milliseconds": { "type": "int" } }
+  },
+
+  "homeStartupNoPrevious": "No previous startup recorded yet",
+
+  "homeLocaleInfo": "Device locale: {locale} · Currency: {currency}",
+  "@homeLocaleInfo": {
+    "placeholders": { "locale": { "type": "String" }, "currency": { "type": "String" } }
+  },
+
+  "homeMoneySample": "Sample amount: {amount}",
+  "@homeMoneySample": { "placeholders": { "amount": { "type": "String" } } }
+}

@@ -1,0 +1,22 @@
+{
+  "@@locale": "el",
+
+  "appTitle": "Απλός Προϋπολογισμός",
+
+  "bootstrapOpeningDatabase": "Άνοιγμα της τοπικής βάσης δεδομένων…",
+  "bootstrapRecordingLaunch": "Προετοιμασία των δεδομένων σας…",
+  "bootstrapFinishing": "Σχεδόν έτοιμο…",
+  "bootstrapFailedTitle": "Κάτι πήγε στραβά κατά την εκκίνηση",
+  "bootstrapRetry": "Δοκιμάστε ξανά",
+
+  "homeTitle": "Έλεγχος θεμελίων",
+  "homeIntro": "Η Φάση 0 λειτουργεί. Όλα όσα βλέπετε διαβάζονται από την τοπική βάση δεδομένων σας.",
+
+  "homeLaunchCount": "Εκκίνηση #{count}",
+  "homeFirstLaunch": "Πρώτη εκκίνηση: {date}",
+  "homeStartupThisLaunch": "Αυτή η εκκίνηση χρειάστηκε {milliseconds} ms",
+  "homeStartupPreviousLaunch": "Η προηγούμενη εκκίνηση χρειάστηκε {milliseconds} ms",
+  "homeStartupNoPrevious": "Δεν έχει καταγραφεί προηγούμενη εκκίνηση",
+  "homeLocaleInfo": "Γλώσσα συσκευής: {locale} · Νόμισμα: {currency}",
+  "homeMoneySample": "Δείγμα ποσού: {amount}"
+}
