@@ -4,7 +4,21 @@ import 'package:get_it/get_it.dart';
 import 'package:simple_budgeting_app/app/bootstrap/bootstrapper.dart';
 import 'package:simple_budgeting_app/core/clock.dart';
 import 'package:simple_budgeting_app/core/database/app_database.dart';
+import 'package:simple_budgeting_app/core/id_generator.dart';
 import 'package:simple_budgeting_app/features/foundation/data/app_status_repository_impl.dart';
+import 'package:simple_budgeting_app/features/income/data/balance_anchor_repository_impl.dart';
+import 'package:simple_budgeting_app/features/income/data/income_repository_impl.dart';
+import 'package:simple_budgeting_app/features/income/domain/repositories/balance_anchor_repository.dart';
+import 'package:simple_budgeting_app/features/income/domain/repositories/income_repository.dart';
+import 'package:simple_budgeting_app/features/income/domain/services/income_calculator.dart';
+import 'package:simple_budgeting_app/features/income/domain/services/schedule_engine.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/archive_income_source.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/create_income_source.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/get_monthly_cash_flow.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/list_income_sources.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/occurrence_actions.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/set_balance_anchor.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/update_income_source.dart';
 import 'package:simple_budgeting_app/features/foundation/data/rust_core_info_service.dart';
 import 'package:simple_budgeting_app/features/foundation/domain/repositories/app_status_repository.dart';
 import 'package:simple_budgeting_app/features/foundation/domain/services/core_info_service.dart';
@@ -28,8 +42,12 @@ void configureDependencies(
   QueryExecutor? databaseExecutor,
   Clock? clock,
   Future<void> Function()? initNative,
+  IdGenerator? idGenerator,
 }) {
+  final now = clock ?? DateTime.now;
+  final newId = idGenerator ?? generateUuidV4;
   locator
+    ..registerLazySingleton<Clock>(() => now)
     ..registerLazySingleton<CoreInfoService>(RustCoreInfoService.new)
     ..registerLazySingleton<AppDatabase>(
       () => AppDatabase(
@@ -41,10 +59,53 @@ void configureDependencies(
       () => AppStatusRepositoryImpl(locator<AppDatabase>()),
     )
     ..registerFactory<RecordAppLaunch>(
-      () => RecordAppLaunch(
-        locator<AppStatusRepository>(),
-        clock ?? DateTime.now,
+      () => RecordAppLaunch(locator<AppStatusRepository>(), now),
+    )
+    ..registerLazySingleton<IncomeRepository>(
+      () => IncomeRepositoryImpl(locator<AppDatabase>()),
+    )
+    ..registerLazySingleton<BalanceAnchorRepository>(
+      () => BalanceAnchorRepositoryImpl(locator<AppDatabase>()),
+    )
+    ..registerLazySingleton<IncomeCalculator>(
+      () => const IncomeCalculator(ScheduleEngine()),
+    )
+    ..registerFactory<CreateIncomeSource>(
+      () => CreateIncomeSource(locator<IncomeRepository>(), now, newId),
+    )
+    ..registerFactory<UpdateIncomeSource>(
+      () => UpdateIncomeSource(
+        locator<IncomeRepository>(),
+        locator<IncomeCalculator>(),
+        now,
+        newId,
       ),
+    )
+    ..registerFactory<ArchiveIncomeSource>(
+      () => ArchiveIncomeSource(locator<IncomeRepository>(), now),
+    )
+    ..registerFactory<ListIncomeSources>(
+      () => ListIncomeSources(locator<IncomeRepository>()),
+    )
+    ..registerFactory<GetMonthlyCashFlow>(
+      () => GetMonthlyCashFlow(
+        locator<IncomeRepository>(),
+        locator<BalanceAnchorRepository>(),
+        locator<IncomeCalculator>(),
+        now,
+      ),
+    )
+    ..registerFactory<ChangeOccurrenceAmount>(
+      () => ChangeOccurrenceAmount(locator<IncomeRepository>(), now, newId),
+    )
+    ..registerFactory<SkipOccurrence>(
+      () => SkipOccurrence(locator<IncomeRepository>(), now, newId),
+    )
+    ..registerFactory<ResetOccurrence>(
+      () => ResetOccurrence(locator<IncomeRepository>()),
+    )
+    ..registerFactory<SetBalanceAnchor>(
+      () => SetBalanceAnchor(locator<BalanceAnchorRepository>(), now, newId),
     )
     ..registerFactory<RecordStartupDuration>(
       () => RecordStartupDuration(locator<AppStatusRepository>()),

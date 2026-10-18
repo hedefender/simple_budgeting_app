@@ -11,6 +11,7 @@ analyzer:
     - build/**
     - android/**
     - lib/src/rust/**
+    - test/generated_migrations/**
     - rust_builder/**
 
 linter:

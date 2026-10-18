@@ -62,7 +62,10 @@ Run `flutter analyze` and `flutter test` (and `cargo test` once Rust exists) aft
 - Inject `Clock` and the database executor so tests control time and storage.
 - Money is `Money` (integer minor units). Never use `double` for stored or summed amounts.
 - Domain tables use UUID text primary keys (future sync with a PC version).
-- Dates are stored as UTC.
+- Dates are stored as UTC. Instants are UTC; calendar days are `CalendarDate` (stored as text `yyyy-MM-dd`,
+  arithmetic in `DateTime.utc`, never in local time).
+- Amounts are net (as received). No tax or contribution calculation.
+- Income schedule logic (dates, working days, holidays) stays in Dart, not in Rust.
 
 ## Rust boundary
 
@@ -76,7 +79,11 @@ Run `flutter analyze` and `flutter test` (and `cargo test` once Rust exists) aft
 - Data crossing the bridge: plain structs, amounts as `i64` minor units, typed error enums.
 - Rust logic is tested with `cargo test`. Dart wraps the generated API behind a domain interface so
   the rest of the app can be tested with fakes.
-- Do not hand-edit generated files: `*.g.dart`, `lib/l10n/app_localizations*.dart`, and the
+- Never run dart format on the whole project; format only the files you changed.
+- Drift schema changes: bump `schemaVersion`, add the migration step, then
+  `dart run drift_dev schema dump lib/core/database/app_database.dart drift_schemas/` and
+  `dart run drift_dev schema generate drift_schemas/ test/generated_migrations/`. Commit `drift_schemas/`.
+- Do not hand-edit generated files: `test/generated_migrations/**`, `*.g.dart`, `lib/l10n/app_localizations*.dart`, and the
   flutter_rust_bridge output (`lib/src/rust/**`, `rust/src/frb_generated.rs`, `rust_builder/cargokit/**`).
   Change the source and regenerate.
 

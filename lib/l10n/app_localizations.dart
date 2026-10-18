@@ -199,6 +199,384 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sample amount: {amount}'**
   String homeMoneySample(String amount);
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get navIncome;
+
+  /// No description provided for @incomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get incomeTitle;
+
+  /// No description provided for @incomeSourcesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Income sources'**
+  String get incomeSourcesHeader;
+
+  /// No description provided for @incomeNoSources.
+  ///
+  /// In en, this message translates to:
+  /// **'No income sources yet. Add one with the + button.'**
+  String get incomeNoSources;
+
+  /// No description provided for @incomeAddSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Add income source'**
+  String get incomeAddSource;
+
+  /// No description provided for @incomeEditSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit income source'**
+  String get incomeEditSource;
+
+  /// No description provided for @incomePreviousMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get incomePreviousMonth;
+
+  /// No description provided for @incomeNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get incomeNextMonth;
+
+  /// No description provided for @incomeMonthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{month}'**
+  String incomeMonthLabel(DateTime month);
+
+  /// No description provided for @incomeLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read your income data'**
+  String get incomeLoadError;
+
+  /// No description provided for @incomeRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get incomeRetry;
+
+  /// No description provided for @cashFlowOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance'**
+  String get cashFlowOpening;
+
+  /// No description provided for @cashFlowReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get cashFlowReceived;
+
+  /// No description provided for @cashFlowExpected.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected'**
+  String get cashFlowExpected;
+
+  /// No description provided for @cashFlowClosing.
+  ///
+  /// In en, this message translates to:
+  /// **'Projected closing balance'**
+  String get cashFlowClosing;
+
+  /// No description provided for @cashFlowSetBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Set balance'**
+  String get cashFlowSetBalance;
+
+  /// No description provided for @incomePaymentsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments this month'**
+  String get incomePaymentsHeader;
+
+  /// No description provided for @incomeNoPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'No payments this month'**
+  String get incomeNoPayments;
+
+  /// No description provided for @occurrenceReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get occurrenceReceived;
+
+  /// No description provided for @occurrenceExpected.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected'**
+  String get occurrenceExpected;
+
+  /// No description provided for @occurrenceSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Not received'**
+  String get occurrenceSkipped;
+
+  /// No description provided for @occurrenceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · {state}'**
+  String occurrenceSubtitle(DateTime date, String state);
+
+  /// No description provided for @occurrenceChangeAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Change amount'**
+  String get occurrenceChangeAmount;
+
+  /// No description provided for @occurrenceSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as not received'**
+  String get occurrenceSkip;
+
+  /// No description provided for @occurrenceReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore planned payment'**
+  String get occurrenceReset;
+
+  /// No description provided for @amountDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change amount'**
+  String get amountDialogTitle;
+
+  /// No description provided for @amountDialogField.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amountDialogField;
+
+  /// No description provided for @typeSalary.
+  ///
+  /// In en, this message translates to:
+  /// **'Salary'**
+  String get typeSalary;
+
+  /// No description provided for @typeFreelance.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelance'**
+  String get typeFreelance;
+
+  /// No description provided for @typeSideHustle.
+  ///
+  /// In en, this message translates to:
+  /// **'Side hustle'**
+  String get typeSideHustle;
+
+  /// No description provided for @typeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get typeOther;
+
+  /// No description provided for @sourceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} · {schedule}'**
+  String sourceSubtitle(String type, String schedule);
+
+  /// No description provided for @scheduleSummaryOneOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Once on {date}'**
+  String scheduleSummaryOneOff(DateTime date);
+
+  /// No description provided for @scheduleSummaryMonthlyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly on day {day}'**
+  String scheduleSummaryMonthlyDay(int day);
+
+  /// No description provided for @scheduleSummaryMonthlyLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly on the last day'**
+  String get scheduleSummaryMonthlyLast;
+
+  /// No description provided for @formName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get formName;
+
+  /// No description provided for @formType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get formType;
+
+  /// No description provided for @formAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (net)'**
+  String get formAmount;
+
+  /// No description provided for @formSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get formSchedule;
+
+  /// No description provided for @scheduleOneOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Once'**
+  String get scheduleOneOff;
+
+  /// No description provided for @scheduleMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get scheduleMonthly;
+
+  /// No description provided for @formDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get formDate;
+
+  /// No description provided for @formDayOfMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of the month'**
+  String get formDayOfMonth;
+
+  /// No description provided for @formLastDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Last day of the month'**
+  String get formLastDay;
+
+  /// No description provided for @formStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get formStartDate;
+
+  /// No description provided for @formEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get formEndDate;
+
+  /// No description provided for @formNoEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No end date'**
+  String get formNoEndDate;
+
+  /// No description provided for @formClearEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear end date'**
+  String get formClearEndDate;
+
+  /// No description provided for @actionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get actionSave;
+
+  /// No description provided for @actionCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get actionCancel;
+
+  /// No description provided for @actionArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get actionArchive;
+
+  /// No description provided for @archiveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive this source?'**
+  String get archiveConfirmTitle;
+
+  /// No description provided for @archiveConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments already received stay in your history. No new payments are expected after today.'**
+  String get archiveConfirmBody;
+
+  /// No description provided for @errorNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get errorNameRequired;
+
+  /// No description provided for @errorAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get errorAmountInvalid;
+
+  /// No description provided for @errorAmountPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount must be greater than zero'**
+  String get errorAmountPositive;
+
+  /// No description provided for @errorAmountDecimals.
+  ///
+  /// In en, this message translates to:
+  /// **'At most {digits} decimal places'**
+  String errorAmountDecimals(int digits);
+
+  /// No description provided for @errorEndBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date is before the start date'**
+  String get errorEndBeforeStart;
+
+  /// No description provided for @balanceDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set balance'**
+  String get balanceDialogTitle;
+
+  /// No description provided for @balanceDialogHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Your balance at the end of the chosen day. Income after that day is added on top.'**
+  String get balanceDialogHelp;
+
+  /// No description provided for @balanceDialogAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get balanceDialogAmount;
+
+  /// No description provided for @balanceDialogDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get balanceDialogDate;
 }
 
 class _AppLocalizationsDelegate

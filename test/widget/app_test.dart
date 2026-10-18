@@ -10,6 +10,7 @@ import 'package:simple_budgeting_app/features/foundation/domain/usecases/record_
 import 'package:simple_budgeting_app/features/foundation/domain/usecases/record_startup_duration.dart';
 
 import '../support/fakes.dart';
+import '../support/income_fakes.dart';
 
 void main() {
   late GetIt locator;
@@ -19,7 +20,9 @@ void main() {
   setUp(() {
     failOpening = false;
     repository = FakeAppStatusRepository();
-    locator = GetIt.asNewInstance()
+    locator = GetIt.asNewInstance();
+    registerIncomeFakes(locator, clock: () => DateTime.utc(2026, 10, 16, 9));
+    locator
       ..registerSingleton<CoreInfoService>(FakeCoreInfoService())
       ..registerSingleton<Bootstrapper>(
         Bootstrapper(

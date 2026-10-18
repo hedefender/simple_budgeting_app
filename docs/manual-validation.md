@@ -75,6 +75,33 @@ Prerequisite: `cargo test --manifest-path rust/Cargo.toml` passes.
    works, then remove the throw.
 8. On a physical ARM phone the app cannot run yet unless arm targets are built (see roadmap).
 
+## 8. Phase 1a: income
+
+Prerequisite: `flutter analyze`, `flutter test` and `cargo test` pass; on a device,
+`flutter test integration_test/income_persistence_test.dart -d <device-id>` passes.
+
+1. `flutter run -d <emulator-id>`. A bottom bar with **Home** and **Income** appears; Home is unchanged.
+2. Income tab, empty state: "No income sources yet", the month label shows the current month, the cards show 0.
+3. Add a source with **+**: name "Salary", type Salary, amount `1.234,56` (Greek) or `1,234.50` (English),
+   Monthly, day 31, start today. Save.
+   - Invalid input shows errors: empty name, `abc`, `0`, `1,234` with 2-decimal currency rules (see the
+     message), an end date before the start date.
+   - In a Greek locale `12.50` is accepted as 12,50.
+4. The source appears in the list. Go to February (arrows): the payment is on the 28th (29th in a leap year).
+5. Past months: payments dated today or earlier are "Received"; later ones are "Expected".
+6. On a payment, open the menu:
+   - **Change amount**: only that payment changes; other months stay the same.
+   - **Mark as not received**: the amount is struck through and leaves the totals.
+   - **Restore planned payment** brings it back.
+7. Edit the source and change its amount: earlier months keep the old amount, later months use the new one.
+8. **Set balance**: enter an amount and a date (balance at the END of that day). Income dated after that day is
+   added on top; income on that day is not added again. A date inside the month changes that month's result.
+9. Archive the source: it leaves the list, past payments stay, no new ones appear after today.
+10. Force-close and reopen: sources, changed amounts and the balance are still there.
+11. Switch the device to Greek and back: all texts translate; amounts follow the region's currency.
+12. The integration test leaves one source in CHF in the app database of the emulator (harmless; clear app data
+    to remove it).
+
 ## Checklist
 
 - [ ] `flutter analyze` clean
@@ -87,4 +114,5 @@ Prerequisite: `cargo test --manifest-path rust/Cargo.toml` passes.
 - [ ] `cargo test` green
 - [ ] Home shows the Rust core line (en and el)
 - [ ] Hot restart works with the Rust core
+- [ ] Phase 1a steps 1-11 pass
 - [ ] Cold start time noted (profile build): ______ ms

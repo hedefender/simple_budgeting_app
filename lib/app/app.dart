@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_budgeting_app/app/bootstrap/bootstrap_controller.dart';
 import 'package:simple_budgeting_app/app/bootstrap/bootstrap_page.dart';
-import 'package:simple_budgeting_app/features/foundation/presentation/home_page.dart';
+import 'package:simple_budgeting_app/app/home_shell.dart';
 import 'package:simple_budgeting_app/l10n/app_localizations.dart';
 
 class BudgetApp extends ConsumerWidget {
@@ -25,7 +25,7 @@ class BudgetApp extends ConsumerWidget {
         useMaterial3: true,
       ),
       home: state.status == BootstrapStatus.ready && result != null
-          ? HomePage(result: result)
+          ? HomeShell(result: result)
           : BootstrapPage(state: state),
     );
   }
