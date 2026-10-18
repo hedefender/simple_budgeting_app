@@ -61,6 +61,20 @@ Temporarily make `openDatabase` throw (add `throw StateError('test');` in
 Turn on airplane mode and repeat step 2. Everything must work identically (the
 app never uses the network; note that the first Gradle build needs internet).
 
+## 7. Phase 0b: Rust core
+
+Prerequisite: `cargo test --manifest-path rust/Cargo.toml` passes.
+
+1. `flutter run -d <emulator-id>` (x86_64 emulator). The first build is slow because cargo compiles the crate.
+2. Splash shows "Starting the calculation engine…" (Greek: "Εκκίνηση της μηχανής υπολογισμών…") first, briefly.
+3. Home shows `Rust core: v0.1.0 (x86_64-android)` (Greek: `Πυρήνας Rust: v0.1.0 (x86_64-android)`).
+4. Hot restart (`R`) must not crash (the native library is not initialized twice).
+5. "This startup took N ms" now includes loading the native library. Note the value before (Phase 0a) and after.
+6. Run `flutter test integration_test/cold_start_test.dart -d <device-id>`: both tests pass.
+7. Failure path (optional): make `_initRustLib` in `service_locator.dart` throw once, check the retry button
+   works, then remove the throw.
+8. On a physical ARM phone the app cannot run yet unless arm targets are built (see roadmap).
+
 ## Checklist
 
 - [ ] `flutter analyze` clean
@@ -70,4 +84,7 @@ app never uses the network; note that the first Gradle build needs internet).
 - [ ] Previous startup time appears from launch #2
 - [ ] Greek and English both display correctly
 - [ ] Currency follows device region
+- [ ] `cargo test` green
+- [ ] Home shows the Rust core line (en and el)
+- [ ] Hot restart works with the Rust core
 - [ ] Cold start time noted (profile build): ______ ms

@@ -10,6 +10,8 @@ analyzer:
     - "lib/l10n/app_localizations*.dart"
     - build/**
     - android/**
+    - lib/src/rust/**
+    - rust_builder/**
 
 linter:
   rules:

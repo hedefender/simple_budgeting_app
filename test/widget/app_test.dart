@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:simple_budgeting_app/app/app.dart';
 import 'package:simple_budgeting_app/app/bootstrap/bootstrapper.dart';
 import 'package:simple_budgeting_app/app/di/providers.dart';
+import 'package:simple_budgeting_app/features/foundation/domain/services/core_info_service.dart';
 import 'package:simple_budgeting_app/features/foundation/domain/usecases/record_app_launch.dart';
 import 'package:simple_budgeting_app/features/foundation/domain/usecases/record_startup_duration.dart';
 
@@ -19,8 +20,10 @@ void main() {
     failOpening = false;
     repository = FakeAppStatusRepository();
     locator = GetIt.asNewInstance()
+      ..registerSingleton<CoreInfoService>(FakeCoreInfoService())
       ..registerSingleton<Bootstrapper>(
         Bootstrapper(
+          initNative: () async {},
           openDatabase: () async {
             if (failOpening) throw StateError('boom');
           },
@@ -62,6 +65,7 @@ void main() {
 
     expect(find.byKey(const Key('launch-count')), findsOneWidget);
     expect(find.text('Launch #1'), findsOneWidget);
+    expect(find.text('Rust core: v9.9.9 (fake-target)'), findsOneWidget);
     expect(find.textContaining(r'$1,234.56'), findsOneWidget);
     expect(find.textContaining('USD'), findsOneWidget);
   });
@@ -80,6 +84,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Εκκίνηση #1'), findsOneWidget);
+    expect(find.text('Πυρήνας Rust: v9.9.9 (fake-target)'), findsOneWidget);
     expect(find.textContaining('1.234,56'), findsOneWidget);
     expect(find.textContaining('EUR'), findsOneWidget);
   });

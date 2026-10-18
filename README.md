@@ -39,12 +39,22 @@ Windows PowerShell: the same commands work; copy the files with Explorer or
 Whenever you change a drift table, rerun the `build_runner` line. While
 developing you can use `dart run build_runner watch --delete-conflicting-outputs`.
 
+### Rust prerequisites (Phase 0b)
+
+- Rust via [rustup](https://rustup.rs) (stable, tested with 1.95.0) and `cargo` on the PATH.
+- Android NDK, installed through Android Studio SDK Manager (the Gradle build uses `flutter.ndkVersion`).
+- Android Rust targets: `rustup target add x86_64-linux-android i686-linux-android`. Note: the cargokit build
+  installs the targets it needs by itself.
+- `cargo install flutter_rust_bridge_codegen --version 2.13.0 --locked` (must match `flutter_rust_bridge: 2.13.0`).
+- After changing anything under `rust/src/api/`: `flutter_rust_bridge_codegen generate`.
+
 ## 2. Running the tests
 
 | What | Command | Needs a device |
 | --- | --- | --- |
 | Unit + widget + host integration | `flutter test` | No |
 | Only the persistence integration test | `flutter test test/integration` | No |
+| Rust core | `cargo test --manifest-path rust/Cargo.toml` | No |
 | On-device integration (real DB file) | `flutter test integration_test/cold_start_test.dart -d <device-id>` | Yes |
 
 `flutter devices` lists device ids.

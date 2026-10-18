@@ -23,6 +23,9 @@ dependencies:
   # to rewrite these into normal ^x.y.z constraints.
   drift_flutter: any
   intl: any
+  rust_lib_simple_budgeting_app:
+    path: rust_builder
+  flutter_rust_bridge: 2.13.0
 
 dev_dependencies:
   flutter_test:

@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'Simple Budgeting'**
   String get appTitle;
 
+  /// No description provided for @bootstrapStartingCore.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting the calculation engine…'**
+  String get bootstrapStartingCore;
+
   /// No description provided for @bootstrapOpeningDatabase.
   ///
   /// In en, this message translates to:
@@ -175,6 +181,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No previous startup recorded yet'**
   String get homeStartupNoPrevious;
+
+  /// No description provided for @homeRustCore.
+  ///
+  /// In en, this message translates to:
+  /// **'Rust core: v{version} ({target})'**
+  String homeRustCore(String version, String target);
 
   /// No description provided for @homeLocaleInfo.
   ///

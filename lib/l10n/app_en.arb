@@ -4,6 +4,7 @@
   "appTitle": "Simple Budgeting",
   "@appTitle": { "description": "Application title (task switcher, splash screen)." },
 
+  "bootstrapStartingCore": "Starting the calculation engine…",
   "bootstrapOpeningDatabase": "Opening your local database…",
   "bootstrapRecordingLaunch": "Preparing your data…",
   "bootstrapFinishing": "Almost ready…",
@@ -32,6 +33,11 @@
   },
 
   "homeStartupNoPrevious": "No previous startup recorded yet",
+
+  "homeRustCore": "Rust core: v{version} ({target})",
+  "@homeRustCore": {
+    "placeholders": { "version": { "type": "String" }, "target": { "type": "String" } }
+  },
 
   "homeLocaleInfo": "Device locale: {locale} · Currency: {currency}",
   "@homeLocaleInfo": {

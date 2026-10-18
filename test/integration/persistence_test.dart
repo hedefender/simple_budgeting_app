@@ -27,6 +27,7 @@ void main() {
       locator,
       databaseExecutor: NativeDatabase(file),
       clock: () => now,
+      initNative: () async {},
     );
     try {
       return await locator<Bootstrapper>().run();

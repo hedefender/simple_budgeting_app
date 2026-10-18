@@ -51,13 +51,18 @@ lib/
       money_formatter.dart       locale/currency formatting via intl
   features/
     foundation/                  Phase 0 feature (launch tracking)
-      domain/{entities,repositories,usecases}
+      domain/{entities,repositories,services,usecases}   (CoreInfo, CoreInfoService)
       data/app_status_repository_impl.dart
+      data/rust_core_info_service.dart                    (only importer of the bridge besides app/)
       presentation/home_page.dart
+  src/rust/                      GENERATED flutter_rust_bridge Dart output (do not edit)
   l10n/
     app_en.arb, app_el.arb       translations (gen_l10n)
 test/ ...                        mirrors lib/ (see README)
 integration_test/                on-device tests
+rust/                            Rust crate (src/api/core_info.rs, src/frb_generated.rs is generated)
+rust_builder/                    Flutter plugin shell + cargokit that builds rust/ for Android
+flutter_rust_bridge.yaml         codegen config (rust_input: crate::api, dart_output: lib/src/rust)
 ```
 
 New features become `lib/features/<name>/{domain,data,presentation}` (income,
@@ -68,8 +73,9 @@ expenses, categories, ...). Shared infrastructure stays in `core/`.
 1. `main()` creates the get_it graph (nothing heavy is built yet: all
    registrations are lazy) and runs the app inside a Riverpod `ProviderScope`.
 2. `BootstrapController` starts the `Bootstrapper` and publishes progress.
-3. `Bootstrapper` stages: open database (drift creates the file and runs
-   migrations on first access) -> record launch -> persist the measured duration.
+3. `Bootstrapper` stages: start the native core (`RustLib.init`) -> open database (drift creates the file and runs
+   migrations on first access) -> record launch -> persist the measured duration. The native stage is inside the
+   measured time, and a failure in it goes through the same retry button.
 4. While running, `BootstrapPage` shows a progress bar. When ready, `BudgetApp`
    swaps to `HomePage`. On failure a retry button appears.
 
@@ -122,3 +128,18 @@ presentation -> domain (interface, e.g. ReceiptParser) <- data (adapter) -> gene
   alone with `cargo test`.
 - Across the bridge: plain structs, `i64` minor units for money, UTC timestamps, typed error enums.
 - All app versions, including the final desktop version, are Flutter, so persistence stays in Dart/drift.
+
+### As implemented in Phase 0b
+
+- `rust/src/api/core_info.rs` exposes `core_info() -> CoreInfo { crate_version, target }` (sync). `target` is
+  `<arch>-<os>` from `std::env::consts`; no `build.rs` is needed. Tested with `cargo test`.
+- Domain: `CoreInfo` entity and `CoreInfoService` interface. Data: `RustCoreInfoService` calls the generated
+  `coreInfo()`. Only that adapter and `app/di/service_locator.dart` (for `RustLib`) import the bridge.
+- `configureDependencies(..., initNative:)` is optional. The default (`_initRustLib` in the composition root)
+  calls `RustLib.init()` only if `RustLib.instance.initialized` is false, because flutter_rust_bridge throws
+  `StateError('Should not initialize flutter_rust_bridge twice')` on a second call. This makes retries and
+  in-process restarts safe. If init fails after the bridge state was set but before Rust initializers finished,
+  a retry would skip init; this is not expected in practice and is not handled.
+- Host tests (`flutter test`) cannot load the native library: they pass `initNative: () async {}` and fake
+  `CoreInfoService`. Only `integration_test/` uses the real core.
+- Android builds go through `rust_builder/` (cargokit), which runs cargo during the Gradle build.

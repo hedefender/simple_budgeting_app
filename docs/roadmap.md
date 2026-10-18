@@ -7,14 +7,25 @@
 | Toolchain: Flutter 3.47.7, Dart 3.13.5, Android SDK, RustRover plugins, smoke test on a device | Done (2026-10-17) |
 | Rust bridge smoke test (throwaway `flutter_rust_bridge_codegen create` project) | Done (2026-10-17) |
 | Phase 0a: Flutter-only foundation (delivered zip) analyzes, tests and runs | Done (2026-10-17) |
-| Phase 0b: add the Rust crate with a trivial function behind a domain interface (crate in `rust/` inside this repo) | Next |
-| Phase 1 and later | Not started |
+| Phase 0b: add the Rust crate with a trivial function behind a domain interface (crate in `rust/` inside this repo) | Done (2026-10-18) |
+| Phase 1: Income | Next |
+| Phase 2 and later | Not started |
 
 Each step starts only after the owner confirms the previous one compiles and passes.
 
 Phase 0a note: `flutter analyze` is clean and `flutter test` passes (25/25). The startup times seen so far
 (about 1500 ms on hot restart, 3172 ms on the first launch) come from a debug build on an emulator. They will be
 measured again on a profile build on a real phone.
+
+Phase 0b note: `flutter analyze`, `flutter test` (26/26), `cargo test` and the on-device integration test on the
+emulator (x86_64, Android 16) all pass. With no Gradle changes, running on the emulator (`flutter test -d` /
+`flutter run -d`) makes cargokit build only `x86_64-linux-android` and `i686-linux-android`. A plain
+`flutter build apk --debug` (no `--target-platform`) builds all four Android targets, including armv7 and aarch64
+(it installed those two into rustup on its own); limiting that needs an `abiFilters` / `--target-platform`
+change that the owner has to approve.
+Startup before and after adding Rust (debug build, emulator, first start in the process, 3 runs each):
+Phase 0a 756-868 ms, Phase 0b 726-981 ms. The difference is within noise. Profile builds on a real phone are
+still to be measured.
 
 ## Product decisions
 

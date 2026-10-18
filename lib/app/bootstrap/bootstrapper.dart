@@ -5,7 +5,12 @@ import 'package:simple_budgeting_app/features/foundation/domain/usecases/record_
 
 /// Named stages of startup. The UI maps these to localized text, so this
 /// layer contains no user-facing strings.
-enum BootstrapStage { openingDatabase, recordingLaunch, finishing }
+enum BootstrapStage {
+  startingCore,
+  openingDatabase,
+  recordingLaunch,
+  finishing,
+}
 
 @immutable
 class BootstrapProgress {
@@ -29,17 +34,20 @@ class BootstrapResult {
 
 typedef ProgressCallback = void Function(BootstrapProgress progress);
 
-/// Runs the cold-start work (open DB and run migrations, record the launch)
-/// while measuring how long it takes.
+/// Runs the cold-start work (load the native core, open DB and run migrations,
+/// record the launch) while measuring how long it takes.
 class Bootstrapper {
   Bootstrapper({
+    required Future<void> Function() initNative,
     required Future<void> Function() openDatabase,
     required RecordAppLaunch recordAppLaunch,
     required RecordStartupDuration recordStartupDuration,
-  })  : _openDatabase = openDatabase,
+  })  : _initNative = initNative,
+        _openDatabase = openDatabase,
         _recordAppLaunch = recordAppLaunch,
         _recordStartupDuration = recordStartupDuration;
 
+  final Future<void> Function() _initNative;
   final Future<void> Function() _openDatabase;
   final RecordAppLaunch _recordAppLaunch;
   final RecordStartupDuration _recordStartupDuration;
@@ -47,10 +55,13 @@ class Bootstrapper {
   Future<BootstrapResult> run({ProgressCallback? onProgress}) async {
     final stopwatch = Stopwatch()..start();
 
-    onProgress?.call(const BootstrapProgress(BootstrapStage.openingDatabase, 0));
+    onProgress?.call(const BootstrapProgress(BootstrapStage.startingCore, 0));
+    await _initNative();
+
+    onProgress?.call(const BootstrapProgress(BootstrapStage.openingDatabase, 0.3));
     await _openDatabase();
 
-    onProgress?.call(const BootstrapProgress(BootstrapStage.recordingLaunch, 0.5));
+    onProgress?.call(const BootstrapProgress(BootstrapStage.recordingLaunch, 0.6));
     final status = await _recordAppLaunch();
 
     onProgress?.call(const BootstrapProgress(BootstrapStage.finishing, 0.9));

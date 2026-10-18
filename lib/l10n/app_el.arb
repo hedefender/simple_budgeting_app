@@ -3,6 +3,7 @@
 
   "appTitle": "Απλός Προϋπολογισμός",
 
+  "bootstrapStartingCore": "Εκκίνηση της μηχανής υπολογισμών…",
   "bootstrapOpeningDatabase": "Άνοιγμα της τοπικής βάσης δεδομένων…",
   "bootstrapRecordingLaunch": "Προετοιμασία των δεδομένων σας…",
   "bootstrapFinishing": "Σχεδόν έτοιμο…",
@@ -17,6 +18,8 @@
   "homeStartupThisLaunch": "Αυτή η εκκίνηση χρειάστηκε {milliseconds} ms",
   "homeStartupPreviousLaunch": "Η προηγούμενη εκκίνηση χρειάστηκε {milliseconds} ms",
   "homeStartupNoPrevious": "Δεν έχει καταγραφεί προηγούμενη εκκίνηση",
+  "homeRustCore": "Πυρήνας Rust: v{version} ({target})",
+
   "homeLocaleInfo": "Γλώσσα συσκευής: {locale} · Νόμισμα: {currency}",
   "homeMoneySample": "Δείγμα ποσού: {amount}"
 }

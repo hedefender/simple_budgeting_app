@@ -11,7 +11,7 @@ enum BootstrapStatus { running, ready, failed }
 class BootstrapState {
   const BootstrapState({
     required this.status,
-    this.stage = BootstrapStage.openingDatabase,
+    this.stage = BootstrapStage.startingCore,
     this.fraction = 0,
     this.result,
     this.error,

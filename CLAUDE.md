@@ -34,8 +34,8 @@ flutter analyze
 flutter test                                               # unit + widget + host integration
 flutter test integration_test/cold_start_test.dart -d <device-id>   # on device
 flutter run -d <device-id>
-# Rust core (crate in rust/, added in Phase 0b; final commands are recorded when Phase 0b is implemented):
-flutter_rust_bridge_codegen generate
+# Rust core (crate in rust/; bridge Dart output in lib/src/rust, config in flutter_rust_bridge.yaml):
+flutter_rust_bridge_codegen generate                       # after editing rust/src/api/**
 cargo test --manifest-path rust/Cargo.toml
 ```
 
@@ -45,7 +45,7 @@ Run `flutter analyze` and `flutter test` (and `cargo test` once Rust exists) aft
 
 - Budget and Scan are independent apps. Each is fully usable alone; neither requires the other.
   They may exchange data (Scan JSON, later intents/deep links).
-- Android ABIs for now: x86_64 and i686 only. Known limitation: the app cannot run on a physical ARM phone
+- Android ABIs for now: x86_64 and i686 only (intended; NOT yet enforced in Gradle, see `docs/roadmap.md`). Known limitation: the app cannot run on a physical ARM phone
   until `aarch64-linux-android` (later `armv7`) is added.
 - Phase 4b (Pro): direct JPEG/PDF import with on-device OCR behind a domain interface `OcrEngine`
   (image/PDF bytes -> text). It produces the same `RawDocument` shape as Scan JSON. See `docs/roadmap.md`.
@@ -77,7 +77,7 @@ Run `flutter analyze` and `flutter test` (and `cargo test` once Rust exists) aft
 - Rust logic is tested with `cargo test`. Dart wraps the generated API behind a domain interface so
   the rest of the app can be tested with fakes.
 - Do not hand-edit generated files: `*.g.dart`, `lib/l10n/app_localizations*.dart`, and the
-  flutter_rust_bridge output (paths are recorded when Phase 0b is implemented).
+  flutter_rust_bridge output (`lib/src/rust/**`, `rust/src/frb_generated.rs`, `rust_builder/cargokit/**`).
   Change the source and regenerate.
 
 ## Privacy
@@ -89,6 +89,12 @@ Run `flutter analyze` and `flutter test` (and `cargo test` once Rust exists) aft
   uses files or cloud storage that the user owns, and the desktop version is the final phase.
 
 ## Lessons learned
+
+- Host tests must never load the native library: pass `initNative: () async {}` to `configureDependencies` and
+  fake `CoreInfoService`. flutter_rust_bridge throws if `RustLib.init()` runs twice, so the composition root checks
+  `RustLib.instance.initialized`.
+- Edit files containing Greek text with the Edit tool, not PowerShell `Get-Content`/`Set-Content` (Windows
+  PowerShell 5.1 corrupts UTF-8 without BOM).
 
 - In Riverpod 3, do not write `<Override>` on `overrides` lists; let Dart infer the type.
 - Widget tests that fake the device locale set both `localesTestValue` and `clearLocalesTestValue` (via `addTearDown`).

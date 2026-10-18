@@ -57,6 +57,7 @@ class BootstrapPage extends ConsumerWidget {
 
   String _label(AppLocalizations l10n, BootstrapStage stage) {
     return switch (stage) {
+      BootstrapStage.startingCore => l10n.bootstrapStartingCore,
       BootstrapStage.openingDatabase => l10n.bootstrapOpeningDatabase,
       BootstrapStage.recordingLaunch => l10n.bootstrapRecordingLaunch,
       BootstrapStage.finishing => l10n.bootstrapFinishing,

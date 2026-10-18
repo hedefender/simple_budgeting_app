@@ -17,6 +17,7 @@ class HomePage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final formatter = ref.watch(moneyFormatterProvider);
     final deviceLocale = ref.watch(deviceLocaleProvider);
+    final coreInfo = ref.watch(coreInfoServiceProvider).read();
     final status = result.status;
     final previousStartup = status.lastStartupMs;
 
@@ -48,6 +49,11 @@ class HomePage extends ConsumerWidget {
             text: previousStartup == null
                 ? l10n.homeStartupNoPrevious
                 : l10n.homeStartupPreviousLaunch(previousStartup),
+          ),
+          _InfoTile(
+            key: const Key('rust-core'),
+            icon: Icons.memory,
+            text: l10n.homeRustCore(coreInfo.crateVersion, coreInfo.target),
           ),
           _InfoTile(
             key: const Key('locale-info'),

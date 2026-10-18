@@ -12,6 +12,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Simple Budgeting';
 
   @override
+  String get bootstrapStartingCore => 'Starting the calculation engine…';
+
+  @override
   String get bootstrapOpeningDatabase => 'Opening your local database…';
 
   @override
@@ -59,6 +62,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeStartupNoPrevious => 'No previous startup recorded yet';
+
+  @override
+  String homeRustCore(String version, String target) {
+    return 'Rust core: v$version ($target)';
+  }
 
   @override
   String homeLocaleInfo(String locale, String currency) {

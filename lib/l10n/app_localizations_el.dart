@@ -12,6 +12,9 @@ class AppLocalizationsEl extends AppLocalizations {
   String get appTitle => 'Απλός Προϋπολογισμός';
 
   @override
+  String get bootstrapStartingCore => 'Εκκίνηση της μηχανής υπολογισμών…';
+
+  @override
   String get bootstrapOpeningDatabase => 'Άνοιγμα της τοπικής βάσης δεδομένων…';
 
   @override
@@ -59,6 +62,11 @@ class AppLocalizationsEl extends AppLocalizations {
   @override
   String get homeStartupNoPrevious =>
       'Δεν έχει καταγραφεί προηγούμενη εκκίνηση';
+
+  @override
+  String homeRustCore(String version, String target) {
+    return 'Πυρήνας Rust: v$version ($target)';
+  }
 
   @override
   String homeLocaleInfo(String locale, String currency) {

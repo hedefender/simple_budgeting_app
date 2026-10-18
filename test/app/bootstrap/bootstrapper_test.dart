@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+﻿import 'package:flutter_test/flutter_test.dart';
 import 'package:simple_budgeting_app/app/bootstrap/bootstrapper.dart';
 import 'package:simple_budgeting_app/features/foundation/domain/usecases/record_app_launch.dart';
 import 'package:simple_budgeting_app/features/foundation/domain/usecases/record_startup_duration.dart';
@@ -8,8 +8,10 @@ import '../../support/fakes.dart';
 Bootstrapper _bootstrapper(
   FakeAppStatusRepository repository, {
   Future<void> Function()? openDatabase,
+  Future<void> Function()? initNative,
 }) {
   return Bootstrapper(
+    initNative: initNative ?? () async {},
     openDatabase: openDatabase ?? () async {},
     recordAppLaunch:
         RecordAppLaunch(repository, () => DateTime.utc(2026, 10, 16)),
@@ -25,6 +27,7 @@ void main() {
     await _bootstrapper(repository).run(onProgress: events.add);
 
     expect(events.map((e) => e.stage), <BootstrapStage>[
+      BootstrapStage.startingCore,
       BootstrapStage.openingDatabase,
       BootstrapStage.recordingLaunch,
       BootstrapStage.finishing,
@@ -42,6 +45,24 @@ void main() {
 
     expect(result.status.launchCount, 1);
     expect(repository.lastStartupMs, result.elapsed.inMilliseconds);
+  });
+
+  test('a failing native init stops bootstrap and a retry can succeed', () async {
+    final repository = FakeAppStatusRepository();
+    var fail = true;
+    final bootstrapper = _bootstrapper(
+      repository,
+      initNative: () async {
+        if (fail) throw StateError('no native library');
+      },
+    );
+
+    await expectLater(bootstrapper.run(), throwsStateError);
+    expect(repository.launches, 0);
+
+    fail = false;
+    final result = await bootstrapper.run();
+    expect(result.status.launchCount, 1);
   });
 
   test('a failing database stops bootstrap before recording a launch',

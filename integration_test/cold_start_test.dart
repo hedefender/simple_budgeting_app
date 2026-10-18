@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:simple_budgeting_app/app/app.dart';
 import 'package:simple_budgeting_app/app/di/service_locator.dart';
+import 'package:simple_budgeting_app/src/rust/api/core_info.dart';
 
 /// On-device test using the REAL database file. Run on an emulator/phone:
 ///   `flutter test integration_test/cold_start_test.dart -d <device-id>`
@@ -43,6 +44,26 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await GetIt.instance.reset(); // closes the database like a process exit
   }
+
+  testWidgets('the real Rust core answers core_info()', (tester) async {
+    await startApp(tester);
+
+    // Rust is initialized by the Bootstrapper; this calls the real library.
+    final info = coreInfo();
+    expect(info.crateVersion, isNotEmpty);
+    expect(info.target, contains('-'));
+    expect(
+      find.text(
+        'Rust core: v${info.crateVersion} (${info.target})',
+      ).evaluate().isNotEmpty ||
+          find
+              .text('Πυρήνας Rust: v${info.crateVersion} (${info.target})')
+              .evaluate()
+              .isNotEmpty,
+      isTrue,
+    );
+    await shutDown(tester);
+  });
 
   testWidgets('cold start reaches home and the counter persists restarts',
       (tester) async {
