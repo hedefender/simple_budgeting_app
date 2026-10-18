@@ -7,23 +7,23 @@ Date: 2026-10-19. Not committed. Phase 1a is NOT marked Done in `docs/roadmap.md
 | Check | Result |
 | --- | --- |
 | `flutter analyze` | No issues found |
-| `flutter test` | 136 passed, 0 failed |
+| `flutter test` | 147 passed, 0 failed |
 | `cargo test --manifest-path rust/Cargo.toml` | 2 passed |
 | `integration_test/income_persistence_test.dart` on emulator-5554 | 1 passed |
 | `integration_test/cold_start_test.dart` on emulator-5554 | 2 passed |
 
-## Tests by category (`flutter test`: 136)
+## Tests by category (`flutter test`: 147)
 
 | Category | Count |
 | --- | --- |
 | core (money, MoneyParser, CalendarDate/YearMonth, migration) | 46 |
 | income domain (ScheduleEngine, use cases, GetMonthlyCashFlow) | 52 |
 | income data (schedule codec, repositories with in-memory drift, FK, unique keys, freeze history) | 20 |
-| widget (existing Phase 0 app tests only) | 3 |
+| widget (3 Phase 0 app tests + 11 Income screens: form validation, Greek `12,50`/`12.50`, end before start, use case error message en/el, received/expected, skip changes totals, balance dialog) | 14 |
 | app (bootstrapper, service locator) | 6 |
 | foundation | 6 |
 | host integration (`test/integration`) | 3 |
-| on device (not in the 136) | 3 (2 cold start, 1 income persistence) |
+| on device (not in the 147) | 3 (2 cold start, 1 income persistence) |
 
 ## Implemented, per step of the plan
 
@@ -64,17 +64,17 @@ Date: 2026-10-19. Not committed. Phase 1a is NOT marked Done in `docs/roadmap.md
 
 ## Not implemented, or deviating from the plan
 
-- **Widget tests for the income UI are NOT written** (form validation, Greek decimal comma in the form, payment
-  menu). The only widget coverage is the existing Phase 0 app tests, which now also build the Income tab. The
-  parser and validation logic are unit tested, but the screens themselves are not tested by code.
+- Widget tests for the Income screens now exist (`test/widget/income_screens_test.dart`, 11 tests). Layout is not
+  tested. The month navigation, source list tap-to-edit, archive dialog and the payment "change amount" dialog have
+  no widget test.
 - `build.yaml` with `schema_dir` was not added; the schema dump and `schema generate` are run by hand (command in
   CLAUDE.md).
 - Migration test covers v1 -> v2 with data kept. It does not compare a fresh v2 install to the dump separately
   (`migrateAndValidate` validates the migrated schema against the v2 dump).
 - Extras not in the plan: `frozen_through` column, `Clock` registered in get_it, `IdGenerator`/`generateUuidV4`,
   `SkipOccurrence`/`ResetOccurrence` use cases, `formatMoneyForInput`.
-- The source form shows the generic "Could not read your income data" snackbar if a use case throws a validation
-  error after the form checks passed. That path should be unreachable but has no dedicated message.
+- A use case validation error in the source form now shows its own message (ARB en/el: name, amount, end date,
+  source not found, source archived), tested for "archived" in en and el.
 - The "today" calendar day and the archive day use the device's local offset (`CalendarDate.fromInstant`
   without `offset`); only tests inject an offset.
 - Editing is blocked for archived sources (no un-archive in 1a).
@@ -87,7 +87,9 @@ Date: 2026-10-19. Not committed. Phase 1a is NOT marked Done in `docs/roadmap.md
 - The manual validation steps (`docs/manual-validation.md`, section 8) were NOT performed by me; the UI was never
   looked at on screen.
 - No profile-build startup measurement.
-- The income integration test leaves one source in CHF in the emulator's database.
+- The income integration test now uses a temporary database file that it deletes, so it leaves nothing behind.
+  An earlier run of the old version DID leave one CHF source "Test salary ..." in the emulator's app database;
+  clear the app data of the emulator to remove it (I did not).
 
 ## Formatting scope
 
