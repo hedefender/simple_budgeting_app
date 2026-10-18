@@ -106,16 +106,19 @@ Phase 8 (Scan integration), since Intents and App Links reference it.
 
 ## Rust core (planned, Phase 0b)
 
-Rust handles compute and cross-platform interconnection; Flutter handles UI and persistence.
-See `roadmap.md` for the split per phase.
+The Rust crate lives in `rust/` inside this repo. It belongs to Budget only and is not shared with Scan (Scan
+will not have a Rust engine). Rust does compute: Scan JSON parsing, rule engine, LLM providers, budget
+intelligence, and possibly OCR (engine decided in a spike in Phase 4b). Flutter handles UI and persistence; see
+`roadmap.md` for the split per phase.
 
 ```
-presentation -> domain (interface, e.g. ReceiptParser) <- data (adapter) -> generated bridge -> Rust crate
+presentation -> domain (interface, e.g. ReceiptParser) <- data (adapter) -> generated bridge -> Rust crate (rust/)
 ```
 
-- The Rust crate is stateless: data in, structured result out. It does not open the SQLite file
-  (a second writer next to drift would be a source of corruption and double migrations).
-- Domain code never imports the generated bridge. A data-layer adapter wraps it, so the rest of the app
-  is tested with fakes and Rust is tested alone with `cargo test`.
+- The core is stateless compute: data in, structured result out. It does not open the SQLite file;
+  Dart/drift owns the SQLite database (a second writer would risk corruption and double migrations).
+- Domain code never imports the generated bridge. A domain interface describes the capability and a data-layer
+  adapter implements it by calling the bridge, so the rest of the app is tested with fakes and the core is tested
+  alone with `cargo test`.
 - Across the bridge: plain structs, `i64` minor units for money, UTC timestamps, typed error enums.
 - All app versions, including the final desktop version, are Flutter, so persistence stays in Dart/drift.

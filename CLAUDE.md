@@ -34,12 +34,21 @@ flutter analyze
 flutter test                                               # unit + widget + host integration
 flutter test integration_test/cold_start_test.dart -d <device-id>   # on device
 flutter run -d <device-id>
-# After the Rust crate is added (Phase 0b):
+# Rust core (crate in rust/, added in Phase 0b; final commands are recorded when Phase 0b is implemented):
 flutter_rust_bridge_codegen generate
 cargo test --manifest-path rust/Cargo.toml
 ```
 
 Run `flutter analyze` and `flutter test` (and `cargo test` once Rust exists) after every change.
+
+## Product decisions
+
+- Budget and Scan are independent apps. Each is fully usable alone; neither requires the other.
+  They may exchange data (Scan JSON, later intents/deep links).
+- Android ABIs for now: x86_64 and i686 only. Known limitation: the app cannot run on a physical ARM phone
+  until `aarch64-linux-android` (later `armv7`) is added.
+- Phase 4b (Pro): direct JPEG/PDF import with on-device OCR behind a domain interface `OcrEngine`
+  (image/PDF bytes -> text). It produces the same `RawDocument` shape as Scan JSON. See `docs/roadmap.md`.
 
 ## Architecture rules
 
@@ -57,14 +66,18 @@ Run `flutter analyze` and `flutter test` (and `cargo test` once Rust exists) aft
 
 ## Rust boundary
 
-- The Rust crate is a stateless compute engine: JSON import parsing, rule engine, local LLM
-  providers, budget intelligence, later sync/merge logic. It does not own SQLite: persistence stays
+- The Rust crate lives in `rust/` INSIDE this repo. It belongs to Budget only and is not shared with Scan
+  (Scan will not have a Rust engine). The earlier decision to keep a shared core outside the repo is cancelled.
+- The core is a stateless compute engine: Scan JSON parsing, rule engine, local LLM
+  providers, budget intelligence, later sync/merge logic, and possibly OCR (engine chosen in a spike in
+  Phase 4b). It does not own SQLite: persistence stays
   in Dart/drift (all versions, including the final desktop version, are Flutter).
+- Domain defines an interface; a `data` adapter calls the bridge. The bridge is never imported in `domain`.
 - Data crossing the bridge: plain structs, amounts as `i64` minor units, typed error enums.
 - Rust logic is tested with `cargo test`. Dart wraps the generated API behind a domain interface so
   the rest of the app can be tested with fakes.
 - Do not hand-edit generated files: `*.g.dart`, `lib/l10n/app_localizations*.dart`, and the
-  flutter_rust_bridge output (by default `lib/src/rust/**` and `rust/src/frb_generated.rs`).
+  flutter_rust_bridge output (paths are recorded when Phase 0b is implemented).
   Change the source and regenerate.
 
 ## Privacy
@@ -74,6 +87,12 @@ Run `flutter analyze` and `flutter test` (and `cargo test` once Rust exists) aft
 - Never log amounts, vendors or OCR text in release builds.
 - Owner's principle: the user's data belongs to the user and never sits on a vendor server. Any future sync
   uses files or cloud storage that the user owns, and the desktop version is the final phase.
+
+## Lessons learned
+
+- In Riverpod 3, do not write `<Override>` on `overrides` lists; let Dart infer the type.
+- Widget tests that fake the device locale set both `localesTestValue` and `clearLocalesTestValue` (via `addTearDown`).
+- `l10n.yaml` has `nullable-getter: false`, so `AppLocalizations.of(context)` is non-null.
 
 ## Roadmap
 
