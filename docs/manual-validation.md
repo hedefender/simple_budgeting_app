@@ -99,8 +99,6 @@ Prerequisite: `flutter analyze`, `flutter test` and `cargo test` pass; on a devi
 9. Archive the source: it leaves the list, past payments stay, no new ones appear after today.
 10. Force-close and reopen: sources, changed amounts and the balance are still there.
 11. Switch the device to Greek and back: all texts translate; amounts follow the region's currency.
-12. The integration test leaves one source in CHF in the app database of the emulator (harmless; clear app data
-    to remove it).
 
 ## Checklist
 

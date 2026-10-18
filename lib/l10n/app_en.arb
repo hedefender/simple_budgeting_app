@@ -128,6 +128,8 @@
   "errorAmountDecimals": "At most {digits} decimal places",
   "@errorAmountDecimals": { "placeholders": { "digits": { "type": "int" } } },
   "errorEndBeforeStart": "The end date is before the start date",
+  "errorSourceNotFound": "This income source no longer exists",
+  "errorSourceArchived": "This income source is archived and can no longer be changed",
 
   "balanceDialogTitle": "Set balance",
   "balanceDialogHelp": "Your balance at the end of the chosen day. Income after that day is added on top.",

@@ -280,6 +280,13 @@ class AppLocalizationsEl extends AppLocalizations {
   String get errorEndBeforeStart => 'Η λήξη είναι πριν από την έναρξη';
 
   @override
+  String get errorSourceNotFound => 'Αυτή η πηγή εισοδήματος δεν υπάρχει πια';
+
+  @override
+  String get errorSourceArchived =>
+      'Αυτή η πηγή εισοδήματος είναι αρχειοθετημένη και δεν μπορεί πλέον να αλλάξει';
+
+  @override
   String get balanceDialogTitle => 'Ορισμός υπολοίπου';
 
   @override

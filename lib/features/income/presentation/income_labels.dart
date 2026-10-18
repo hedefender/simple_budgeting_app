@@ -1,6 +1,7 @@
 import 'package:simple_budgeting_app/features/income/domain/entities/income_schedule.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/income_source.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/monthly_cash_flow.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/income_validation.dart';
 import 'package:simple_budgeting_app/l10n/app_localizations.dart';
 
 String incomeTypeLabel(AppLocalizations l10n, IncomeType type) {
@@ -19,6 +20,19 @@ String scheduleSummary(AppLocalizations l10n, IncomeSchedule schedule) {
       dayOfMonth == null
           ? l10n.scheduleSummaryMonthlyLast
           : l10n.scheduleSummaryMonthlyDay(dayOfMonth),
+  };
+}
+
+String incomeValidationMessage(
+  AppLocalizations l10n,
+  IncomeValidationError error,
+) {
+  return switch (error) {
+    IncomeValidationError.nameEmpty => l10n.errorNameRequired,
+    IncomeValidationError.amountNotPositive => l10n.errorAmountPositive,
+    IncomeValidationError.endBeforeStart => l10n.errorEndBeforeStart,
+    IncomeValidationError.sourceNotFound => l10n.errorSourceNotFound,
+    IncomeValidationError.sourceArchived => l10n.errorSourceArchived,
   };
 }
 

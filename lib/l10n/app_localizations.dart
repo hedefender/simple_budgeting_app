@@ -554,6 +554,18 @@ abstract class AppLocalizations {
   /// **'The end date is before the start date'**
   String get errorEndBeforeStart;
 
+  /// No description provided for @errorSourceNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This income source no longer exists'**
+  String get errorSourceNotFound;
+
+  /// No description provided for @errorSourceArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'This income source is archived and can no longer be changed'**
+  String get errorSourceArchived;
+
   /// No description provided for @balanceDialogTitle.
   ///
   /// In en, this message translates to:

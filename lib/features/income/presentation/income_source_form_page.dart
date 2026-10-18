@@ -147,10 +147,15 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
         );
       }
       navigator.pop();
-    } on IncomeValidationException {
+    } on IncomeValidationException catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
-      messenger.showSnackBar(SnackBar(content: Text(l10n.incomeLoadError)));
+      messenger.showSnackBar(
+        SnackBar(
+          key: const Key('income-validation-error'),
+          content: Text(incomeValidationMessage(l10n, e.error)),
+        ),
+      );
     }
   }
 

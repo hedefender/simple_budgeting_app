@@ -1,4 +1,7 @@
-﻿import 'package:flutter_test/flutter_test.dart';
+﻿import 'dart:io';
+
+import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:simple_budgeting_app/app/di/service_locator.dart';
@@ -12,60 +15,58 @@ import 'package:simple_budgeting_app/features/income/domain/usecases/get_monthly
 import 'package:simple_budgeting_app/features/income/domain/usecases/list_income_sources.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/set_balance_anchor.dart';
 
-/// On-device test using the REAL database file:
+/// On-device test using a SEPARATE temporary database file (deleted at the
+/// end), so the app's real data on the device is never touched:
 ///   `flutter test integration_test/income_persistence_test.dart -d <device-id>`
 ///
 /// The source and the balance are written, the dependency graph is closed
-/// (like a process exit) and rebuilt, and both must still be there. The test
-/// uses a unique name and an unrealistic currency so it cannot clash with the
-/// user's data on the device.
+/// (like a process exit) and rebuilt on the same file, and both must still be
+/// there.
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
-  const currency = 'CHF';
 
   testWidgets('income source and balance survive an app restart', (
     tester,
   ) async {
-    final name = 'Test salary ${DateTime.now().microsecondsSinceEpoch}';
+    final dir = await Directory.systemTemp.createTemp('income_persistence_');
+    final file = File('${dir.path}/test.sqlite');
     final locator = GetIt.instance;
+    addTearDown(() async {
+      await locator.reset();
+      if (await dir.exists()) await dir.delete(recursive: true);
+    });
 
-    configureDependencies(locator);
+    configureDependencies(locator, databaseExecutor: NativeDatabase(file));
     await locator.get<CreateIncomeSource>()(
-      name: name,
+      name: 'Test salary',
       type: IncomeType.salary,
       amount: const Money(123456),
-      currencyCode: currency,
+      currencyCode: 'EUR',
       schedule: const Monthly.onDay(5),
       startDate: CalendarDate(2026, 1, 1),
     );
     await locator.get<SetBalanceAnchor>()(
       date: CalendarDate(2026, 1, 1),
       balance: const Money(50000),
-      currencyCode: currency,
+      currencyCode: 'EUR',
     );
     await locator.reset(); // closes the database like a process exit
 
-    configureDependencies(locator);
+    configureDependencies(locator, databaseExecutor: NativeDatabase(file));
     final sources = await locator.get<ListIncomeSources>()();
-    final mine = sources.where((s) => s.name == name).toList();
-    expect(mine, hasLength(1));
-    expect(mine.single.amount, const Money(123456));
-    expect(mine.single.schedule, const Monthly.onDay(5));
-    expect(mine.single.startDate, CalendarDate(2026, 1, 1));
+    expect(sources, hasLength(1));
+    expect(sources.single.name, 'Test salary');
+    expect(sources.single.amount, const Money(123456));
+    expect(sources.single.schedule, const Monthly.onDay(5));
+    expect(sources.single.startDate, CalendarDate(2026, 1, 1));
 
-    final flow = await locator.get<GetMonthlyCashFlow>()(
+    final january = await locator.get<GetMonthlyCashFlow>()(
       YearMonth(2026, 1),
-      currency,
+      'EUR',
     );
-    expect(flow.occurrences.where((o) => o.source.name == name), hasLength(1));
-    // The anchor (end of 1 Jan) is the opening balance of February.
-    final february = await locator.get<GetMonthlyCashFlow>()(
-      YearMonth(2026, 2),
-      currency,
-    );
-    expect(february.openingBalance.minorUnits, greaterThanOrEqualTo(50000));
-
-    await locator.reset();
+    expect(january.occurrences, hasLength(1));
+    // The anchor is the balance at the END of 1 Jan; the payment of the 5th is
+    // added on top, so the closing balance is anchor + one payment.
+    expect(january.projectedClosingBalance, const Money(50000 + 123456));
   });
 }

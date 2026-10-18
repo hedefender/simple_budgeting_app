@@ -279,6 +279,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorEndBeforeStart => 'The end date is before the start date';
 
   @override
+  String get errorSourceNotFound => 'This income source no longer exists';
+
+  @override
+  String get errorSourceArchived =>
+      'This income source is archived and can no longer be changed';
+
+  @override
   String get balanceDialogTitle => 'Set balance';
 
   @override
