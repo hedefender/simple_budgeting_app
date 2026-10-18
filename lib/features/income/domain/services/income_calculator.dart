@@ -28,7 +28,9 @@ class IncomeCalculator {
     };
 
     final generated = _engine
+        // Phase 1b stage 1: nominal date only (no shifting exists yet).
         .occurrencesInMonth(source.schedule, month)
+        .map((p) => p.nominal)
         .where(source.generatesOn)
         .toList();
     final result = <IncomeOccurrence>[

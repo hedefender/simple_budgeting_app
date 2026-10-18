@@ -7,6 +7,7 @@ import 'package:simple_budgeting_app/core/database/app_database.dart';
 import 'package:simple_budgeting_app/core/id_generator.dart';
 import 'package:simple_budgeting_app/features/foundation/data/app_status_repository_impl.dart';
 import 'package:simple_budgeting_app/features/income/data/balance_anchor_repository_impl.dart';
+import 'package:simple_budgeting_app/features/income/data/greek_holiday_calendar.dart';
 import 'package:simple_budgeting_app/features/income/data/income_repository_impl.dart';
 import 'package:simple_budgeting_app/features/income/domain/repositories/balance_anchor_repository.dart';
 import 'package:simple_budgeting_app/features/income/domain/repositories/income_repository.dart';
@@ -68,7 +69,7 @@ void configureDependencies(
       () => BalanceAnchorRepositoryImpl(locator<AppDatabase>()),
     )
     ..registerLazySingleton<IncomeCalculator>(
-      () => const IncomeCalculator(ScheduleEngine()),
+      () => IncomeCalculator(ScheduleEngine(GreekHolidayCalendar())),
     )
     ..registerFactory<CreateIncomeSource>(
       () => CreateIncomeSource(locator<IncomeRepository>(), now, newId),

@@ -20,6 +20,9 @@ String scheduleSummary(AppLocalizations l10n, IncomeSchedule schedule) {
       dayOfMonth == null
           ? l10n.scheduleSummaryMonthlyLast
           : l10n.scheduleSummaryMonthlyDay(dayOfMonth),
+    // Phase 1b stage 2 adds the labels; no UI can create these yet.
+    SeveralPerMonth() ||
+    Weekly() => throw UnimplementedError('Phase 1b stage 2'),
   };
 }
 

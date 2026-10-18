@@ -69,6 +69,9 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
         _oneOffDate = date;
       case Monthly(:final dayOfMonth):
         _day = dayOfMonth ?? _lastDayValue;
+      case SeveralPerMonth() || Weekly():
+        // Phase 1b stage 2 adds the form; no UI can create these yet.
+        throw UnimplementedError('Phase 1b stage 2');
       case null:
         break;
     }

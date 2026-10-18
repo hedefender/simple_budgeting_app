@@ -7,8 +7,10 @@ import 'package:simple_budgeting_app/features/income/domain/services/schedule_en
 void main() {
   const engine = ScheduleEngine();
 
-  List<CalendarDate> inMonth(IncomeSchedule s, int y, int m) =>
-      engine.occurrencesInMonth(s, YearMonth(y, m));
+  List<CalendarDate> inMonth(IncomeSchedule s, int y, int m) => engine
+      .occurrencesInMonth(s, YearMonth(y, m))
+      .map((p) => p.actual)
+      .toList();
 
   group('Monthly on a day', () {
     test('a normal day lands on that day', () {

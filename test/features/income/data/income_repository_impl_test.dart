@@ -90,7 +90,10 @@ void main() {
 
       final row = await db.select(db.incomeSources).getSingle();
 
-      expect(row.scheduleJson, '{"v":1,"type":"monthly","day":5}');
+      expect(
+        row.scheduleJson,
+        '{"v":2,"type":"monthly","rule":{"kind":"day","day":5},"shift":"none"}',
+      );
       expect(row.startDate, '2026-01-01');
     });
 
