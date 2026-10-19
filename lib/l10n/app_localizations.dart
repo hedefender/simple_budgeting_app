@@ -721,6 +721,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paid on'**
   String get occurrenceDateLabel;
+
+  /// No description provided for @formCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get formCurrency;
+
+  /// No description provided for @formCurrencyLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'The currency cannot be changed. Create a new source to use another currency.'**
+  String get formCurrencyLocked;
+
+  /// No description provided for @currencyOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other…'**
+  String get currencyOther;
+
+  /// No description provided for @currencyOtherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Other currency'**
+  String get currencyOtherTitle;
+
+  /// No description provided for @currencyOtherField.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency code (3 letters, for example CHF)'**
+  String get currencyOtherField;
+
+  /// No description provided for @currencyInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a 3-letter currency code'**
+  String get currencyInvalid;
+
+  /// No description provided for @shiftShortPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'previous working day'**
+  String get shiftShortPrevious;
+
+  /// No description provided for @shiftShortNext.
+  ///
+  /// In en, this message translates to:
+  /// **'next working day'**
+  String get shiftShortNext;
+
+  /// No description provided for @scheduleSummaryWithShift.
+  ///
+  /// In en, this message translates to:
+  /// **'{summary} · shift: {shift}'**
+  String scheduleSummaryWithShift(String summary, String shift);
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsOpen;
+
+  /// No description provided for @settingsPrimaryCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary currency'**
+  String get settingsPrimaryCurrency;
+
+  /// No description provided for @settingsPrimaryCurrencyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The default currency of new income sources. Existing sources keep their currency. Amounts in different currencies are never added together.'**
+  String get settingsPrimaryCurrencyHelp;
 }
 
 class _AppLocalizationsDelegate

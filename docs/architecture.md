@@ -90,7 +90,7 @@ real devices we can hide the splash until a threshold is crossed.
 | drift over raw sqflite | Type-safe queries, generated code, reactive streams, built-in migration tooling and in-memory databases for tests |
 | UUID primary keys on future domain tables | A PC version with sync would otherwise collide on auto-increment ids |
 | Money as integer minor units | No floating-point errors; `double` only appears when formatting |
-| Currency/locale from the device | Request from the project brief; device region decides currency (`el_GR` -> EUR). Phase 1+ stores a currency code with each amount so a later per-user override is possible |
+| Currency/locale from the device | Request from the project brief; device region decides language and number format. Currency belongs to the data: a `primary_currency` setting (default: device currency on first start) and a currency code per source, see `docs/roadmap.md` (Phase 1c) |
 | Database executor injected | Production: file database (`drift_flutter`). Tests: in-memory or temp file |
 | All UI text in ARB files | English first, Greek included; adding a language = adding one ARB file |
 

@@ -112,9 +112,25 @@
   "errorDuplicateRules": "Δύο ημέρες πληρωμής είναι ίδιες",
   "ruleShortDay": "ημέρα {day}",
   "ruleShortLast": "τελευταία ημέρα",
-  "ruleShortNth": "εργάσιμη {n}",
-  "scheduleSummaryMonthlyNth": "Κάθε μήνα, εργάσιμη {n}",
+  "ruleShortNth": "{n}η εργάσιμη",
+  "scheduleSummaryMonthlyNth": "Κάθε μήνα, {n}η εργάσιμη",
   "scheduleSummarySeveral": "Κάθε μήνα: {rules}",
   "scheduleSummaryWeekly": "Κάθε {weekday}",
-  "occurrenceDateLabel": "Ημερομηνία πληρωμής"
+  "occurrenceDateLabel": "Ημερομηνία πληρωμής",
+
+  "formCurrency": "Νόμισμα",
+  "formCurrencyLocked": "Το νόμισμα δεν αλλάζει. Δημιουργήστε νέα πηγή για να χρησιμοποιήσετε άλλο νόμισμα.",
+  "currencyOther": "Άλλο…",
+  "currencyOtherTitle": "Άλλο νόμισμα",
+  "currencyOtherField": "Κωδικός νομίσματος (3 γράμματα, π.χ. CHF)",
+  "currencyInvalid": "Εισάγετε κωδικό νομίσματος με 3 γράμματα",
+
+  "shiftShortPrevious": "προηγούμενη εργάσιμη",
+  "shiftShortNext": "επόμενη εργάσιμη",
+  "scheduleSummaryWithShift": "{summary} · μετατόπιση: {shift}",
+
+  "settingsTitle": "Ρυθμίσεις",
+  "settingsOpen": "Ρυθμίσεις",
+  "settingsPrimaryCurrency": "Κύριο νόμισμα",
+  "settingsPrimaryCurrencyHelp": "Το προεπιλεγμένο νόμισμα των νέων πηγών εισοδήματος. Οι υπάρχουσες πηγές κρατούν το νόμισμά τους. Ποσά σε διαφορετικά νομίσματα δεν αθροίζονται ποτέ."
 }

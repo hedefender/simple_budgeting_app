@@ -16,6 +16,11 @@ import 'package:simple_budgeting_app/features/income/domain/usecases/list_income
 import 'package:simple_budgeting_app/features/income/domain/usecases/occurrence_actions.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/set_balance_anchor.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/update_income_source.dart';
+import 'package:simple_budgeting_app/features/settings/domain/repositories/settings_repository.dart';
+import 'package:simple_budgeting_app/features/settings/domain/usecases/get_primary_currency.dart';
+import 'package:simple_budgeting_app/features/settings/domain/usecases/set_primary_currency.dart';
+
+import 'settings_fakes.dart';
 
 /// In-memory income repository for tests that must not touch SQLite.
 class FakeIncomeRepository implements IncomeRepository {
@@ -87,6 +92,10 @@ class FakeBalanceAnchorRepository implements BalanceAnchorRepository {
   @override
   Future<List<BalanceAnchor>> listAnchors(String currencyCode) async =>
       anchors.where((a) => a.currencyCode == currencyCode).toList();
+
+  @override
+  Future<Set<String>> listCurrencyCodes() async =>
+      anchors.map((a) => a.currencyCode).toSet();
 }
 
 /// A deterministic id generator: `id-1`, `id-2`, ...
@@ -97,16 +106,26 @@ IdGenerator sequentialIds() {
 
 /// Registers the income services (in-memory repositories + real use cases)
 /// in [locator]. Returns the repositories so tests can inspect them.
-({FakeIncomeRepository income, FakeBalanceAnchorRepository anchors})
+({
+  FakeIncomeRepository income,
+  FakeBalanceAnchorRepository anchors,
+  FakeSettingsRepository settings,
+})
 registerIncomeFakes(GetIt locator, {required Clock clock}) {
   final income = FakeIncomeRepository();
   final anchors = FakeBalanceAnchorRepository();
+  final settings = FakeSettingsRepository();
   final newId = sequentialIds();
   const calculator = IncomeCalculator(ScheduleEngine());
   locator
     ..registerSingleton<Clock>(clock)
     ..registerSingleton<IncomeRepository>(income)
     ..registerSingleton<BalanceAnchorRepository>(anchors)
+    ..registerSingleton<SettingsRepository>(settings)
+    ..registerFactory<GetPrimaryCurrency>(
+      () => GetPrimaryCurrency(settings, income),
+    )
+    ..registerFactory<SetPrimaryCurrency>(() => SetPrimaryCurrency(settings))
     ..registerFactory<CreateIncomeSource>(
       () => CreateIncomeSource(income, clock, newId),
     )
@@ -130,5 +149,5 @@ registerIncomeFakes(GetIt locator, {required Clock clock}) {
     ..registerFactory<SetBalanceAnchor>(
       () => SetBalanceAnchor(anchors, clock, newId),
     );
-  return (income: income, anchors: anchors);
+  return (income: income, anchors: anchors, settings: settings);
 }

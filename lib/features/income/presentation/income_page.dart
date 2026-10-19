@@ -9,6 +9,7 @@ import 'package:simple_budgeting_app/features/income/presentation/income_dialogs
 import 'package:simple_budgeting_app/features/income/presentation/income_labels.dart';
 import 'package:simple_budgeting_app/features/income/presentation/income_providers.dart';
 import 'package:simple_budgeting_app/features/income/presentation/income_source_form_page.dart';
+import 'package:simple_budgeting_app/features/settings/presentation/settings_button.dart';
 import 'package:simple_budgeting_app/l10n/app_localizations.dart';
 
 class IncomePage extends ConsumerWidget {
@@ -20,10 +21,12 @@ class IncomePage extends ConsumerWidget {
     final month = ref.watch(selectedMonthProvider);
     final cashFlow = ref.watch(monthlyCashFlowProvider);
     final sources = ref.watch(incomeSourcesProvider);
-    final deviceFormatter = ref.watch(moneyFormatterProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.incomeTitle)),
+      appBar: AppBar(
+        title: Text(l10n.incomeTitle),
+        actions: const <Widget>[SettingsButton()],
+      ),
       floatingActionButton: FloatingActionButton(
         key: const Key('income-add'),
         tooltip: l10n.incomeAddSource,
@@ -60,8 +63,8 @@ class IncomePage extends ConsumerWidget {
             ],
           ),
           cashFlow.when(
-            data: (MonthlyCashFlow flow) =>
-                _CashFlowSection(flow: flow, formatter: deviceFormatter),
+            data: (MonthlyCashFlowSummary summary) =>
+                _CashFlowSection(summary: summary),
             loading: () => const Padding(
               padding: EdgeInsets.all(24),
               child: Center(child: CircularProgressIndicator()),
@@ -121,84 +124,27 @@ class _LoadError extends StatelessWidget {
   }
 }
 
-class _CashFlowSection extends ConsumerWidget {
-  const _CashFlowSection({required this.flow, required this.formatter});
+class _CashFlowSection extends StatelessWidget {
+  const _CashFlowSection({required this.summary});
 
-  final MonthlyCashFlow flow;
-  final MoneyFormatter formatter;
+  final MonthlyCashFlowSummary summary;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-
-    Widget row(String key, String label, Money value) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: <Widget>[
-          Expanded(child: Text(label)),
-          Text(formatter.format(value), key: Key(key)),
-        ],
-      ),
-    );
+    final codes = <String>[for (final f in summary.currencies) f.currencyCode];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: <Widget>[
-                row('cash-opening', l10n.cashFlowOpening, flow.openingBalance),
-                row(
-                  'cash-received',
-                  l10n.cashFlowReceived,
-                  flow.receivedIncome,
-                ),
-                row(
-                  'cash-expected',
-                  l10n.cashFlowExpected,
-                  flow.expectedIncome,
-                ),
-                const Divider(),
-                row(
-                  'cash-closing',
-                  l10n.cashFlowClosing,
-                  flow.projectedClosingBalance,
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    key: const Key('set-balance'),
-                    onPressed: () async {
-                      final input = await showBalanceDialog(
-                        context,
-                        ref,
-                        currencyCode: flow.currencyCode,
-                        today: ref.read(todayProvider),
-                      );
-                      if (input == null) return;
-                      await ref
-                          .read(incomeActionsProvider)
-                          .setBalance(
-                            date: input.date,
-                            balance: input.balance,
-                            currencyCode: flow.currencyCode,
-                          );
-                    },
-                    child: Text(l10n.cashFlowSetBalance),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        for (final flow in summary.currencies)
+          _CurrencyBlock(flow: flow, currencyCodes: codes),
         const SizedBox(height: 16),
         Text(
           l10n.incomePaymentsHeader,
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        if (flow.occurrences.isEmpty)
+        if (summary.occurrences.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
@@ -207,9 +153,85 @@ class _CashFlowSection extends ConsumerWidget {
             ),
           )
         else
-          for (final occurrence in flow.occurrences)
+          for (final occurrence in summary.occurrences)
             _OccurrenceTile(occurrence: occurrence),
       ],
+    );
+  }
+}
+
+/// Cash flow card of one currency. Keys end with the currency code.
+class _CurrencyBlock extends ConsumerWidget {
+  const _CurrencyBlock({required this.flow, required this.currencyCodes});
+
+  final MonthlyCashFlow flow;
+  final List<String> currencyCodes;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final code = flow.currencyCode;
+    final formatter = MoneyFormatter(
+      localeTag: ref.watch(deviceLocaleProvider).toString(),
+      currencyCode: code,
+    );
+
+    Widget row(String key, String label, Money value) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: <Widget>[
+          Expanded(child: Text(label)),
+          Text(formatter.format(value), key: Key('$key-$code')),
+        ],
+      ),
+    );
+
+    return Card(
+      key: Key('cash-block-$code'),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: <Widget>[
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(code, style: Theme.of(context).textTheme.titleSmall),
+            ),
+            row('cash-opening', l10n.cashFlowOpening, flow.openingBalance),
+            row('cash-received', l10n.cashFlowReceived, flow.receivedIncome),
+            row('cash-expected', l10n.cashFlowExpected, flow.expectedIncome),
+            const Divider(),
+            row(
+              'cash-closing',
+              l10n.cashFlowClosing,
+              flow.projectedClosingBalance,
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                key: Key('set-balance-$code'),
+                onPressed: () async {
+                  final input = await showBalanceDialog(
+                    context,
+                    ref,
+                    currencyCode: code,
+                    currencyCodes: currencyCodes,
+                    today: ref.read(todayProvider),
+                  );
+                  if (input == null) return;
+                  await ref
+                      .read(incomeActionsProvider)
+                      .setBalance(
+                        date: input.date,
+                        balance: input.balance,
+                        currencyCode: input.currencyCode,
+                      );
+                },
+                child: Text(l10n.cashFlowSetBalance),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -36,6 +36,14 @@ class BalanceAnchorRepositoryImpl implements BalanceAnchorRepository {
   }
 
   @override
+  Future<Set<String>> listCurrencyCodes() async {
+    final query = _db.selectOnly(_db.balanceAnchors, distinct: true)
+      ..addColumns([_db.balanceAnchors.currencyCode]);
+    final rows = await query.get();
+    return rows.map((r) => r.read(_db.balanceAnchors.currencyCode)!).toSet();
+  }
+
+  @override
   Future<List<BalanceAnchor>> listAnchors(String currencyCode) async {
     final rows =
         await (_db.select(_db.balanceAnchors)

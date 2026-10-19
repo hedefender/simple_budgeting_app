@@ -356,12 +356,12 @@ class AppLocalizationsEl extends AppLocalizations {
 
   @override
   String ruleShortNth(int n) {
-    return 'εργάσιμη $n';
+    return '$nη εργάσιμη';
   }
 
   @override
   String scheduleSummaryMonthlyNth(int n) {
-    return 'Κάθε μήνα, εργάσιμη $n';
+    return 'Κάθε μήνα, $nη εργάσιμη';
   }
 
   @override
@@ -379,4 +379,47 @@ class AppLocalizationsEl extends AppLocalizations {
 
   @override
   String get occurrenceDateLabel => 'Ημερομηνία πληρωμής';
+
+  @override
+  String get formCurrency => 'Νόμισμα';
+
+  @override
+  String get formCurrencyLocked =>
+      'Το νόμισμα δεν αλλάζει. Δημιουργήστε νέα πηγή για να χρησιμοποιήσετε άλλο νόμισμα.';
+
+  @override
+  String get currencyOther => 'Άλλο…';
+
+  @override
+  String get currencyOtherTitle => 'Άλλο νόμισμα';
+
+  @override
+  String get currencyOtherField => 'Κωδικός νομίσματος (3 γράμματα, π.χ. CHF)';
+
+  @override
+  String get currencyInvalid => 'Εισάγετε κωδικό νομίσματος με 3 γράμματα';
+
+  @override
+  String get shiftShortPrevious => 'προηγούμενη εργάσιμη';
+
+  @override
+  String get shiftShortNext => 'επόμενη εργάσιμη';
+
+  @override
+  String scheduleSummaryWithShift(String summary, String shift) {
+    return '$summary · μετατόπιση: $shift';
+  }
+
+  @override
+  String get settingsTitle => 'Ρυθμίσεις';
+
+  @override
+  String get settingsOpen => 'Ρυθμίσεις';
+
+  @override
+  String get settingsPrimaryCurrency => 'Κύριο νόμισμα';
+
+  @override
+  String get settingsPrimaryCurrencyHelp =>
+      'Το προεπιλεγμένο νόμισμα των νέων πηγών εισοδήματος. Οι υπάρχουσες πηγές κρατούν το νόμισμά τους. Ποσά σε διαφορετικά νομίσματα δεν αθροίζονται ποτέ.';
 }

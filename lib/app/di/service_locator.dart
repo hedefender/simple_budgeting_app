@@ -25,6 +25,10 @@ import 'package:simple_budgeting_app/features/foundation/domain/repositories/app
 import 'package:simple_budgeting_app/features/foundation/domain/services/core_info_service.dart';
 import 'package:simple_budgeting_app/features/foundation/domain/usecases/record_app_launch.dart';
 import 'package:simple_budgeting_app/features/foundation/domain/usecases/record_startup_duration.dart';
+import 'package:simple_budgeting_app/features/settings/data/settings_repository_impl.dart';
+import 'package:simple_budgeting_app/features/settings/domain/repositories/settings_repository.dart';
+import 'package:simple_budgeting_app/features/settings/domain/usecases/get_primary_currency.dart';
+import 'package:simple_budgeting_app/features/settings/domain/usecases/set_primary_currency.dart';
 import 'package:simple_budgeting_app/src/rust/frb_generated.dart';
 
 /// flutter_rust_bridge throws if initialized twice, so a bootstrap retry (or an
@@ -107,6 +111,18 @@ void configureDependencies(
     )
     ..registerFactory<SetBalanceAnchor>(
       () => SetBalanceAnchor(locator<BalanceAnchorRepository>(), now, newId),
+    )
+    ..registerLazySingleton<SettingsRepository>(
+      () => SettingsRepositoryImpl(locator<AppDatabase>()),
+    )
+    ..registerFactory<GetPrimaryCurrency>(
+      () => GetPrimaryCurrency(
+        locator<SettingsRepository>(),
+        locator<IncomeRepository>(),
+      ),
+    )
+    ..registerFactory<SetPrimaryCurrency>(
+      () => SetPrimaryCurrency(locator<SettingsRepository>()),
     )
     ..registerFactory<RecordStartupDuration>(
       () => RecordStartupDuration(locator<AppStatusRepository>()),

@@ -257,8 +257,8 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(textOf(tester, 'cash-received'), r'$1,000.00');
-      expect(textOf(tester, 'cash-expected'), r'$500.00');
+      expect(textOf(tester, 'cash-received-USD'), r'$1,000.00');
+      expect(textOf(tester, 'cash-expected-USD'), r'$500.00');
     });
 
     testWidgets('marking a payment as not received changes the totals', (
@@ -266,16 +266,16 @@ void main() {
     ) async {
       await income.addSource(source('a', 'Salary', 100000, 5));
       await pumpIncome(tester);
-      expect(textOf(tester, 'cash-received'), r'$1,000.00');
-      expect(textOf(tester, 'cash-closing'), r'$1,000.00');
+      expect(textOf(tester, 'cash-received-USD'), r'$1,000.00');
+      expect(textOf(tester, 'cash-closing-USD'), r'$1,000.00');
 
       await tester.tap(find.byKey(const Key('occurrence-menu-a-2026-10-05')));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Mark as not received'));
       await tester.pumpAndSettle();
 
-      expect(textOf(tester, 'cash-received'), r'$0.00');
-      expect(textOf(tester, 'cash-closing'), r'$0.00');
+      expect(textOf(tester, 'cash-received-USD'), r'$0.00');
+      expect(textOf(tester, 'cash-closing-USD'), r'$0.00');
       expect(
         find.descendant(
           of: find.byKey(const Key('occurrence-a-2026-10-05')),
@@ -290,9 +290,9 @@ void main() {
     ) async {
       await income.addSource(source('b', 'Bonus', 50000, 25));
       await pumpIncome(tester);
-      expect(textOf(tester, 'cash-closing'), r'$500.00');
+      expect(textOf(tester, 'cash-closing-USD'), r'$500.00');
 
-      await tester.tap(find.byKey(const Key('set-balance')));
+      await tester.tap(find.byKey(const Key('set-balance-USD')));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const Key('balance-field')), '250.50');
       await tester.tap(find.byKey(const Key('balance-save')));
@@ -302,13 +302,13 @@ void main() {
       expect(anchors.anchors, hasLength(1));
       expect(anchors.anchors.single.balance, const Money(25050));
       expect(anchors.anchors.single.date, CalendarDate(2026, 10, 16));
-      expect(textOf(tester, 'cash-closing'), r'$750.50');
+      expect(textOf(tester, 'cash-closing-USD'), r'$750.50');
     });
 
     testWidgets('the balance dialog rejects an invalid amount', (tester) async {
       await pumpIncome(tester);
 
-      await tester.tap(find.byKey(const Key('set-balance')));
+      await tester.tap(find.byKey(const Key('set-balance-USD')));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const Key('balance-field')), 'abc');
       await tester.tap(find.byKey(const Key('balance-save')));

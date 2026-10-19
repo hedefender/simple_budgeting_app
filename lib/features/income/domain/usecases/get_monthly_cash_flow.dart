@@ -12,8 +12,8 @@ import 'package:simple_budgeting_app/features/income/domain/services/income_calc
 
 /// Income side of a month's cash flow (no expenses yet).
 ///
-/// Only sources and anchors in [currencyCode] are used; amounts of different
-/// currencies are never added.
+/// Amounts of different currencies are never added: [call] handles one
+/// currency, [forAllCurrencies] returns one cash flow per currency.
 ///
 /// Balance at the end of day D = the last anchor dated on or before D, plus
 /// all non-skipped income dated after that anchor and on or before D. Without
@@ -31,6 +31,33 @@ class GetMonthlyCashFlow {
   final IncomeCalculator _calculator;
   final Clock _clock;
 
+  /// The month in every currency found in sources and anchors, plus
+  /// [primaryCurrency] (always present, even when empty).
+  Future<MonthlyCashFlowSummary> forAllCurrencies(
+    YearMonth month,
+    String primaryCurrency,
+  ) async {
+    final sources = await _incomeRepository.listSources(includeArchived: true);
+    final others = <String>{
+      ...sources.map((s) => s.currencyCode),
+      ...await _anchorRepository.listCurrencyCodes(),
+    }..remove(primaryCurrency);
+    final codes = <String>[primaryCurrency, ...others.toList()..sort()];
+
+    final flows = <MonthlyCashFlow>[
+      for (final code in codes) await call(month, code),
+    ];
+    final occurrences = <IncomeOccurrence>[
+      for (final flow in flows) ...flow.occurrences,
+    ]..sort(_byDateThenName);
+    return MonthlyCashFlowSummary(
+      month: month,
+      currencies: flows,
+      occurrences: occurrences,
+    );
+  }
+
+  /// One currency only; sources and anchors in other currencies are ignored.
   Future<MonthlyCashFlow> call(YearMonth month, String currencyCode) async {
     final today = CalendarDate.fromInstant(_clock());
     final sources = (await _incomeRepository.listSources(

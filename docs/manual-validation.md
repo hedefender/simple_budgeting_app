@@ -3,6 +3,10 @@
 Prerequisite: `flutter pub get`, `build_runner`, `flutter analyze` and
 `flutter test` all pass (see README).
 
+WARNING: `flutter test integration_test/... -d <device>` (and the same command without `-d` when only one device is
+connected) installs the app again, which DELETES the app's data on that device (the next start shows `Launch #1`).
+Run the on-device tests before the manual checks, or on a device whose data you do not need.
+
 ## 1. First run (database creation)
 
 1. Uninstall any previous build, then `flutter run` on the emulator/phone.
@@ -47,7 +51,8 @@ Debug builds are much slower than profile/release; judge only profile/release.
    currency `EUR`, sample amount like `1.234,56 €`.
 3. Switch to **English (United States)**: English texts, `USD`, `$1,234.56`.
 4. Switch to **English (Greece)** if your device offers it: English texts, currency `EUR`.
-   (Region decides the currency; language only decides the text.)
+   (Region decides the language texts and the number format; the currency of the data is chosen in the app, see
+   section 10.)
 5. Any other language falls back to English text.
 
 ## 5. Failure path (optional)
@@ -98,7 +103,8 @@ Prerequisite: `flutter analyze`, `flutter test` and `cargo test` pass; on a devi
    added on top; income on that day is not added again. A date inside the month changes that month's result.
 9. Archive the source: it leaves the list, past payments stay, no new ones appear after today.
 10. Force-close and reopen: sources, changed amounts and the balance are still there.
-11. Switch the device to Greek and back: all texts translate; amounts follow the region's currency.
+11. Switch the device to Greek and back: all texts translate and the number format follows the region (the currency
+    of each amount stays the currency of its source, see section 10).
 
 ## 9. Phase 1b: schedule engine
 
@@ -128,6 +134,34 @@ Use a fresh install or the existing data of step 8. Today's date matters for "re
 12. Force-close and reopen: everything above is still there.
 13. Upgrade check (only if you have an older install): install the Phase 1a build, create a source and change its
     amount once, then install this build over it. Sources and past payments are unchanged.
+## 10. Phase 1c: currency handling
+
+Prerequisite: `flutter analyze`, `flutter test` and `cargo test` pass. Start from a fresh install (`Launch #1`) or the
+data of step 9. Remember the warning at the top about on-device tests.
+
+1. Fresh install, device in Greek (el_GR): open the settings icon (top right of Home and Income). "Primary currency"
+   shows `EUR`.
+2. Add a source "Salary" `1.000,00`: the currency field shows `EUR` (the primary). Save. The Income page shows one
+   `EUR` card.
+3. Change the device region to English (United States) (USD) and reopen the app. The `EUR` payment and the `EUR`
+   card are still there (before Phase 1c the page showed 0 and "No payments this month"). The primary is still
+   `EUR`.
+4. Add a source "Bonus" `500.00` and choose `USD` in the currency field. Two cards appear: `EUR` first (the primary),
+   then `USD`. The payment list holds both payments, each in its own currency. Nothing is added across currencies.
+5. Edit "Salary": the currency is shown but cannot be changed.
+6. **Set balance** in the `USD` card: the dialog starts in `USD` and lets you switch to `EUR`. After saving, only that
+   currency's closing balance changes.
+7. Settings: change the primary currency to `USD`. Back on Income, the `USD` card is now first. Existing sources keep
+   their currency. A new source defaults to `USD`.
+8. Settings -> Other...: type `chf` -> saved as `CHF`. Type `ab` -> "Enter a 3-letter currency code". An unused
+   primary currency still shows an (empty) card.
+9. Source list summaries: Greek "Κάθε μήνα, 5η εργάσιμη" (not "εργάσιμη 5"); a source with a shift rule shows
+   "· μετατόπιση: προηγούμενη εργάσιμη" (English "· shift: previous working day"); a source on the Nth working day or
+   "Do not move" shows no shift text.
+10. Force-close and reopen: sources, both currencies and the primary currency are still there.
+11. Upgrade check (only with data from the Phase 1b build): install this build over it. Sources keep their currency,
+    and the primary is the currency of the oldest source.
+
 ## Checklist
 
 - [ ] `flutter analyze` clean
@@ -136,10 +170,11 @@ Use a fresh install or the existing data of step 8. Today's date matters for "re
 - [ ] Counter increases after force-close
 - [ ] Previous startup time appears from launch #2
 - [ ] Greek and English both display correctly
-- [ ] Currency follows device region
+- [ ] Language and number format follow the device region
 - [ ] `cargo test` green
 - [ ] Home shows the Rust core line (en and el)
 - [ ] Hot restart works with the Rust core
 - [ ] Phase 1a steps 1-11 pass
 - [ ] Phase 1b steps 1-13 pass
+- [ ] Phase 1c steps 1-11 pass
 - [ ] Cold start time noted (profile build): ______ ms

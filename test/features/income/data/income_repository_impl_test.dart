@@ -319,6 +319,21 @@ void main() {
       expect(await anchors.listAnchors('USD'), hasLength(1));
     });
 
+    test(
+      'listCurrencyCodes returns each currency with an anchor once',
+      () async {
+        expect(await anchors.listCurrencyCodes(), isEmpty);
+
+        await anchors.saveAnchor(anchor('a1', CalendarDate(2026, 3, 1), 1000));
+        await anchors.saveAnchor(anchor('a2', CalendarDate(2026, 4, 1), 2000));
+        await anchors.saveAnchor(
+          anchor('a3', CalendarDate(2026, 5, 1), 7, currency: 'USD'),
+        );
+
+        expect(await anchors.listCurrencyCodes(), {'EUR', 'USD'});
+      },
+    );
+
     test('same date and currency replaces the balance', () async {
       await anchors.saveAnchor(anchor('a1', CalendarDate(2026, 3, 1), 1000));
       await anchors.saveAnchor(anchor('a2', CalendarDate(2026, 3, 1), 2000));

@@ -5,4 +5,7 @@ abstract interface class BalanceAnchorRepository {
   Future<void> saveAnchor(BalanceAnchor anchor);
 
   Future<List<BalanceAnchor>> listAnchors(String currencyCode);
+
+  /// Every currency that has at least one anchor.
+  Future<Set<String>> listCurrencyCodes();
 }

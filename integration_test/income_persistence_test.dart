@@ -15,6 +15,8 @@ import 'package:simple_budgeting_app/features/income/domain/usecases/get_monthly
 import 'package:simple_budgeting_app/features/income/domain/usecases/occurrence_actions.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/list_income_sources.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/set_balance_anchor.dart';
+import 'package:simple_budgeting_app/features/settings/domain/usecases/get_primary_currency.dart';
+import 'package:simple_budgeting_app/features/settings/domain/usecases/set_primary_currency.dart';
 
 /// On-device test using a SEPARATE temporary database file (deleted at the
 /// end), so the app's real data on the device is never touched:
@@ -80,5 +82,53 @@ void main() {
     // The anchor is the balance at the END of 1 Jan; the payment of the 5th is
     // added on top, so the closing balance is anchor + one payment.
     expect(january.projectedClosingBalance, const Money(50000 + 123456));
+  });
+
+  testWidgets('sources in two currencies and the primary survive a restart', (
+    tester,
+  ) async {
+    final dir = await Directory.systemTemp.createTemp('currency_persistence_');
+    final file = File('${dir.path}/test.sqlite');
+    final locator = GetIt.instance;
+    addTearDown(() async {
+      await locator.reset();
+      if (await dir.exists()) await dir.delete(recursive: true);
+    });
+
+    configureDependencies(locator, databaseExecutor: NativeDatabase(file));
+    Future<void> create(String name, int minor, String currency) =>
+        locator.get<CreateIncomeSource>()(
+          name: name,
+          type: IncomeType.salary,
+          amount: Money(minor),
+          currencyCode: currency,
+          schedule: const Monthly.onDay(5),
+          startDate: CalendarDate(2026, 1, 1),
+        );
+    await create('Euro job', 100000, 'EUR');
+    await create('Dollar job', 50000, 'USD');
+    // The device says USD, but the data decides: the oldest source is EUR.
+    expect(await locator.get<GetPrimaryCurrency>()('USD'), 'EUR');
+    await locator.get<SetPrimaryCurrency>()('chf');
+    await locator.reset(); // closes the database like a process exit
+
+    configureDependencies(locator, databaseExecutor: NativeDatabase(file));
+    // A different device currency does not change the stored primary.
+    expect(await locator.get<GetPrimaryCurrency>()('GBP'), 'CHF');
+    final summary = await locator.get<GetMonthlyCashFlow>().forAllCurrencies(
+      YearMonth(2026, 1),
+      'CHF',
+    );
+    expect(summary.currencies.map((f) => f.currencyCode), [
+      'CHF',
+      'EUR',
+      'USD',
+    ]);
+    expect(summary.occurrences.map((o) => o.source.name), [
+      'Dollar job',
+      'Euro job',
+    ]);
+    expect(summary.currencies[1].projectedClosingBalance, const Money(100000));
+    expect(summary.currencies[2].projectedClosingBalance, const Money(50000));
   });
 }

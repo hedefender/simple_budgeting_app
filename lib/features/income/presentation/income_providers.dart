@@ -14,6 +14,7 @@ import 'package:simple_budgeting_app/features/income/domain/usecases/list_income
 import 'package:simple_budgeting_app/features/income/domain/usecases/occurrence_actions.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/set_balance_anchor.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/update_income_source.dart';
+import 'package:simple_budgeting_app/features/settings/presentation/settings_providers.dart';
 
 final Provider<Clock> clockProvider = Provider<Clock>(
   (Ref ref) => ref.watch(serviceLocatorProvider).get<Clock>(),
@@ -43,14 +44,15 @@ final FutureProvider<List<IncomeSource>> incomeSourcesProvider =
       (Ref ref) => ref.watch(serviceLocatorProvider).get<ListIncomeSources>()(),
     );
 
-final FutureProvider<MonthlyCashFlow> monthlyCashFlowProvider =
-    FutureProvider.autoDispose<MonthlyCashFlow>((Ref ref) {
+/// The month in every currency in the data; the primary currency comes first.
+final FutureProvider<MonthlyCashFlowSummary> monthlyCashFlowProvider =
+    FutureProvider.autoDispose<MonthlyCashFlowSummary>((Ref ref) async {
       final month = ref.watch(selectedMonthProvider);
-      final currency = ref.watch(moneyFormatterProvider).currencyCode;
-      return ref.watch(serviceLocatorProvider).get<GetMonthlyCashFlow>()(
-        month,
-        currency,
-      );
+      final primary = await ref.watch(primaryCurrencyProvider.future);
+      return ref
+          .watch(serviceLocatorProvider)
+          .get<GetMonthlyCashFlow>()
+          .forAllCurrencies(month, primary);
     });
 
 final Provider<IncomeActions> incomeActionsProvider = Provider<IncomeActions>(

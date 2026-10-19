@@ -11,6 +11,8 @@ import 'package:simple_budgeting_app/features/income/presentation/income_dialogs
 import 'package:simple_budgeting_app/features/income/presentation/income_labels.dart';
 import 'package:simple_budgeting_app/features/income/presentation/income_providers.dart';
 import 'package:simple_budgeting_app/features/income/presentation/money_input.dart';
+import 'package:simple_budgeting_app/features/settings/presentation/currency_dropdown.dart';
+import 'package:simple_budgeting_app/features/settings/presentation/settings_providers.dart';
 import 'package:simple_budgeting_app/l10n/app_localizations.dart';
 
 enum _ScheduleKind { oneOff, monthly, several, weekly }
@@ -73,8 +75,16 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
 
   IncomeSource? get _source => widget.source;
 
+  /// Chosen by the user for a new source; null until then.
+  String? _pickedCurrency;
+
+  /// Existing source: fixed. New source: the picked one, else the primary
+  /// currency (the device currency while that is still loading).
   String get _currencyCode =>
-      _source?.currencyCode ?? ref.read(moneyFormatterProvider).currencyCode;
+      _source?.currencyCode ??
+      _pickedCurrency ??
+      ref.read(primaryCurrencyProvider).value ??
+      ref.read(moneyFormatterProvider).currencyCode;
 
   MoneyParser get _parser => MoneyParser.forCurrency(
     localeTag: ref.read(deviceLocaleProvider).toString(),
@@ -374,6 +384,8 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Rebuild when the primary currency has loaded.
+    ref.watch(primaryCurrencyProvider);
     final l10n = AppLocalizations.of(context);
     final dateFormat = MaterialLocalizations.of(context);
     String fmt(CalendarDate d) =>
@@ -413,6 +425,25 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
               ],
               onChanged: (IncomeType? v) => setState(() => _type = v ?? _type),
             ),
+            const SizedBox(height: 16),
+            if (_source == null)
+              CurrencyDropdown(
+                value: _currencyCode,
+                onChanged: (String code) =>
+                    setState(() => _pickedCurrency = code),
+              )
+            else
+              InputDecorator(
+                decoration: InputDecoration(
+                  labelText: l10n.formCurrency,
+                  helperText: l10n.formCurrencyLocked,
+                  helperMaxLines: 3,
+                ),
+                child: Text(
+                  _currencyCode,
+                  key: const Key('income-currency-locked'),
+                ),
+              ),
             const SizedBox(height: 16),
             TextFormField(
               key: const Key('income-amount'),

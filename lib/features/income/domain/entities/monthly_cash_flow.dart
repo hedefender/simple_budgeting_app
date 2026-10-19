@@ -56,3 +56,23 @@ class MonthlyCashFlow {
   /// Expenses are not part of Phase 1a.
   final Money projectedClosingBalance;
 }
+
+/// The month in every currency that appears in the data. Nothing is hidden and
+/// amounts of different currencies are never added.
+class MonthlyCashFlowSummary {
+  const MonthlyCashFlowSummary({
+    required this.month,
+    required this.currencies,
+    required this.occurrences,
+  });
+
+  final YearMonth month;
+
+  /// One cash flow per currency, the primary currency first, the others
+  /// sorted by code.
+  final List<MonthlyCashFlow> currencies;
+
+  /// The payments of all currencies, sorted by date, then source name. Each
+  /// payment carries its currency through `source.currencyCode`.
+  final List<IncomeOccurrence> occurrences;
+}

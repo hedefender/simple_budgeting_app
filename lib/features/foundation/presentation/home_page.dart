@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_budgeting_app/app/bootstrap/bootstrapper.dart';
 import 'package:simple_budgeting_app/app/di/providers.dart';
 import 'package:simple_budgeting_app/core/money/money.dart';
+import 'package:simple_budgeting_app/features/settings/presentation/settings_button.dart';
 import 'package:simple_budgeting_app/l10n/app_localizations.dart';
 
 /// Phase 0 home screen. It only proves that persistence, localization and
@@ -22,7 +23,10 @@ class HomePage extends ConsumerWidget {
     final previousStartup = status.lastStartupMs;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.homeTitle)),
+      appBar: AppBar(
+        title: Text(l10n.homeTitle),
+        actions: const <Widget>[SettingsButton()],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: <Widget>[

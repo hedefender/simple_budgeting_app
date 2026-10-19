@@ -5,6 +5,7 @@ import 'package:simple_budgeting_app/core/money/money.dart';
 import 'package:simple_budgeting_app/core/money/money_parser.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
 import 'package:simple_budgeting_app/features/income/presentation/money_input.dart';
+import 'package:simple_budgeting_app/features/settings/presentation/currency_dropdown.dart';
 import 'package:simple_budgeting_app/l10n/app_localizations.dart';
 
 MoneyParser _parserFor(
@@ -157,28 +158,44 @@ class _PaymentDialogState extends State<_PaymentDialog> {
   }
 }
 
-typedef BalanceInput = ({CalendarDate date, Money balance});
+typedef BalanceInput = ({
+  CalendarDate date,
+  Money balance,
+  String currencyCode,
+});
 
-/// Asks for the balance at the END of a day. Returns null when cancelled.
+/// Asks for the balance at the END of a day, in one currency. Returns null
+/// when cancelled. [currencyCode] is the initial choice; with more than one
+/// entry in [currencyCodes] the user can switch between them.
 Future<BalanceInput?> showBalanceDialog(
   BuildContext context,
   WidgetRef ref, {
   required String currencyCode,
+  List<String> currencyCodes = const <String>[],
   required CalendarDate today,
 }) {
   return showDialog<BalanceInput>(
     context: context,
     builder: (_) => _BalanceDialog(
-      parser: _parserFor(ref, currencyCode, allowNegative: true),
+      localeTag: ref.read(deviceLocaleProvider).toString(),
+      currencyCode: currencyCode,
+      currencyCodes: <String>{currencyCode, ...currencyCodes}.toList(),
       today: today,
     ),
   );
 }
 
 class _BalanceDialog extends StatefulWidget {
-  const _BalanceDialog({required this.parser, required this.today});
+  const _BalanceDialog({
+    required this.localeTag,
+    required this.currencyCode,
+    required this.currencyCodes,
+    required this.today,
+  });
 
-  final MoneyParser parser;
+  final String localeTag;
+  final String currencyCode;
+  final List<String> currencyCodes;
   final CalendarDate today;
 
   @override
@@ -189,6 +206,13 @@ class _BalanceDialogState extends State<_BalanceDialog> {
   final _formKey = GlobalKey<FormState>();
   final _controller = TextEditingController();
   late CalendarDate _date = widget.today;
+  late String _currency = widget.currencyCode;
+
+  MoneyParser get _parser => MoneyParser.forCurrency(
+    localeTag: widget.localeTag,
+    currencyCode: _currency,
+    allowNegative: true,
+  );
 
   @override
   void dispose() {
@@ -203,9 +227,11 @@ class _BalanceDialogState extends State<_BalanceDialog> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    final balance = tryParseMoney(widget.parser, _controller.text);
+    final balance = tryParseMoney(_parser, _controller.text);
     if (balance == null) return;
-    Navigator.of(context).pop((date: _date, balance: balance));
+    Navigator.of(
+      context,
+    ).pop((date: _date, balance: balance, currencyCode: _currency));
   }
 
   @override
@@ -221,6 +247,15 @@ class _BalanceDialogState extends State<_BalanceDialog> {
           children: <Widget>[
             Text(l10n.balanceDialogHelp),
             const SizedBox(height: 12),
+            if (widget.currencyCodes.length > 1) ...<Widget>[
+              CurrencyDropdown(
+                value: _currency,
+                options: widget.currencyCodes,
+                allowOther: false,
+                onChanged: (String code) => setState(() => _currency = code),
+              ),
+              const SizedBox(height: 12),
+            ],
             TextFormField(
               key: const Key('balance-field'),
               controller: _controller,
@@ -229,10 +264,13 @@ class _BalanceDialogState extends State<_BalanceDialog> {
                 decimal: true,
                 signed: true,
               ),
-              decoration: InputDecoration(labelText: l10n.balanceDialogAmount),
+              decoration: InputDecoration(
+                labelText: l10n.balanceDialogAmount,
+                suffixText: _currency,
+              ),
               validator: (String? text) => validateMoneyText(
                 l10n,
-                widget.parser,
+                _parser,
                 text,
                 requirePositive: false,
               ),

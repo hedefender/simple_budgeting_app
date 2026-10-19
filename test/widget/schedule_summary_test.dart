@@ -63,11 +63,11 @@ void main() {
       scheduleSummary(l10n, monthlyLast),
       'Κάθε μήνα, την τελευταία ημέρα',
     );
-    expect(scheduleSummary(l10n, monthlyNth), 'Κάθε μήνα, εργάσιμη 3');
+    expect(scheduleSummary(l10n, monthlyNth), 'Κάθε μήνα, 3η εργάσιμη');
     expect(scheduleSummary(l10n, severalDays), 'Κάθε μήνα: ημέρα 1, ημέρα 15');
     expect(
       scheduleSummary(l10n, severalMixed),
-      'Κάθε μήνα: εργάσιμη 2, τελευταία ημέρα',
+      'Κάθε μήνα: 2η εργάσιμη, τελευταία ημέρα',
     );
     expect(scheduleSummary(l10n, weekly), 'Κάθε Παρασκευή');
   });
@@ -103,7 +103,7 @@ void main() {
     final el = await l10nFor(tester, const Locale('el'));
     expect(dayRuleShort(el, const DayOfMonth(7)), 'ημέρα 7');
     expect(dayRuleShort(el, const LastDay()), 'τελευταία ημέρα');
-    expect(dayRuleShort(el, const NthWorkingDay(4)), 'εργάσιμη 4');
+    expect(dayRuleShort(el, const NthWorkingDay(4)), '4η εργάσιμη');
     expect(
       shiftRuleLabel(el, ShiftRule.previousWorkingDay),
       'Πληρωμή την προηγούμενη εργάσιμη',
@@ -113,6 +113,59 @@ void main() {
       'Πληρωμή την επόμενη εργάσιμη',
     );
     expect(shiftRuleLabel(el, ShiftRule.none), 'Χωρίς μετακίνηση');
+  });
+
+  testWidgets('the shift rule is shown unless it is none or irrelevant', (
+    tester,
+  ) async {
+    const prev = ShiftRule.previousWorkingDay;
+    const next = ShiftRule.nextWorkingDay;
+    final en = await l10nFor(tester, const Locale('en'));
+
+    expect(
+      scheduleSummary(en, const Monthly.onDay(5, shift: prev)),
+      'Monthly on day 5 · shift: previous working day',
+    );
+    expect(
+      scheduleSummary(en, const Weekly(DateTime.friday, shift: next)),
+      'Every Friday · shift: next working day',
+    );
+    expect(
+      scheduleSummary(
+        en,
+        SeveralPerMonth(const [DayOfMonth(1), LastDay()], shift: prev),
+      ),
+      'Monthly on day 1, last day · shift: previous working day',
+    );
+    // Nth working day is never shifted, so the rule is not shown.
+    expect(
+      scheduleSummary(en, const Monthly(NthWorkingDay(3), shift: prev)),
+      'Monthly, working day 3',
+    );
+    expect(
+      scheduleSummary(
+        en,
+        SeveralPerMonth(const [
+          NthWorkingDay(1),
+          NthWorkingDay(10),
+        ], shift: prev),
+      ),
+      'Monthly on working day 1, working day 10',
+    );
+
+    final el = await l10nFor(tester, const Locale('el'));
+    expect(
+      scheduleSummary(el, const Monthly.onDay(5, shift: prev)),
+      'Κάθε μήνα, ημέρα 5 · μετατόπιση: προηγούμενη εργάσιμη',
+    );
+    expect(
+      scheduleSummary(el, const Weekly(DateTime.friday, shift: next)),
+      'Κάθε Παρασκευή · μετατόπιση: επόμενη εργάσιμη',
+    );
+    expect(
+      scheduleSummary(el, const Monthly(NthWorkingDay(5), shift: prev)),
+      'Κάθε μήνα, 5η εργάσιμη',
+    );
   });
 
   test('weekdayDate gives the right weekday', () {

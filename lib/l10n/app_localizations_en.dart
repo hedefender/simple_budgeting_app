@@ -378,4 +378,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get occurrenceDateLabel => 'Paid on';
+
+  @override
+  String get formCurrency => 'Currency';
+
+  @override
+  String get formCurrencyLocked =>
+      'The currency cannot be changed. Create a new source to use another currency.';
+
+  @override
+  String get currencyOther => 'Other…';
+
+  @override
+  String get currencyOtherTitle => 'Other currency';
+
+  @override
+  String get currencyOtherField => 'Currency code (3 letters, for example CHF)';
+
+  @override
+  String get currencyInvalid => 'Enter a 3-letter currency code';
+
+  @override
+  String get shiftShortPrevious => 'previous working day';
+
+  @override
+  String get shiftShortNext => 'next working day';
+
+  @override
+  String scheduleSummaryWithShift(String summary, String shift) {
+    return '$summary · shift: $shift';
+  }
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsOpen => 'Settings';
+
+  @override
+  String get settingsPrimaryCurrency => 'Primary currency';
+
+  @override
+  String get settingsPrimaryCurrencyHelp =>
+      'The default currency of new income sources. Existing sources keep their currency. Amounts in different currencies are never added together.';
 }

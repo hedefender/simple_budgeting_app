@@ -444,6 +444,121 @@ void main() {
       expect(usd.occurrences.single.source.name, 'Dollar job');
       expect(usd.projectedClosingBalance, const Money(5 + 777700));
     });
+
+    Future<void> twoCurrencies() async {
+      await h.monthly(name: 'Salary', minor: 100000, day: 5, start: jan1);
+      await h.monthly(
+        name: 'Dollar job',
+        minor: 50000,
+        day: 5,
+        start: jan1,
+        currency: 'USD',
+      );
+    }
+
+    test(
+      'forAllCurrencies gives one block per currency, primary first',
+      () async {
+        await twoCurrencies();
+
+        final eurFirst = await h.cashFlow.forAllCurrencies(
+          YearMonth(2026, 10),
+          'EUR',
+        );
+        final usdFirst = await h.cashFlow.forAllCurrencies(
+          YearMonth(2026, 10),
+          'USD',
+        );
+
+        expect(eurFirst.currencies.map((f) => f.currencyCode), ['EUR', 'USD']);
+        expect(usdFirst.currencies.map((f) => f.currencyCode), ['USD', 'EUR']);
+        expect(
+          eurFirst.currencies[0].projectedClosingBalance,
+          const Money(1000000),
+        );
+        expect(
+          eurFirst.currencies[1].projectedClosingBalance,
+          const Money(500000),
+        );
+      },
+    );
+
+    test(
+      'the payment list holds every currency, sorted by date then name',
+      () async {
+        await twoCurrencies();
+        await h.monthly(name: 'Rent', minor: 10000, day: 1, start: jan1);
+
+        final summary = await h.cashFlow.forAllCurrencies(
+          YearMonth(2026, 10),
+          'EUR',
+        );
+
+        expect(summary.occurrences.map((o) => o.source.name), [
+          'Rent',
+          'Dollar job',
+          'Salary',
+        ]);
+        expect(summary.occurrences.map((o) => o.source.currencyCode), [
+          'EUR',
+          'USD',
+          'EUR',
+        ]);
+      },
+    );
+
+    test('a device currency change does not hide data', () async {
+      await h.monthly(name: 'Salary', minor: 100000, day: 5, start: jan1);
+
+      // Device moved from EUR to USD, but the data is still in EUR.
+      final summary = await h.cashFlow.forAllCurrencies(
+        YearMonth(2026, 10),
+        'USD',
+      );
+
+      expect(summary.occurrences.single.source.name, 'Salary');
+      expect(summary.currencies.map((f) => f.currencyCode), ['USD', 'EUR']);
+      expect(summary.currencies[0].occurrences, isEmpty);
+      expect(summary.currencies[0].projectedClosingBalance, Money.zero);
+      expect(summary.currencies[1].receivedIncome, const Money(100000));
+    });
+
+    test('the primary currency is present even with no data', () async {
+      final summary = await h.cashFlow.forAllCurrencies(
+        YearMonth(2026, 10),
+        'EUR',
+      );
+
+      expect(summary.currencies.single.currencyCode, 'EUR');
+      expect(summary.occurrences, isEmpty);
+    });
+
+    test('an anchor-only currency and archived sources are included', () async {
+      final archived = await h.monthly(
+        name: 'Old',
+        minor: 100,
+        day: 5,
+        start: jan1,
+        currency: 'GBP',
+      );
+      await h.archive(archived.id);
+      await h.setAnchor(
+        date: CalendarDate(2026, 10, 1),
+        balance: const Money(5),
+        currencyCode: 'CHF',
+      );
+
+      final summary = await h.cashFlow.forAllCurrencies(
+        YearMonth(2026, 10),
+        'EUR',
+      );
+
+      expect(summary.currencies.map((f) => f.currencyCode), [
+        'EUR',
+        'CHF',
+        'GBP',
+      ]);
+    });
   });
 
   test('a schedule day beyond the month end pays on the last day', () async {

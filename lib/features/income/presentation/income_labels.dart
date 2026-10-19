@@ -13,7 +13,32 @@ String incomeTypeLabel(AppLocalizations l10n, IncomeType type) {
   };
 }
 
+/// One line describing [schedule]. When payments can move off a weekend or
+/// holiday, the shift rule is appended.
 String scheduleSummary(AppLocalizations l10n, IncomeSchedule schedule) {
+  final base = _scheduleBase(l10n, schedule);
+  final shift = switch (schedule) {
+    OneOff() => ShiftRule.none,
+    Monthly(:final rule, :final shift) =>
+      rule is NthWorkingDay ? ShiftRule.none : shift,
+    SeveralPerMonth(:final rules, :final shift) =>
+      rules.every((r) => r is NthWorkingDay) ? ShiftRule.none : shift,
+    Weekly(:final shift) => shift,
+  };
+  return switch (shift) {
+    ShiftRule.none => base,
+    ShiftRule.previousWorkingDay => l10n.scheduleSummaryWithShift(
+      base,
+      l10n.shiftShortPrevious,
+    ),
+    ShiftRule.nextWorkingDay => l10n.scheduleSummaryWithShift(
+      base,
+      l10n.shiftShortNext,
+    ),
+  };
+}
+
+String _scheduleBase(AppLocalizations l10n, IncomeSchedule schedule) {
   return switch (schedule) {
     OneOff(:final date) => l10n.scheduleSummaryOneOff(date.toUtcDateTime()),
     Monthly(:final rule) => switch (rule) {

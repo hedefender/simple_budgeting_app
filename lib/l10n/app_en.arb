@@ -165,5 +165,24 @@
   "@scheduleSummaryWeekly": {
     "placeholders": { "weekday": { "type": "DateTime", "format": "EEEE" } }
   },
-  "occurrenceDateLabel": "Paid on"
+  "occurrenceDateLabel": "Paid on",
+
+  "formCurrency": "Currency",
+  "formCurrencyLocked": "The currency cannot be changed. Create a new source to use another currency.",
+  "currencyOther": "Other…",
+  "currencyOtherTitle": "Other currency",
+  "currencyOtherField": "Currency code (3 letters, for example CHF)",
+  "currencyInvalid": "Enter a 3-letter currency code",
+
+  "shiftShortPrevious": "previous working day",
+  "shiftShortNext": "next working day",
+  "scheduleSummaryWithShift": "{summary} · shift: {shift}",
+  "@scheduleSummaryWithShift": {
+    "placeholders": { "summary": { "type": "String" }, "shift": { "type": "String" } }
+  },
+
+  "settingsTitle": "Settings",
+  "settingsOpen": "Settings",
+  "settingsPrimaryCurrency": "Primary currency",
+  "settingsPrimaryCurrencyHelp": "The default currency of new income sources. Existing sources keep their currency. Amounts in different currencies are never added together."
 }

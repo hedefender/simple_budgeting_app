@@ -9,8 +9,10 @@
 | Phase 0a: Flutter-only foundation (delivered zip) analyzes, tests and runs | Done (2026-10-17) |
 | Phase 0b: add the Rust crate with a trivial function behind a domain interface (crate in `rust/` inside this repo) | Done (2026-10-18) |
 | Phase 1a: income data model, manual entry, basic cash flow | Done (2026-10-19) |
-| Phase 1b: full schedule engine | Next |
-| Phase 1c, 2 and later | Not started |
+| Phase 1b: full schedule engine | Done (2026-10-19) |
+| Phase 1c: currency handling (primary currency, per-source currency, no hidden data) | Done (2026-10-19) |
+| Phase 1d: worker profiles and extra payments | Next (planning) |
+| Phase 2 and later | Not started |
 
 Each step starts only after the owner confirms the previous one compiles and passes.
 
@@ -28,14 +30,22 @@ Startup before and after adding Rust (debug build, emulator, first start in the 
 Phase 0a 756-868 ms, Phase 0b 726-981 ms. The difference is within noise. Profile builds on a real phone are
 still to be measured.
 
-Phase 1b note (implemented, awaiting the owner's confirmation; NOT Done yet): schedule engine with weekly, several per
-month, Nth working day, shift rules and an offline Greek holiday calendar (docs/holidays.md); drift schema v3 adds
-income_entries.actual_date; the form, the cash flow and the freeze-on-edit use actual dates. Report:
-docs/reports/phase-1b-report.md.
+Phase 1b note: schedule engine with weekly, several per month, Nth working day, shift rules and an offline Greek
+holiday calendar (docs/holidays.md); drift schema v3 adds income_entries.actual_date; the form, the cash flow and the
+freeze-on-edit use actual dates. `flutter analyze` is clean, `flutter test` passes (266/266), `cargo test` passes
+(2/2), the integration tests pass on the emulator, and the owner's manual check passes (weekly, a payment shifted to
+another month, Nth working day, several payments a month). Report: docs/reports/phase-1b-report.md.
+Problem found on the emulator during that check: after the device region changed (el_GR/EUR to en_US/USD) the Income
+page showed 0 and "No payments this month" while the sources were in EUR, because the cash flow filtered by the
+device currency. Phase 1c fixes this.
 
 Phase 1a note: `flutter analyze` is clean, `flutter test` passes (147/147), `cargo test` passes (2/2), the
 integration tests pass on the emulator, and the owner's manual check of steps 1-9 passes. Details:
 `docs/reports/phase-1a-report.md`.
+
+Phase 1c note (Done; the owner's manual check of `docs/manual-validation.md` section 10 was done on 2026-10-19): `primary_currency` in `app_settings`
+(no schema change), Settings page, currency chosen when a source is created, balance per currency, Income page with
+one cash flow block per currency and all payments listed. No conversion. Report: docs/reports/phase-1c-report.md.
 
 ## Product decisions
 
@@ -58,7 +68,8 @@ Rust is a stateless compute engine. Dart owns persistence (drift) and the UI.
 | 0b | Rust bridge | Domain interface and bridge adapter | Crate skeleton, version/ping function, `cargo test` |
 | 1a | Income: data model, manual entry, basic cash flow | Tables (UUID keys), one-off and monthly schedules, computed occurrences with stored overrides, balance anchors, cash flow of a month, entry UI | - |
 | 1b | Income: full schedule engine | Weekly, 2 or 4 payments a month, last day, Nth working day, weekend/holiday shifting, offline Greek holiday calendar | - |
-| 1c | Income: worker profiles and extra payments | Profiles (employee, freelancer, side-hustle), editable default extra payments with a Greek preset pack (rules are checked against official sources before they are implemented) | - |
+| 1c | Currency handling | `primary_currency` setting, minimal Settings page, currency chosen per source at creation, anchors per currency, Income page never hides data (per-currency cash flow blocks, all payments listed with their currency). No conversion | - |
+| 1d | Income: first-run wizard and extra payments | First-run wizard (profile: employee, freelancer, side-hustle) that creates income sources with the existing `IncomeType`; extra payments as separate sources with a new `Yearly` schedule; Greek preset pack as a data file, shown as "Suggested" until the user confirms it (research: `docs/extra-payments.md`) | - |
 | 2 | Expenses | Manual entry, editing, history, CRUD tests | - |
 | 2b | Month close / reconciliation | Month close against an anchor, a separate "adjustment" entry for the difference | - |
 | 3 | JSON import | File picker, import records, malformed-input messages | Parse and validate Scan JSON (single, multi, malformed). Reuse the owner's working parser |
@@ -87,8 +98,8 @@ Rust is a stateless compute engine. Dart owns persistence (drift) and the UI.
 - Balance anchors: the anchor is the balance at the END of its day. Balance at date D = the last anchor dated
   on or before D, plus income dated after that anchor. Without an anchor the balance is 0 and all income since the
   source started counts.
-- Known limit: if the device region changes, the currency of an existing source stays as it was created. The cash
-  flow does not add amounts of different currencies.
+- Currency (replaced in Phase 1c, see "Phase 1c decisions"): the old limit "the cash flow filters by the device
+  currency" is gone.
 - Known limit: no widget tests for month navigation, tap on the source list to edit, the archive dialog and the
   change-amount dialog of one payment; they were checked by hand only.
 - Known limit: the drift schema dump (`drift_schema_vN.json`) and the migration test helpers are generated by
@@ -98,6 +109,33 @@ Rust is a stateless compute engine. Dart owns persistence (drift) and the UI.
   (Phase 2b) will freeze them. Details and sources: `docs/holidays.md`.
 - Tax notes for later phases: a tax settlement refund is a one-off income; paying tax and a freelancer's VAT are
   expenses (Phase 2).
+
+## Phase 1c decisions (implemented; report: docs/reports/phase-1c-report.md)
+
+- Language and number format follow the device. The currency belongs to the data.
+- Setting `primary_currency` in `app_settings`. Default: the device currency on first start; for an existing
+  install, the currency of the existing sources if there are any. It never changes by itself when the device
+  changes. The owner changes it on a minimal Settings page.
+- A source gets its currency at creation (default: the primary currency) and it cannot change afterwards (a new
+  currency means a new source). A balance anchor is set per currency.
+- The Income page never hides data: the payment list shows every payment with its currency, and the cash flow card
+  shows one block (opening balance, received, expected, projected closing balance) for each currency that appears,
+  primary first.
+- No currency conversion in this phase. Amounts of different currencies are never added.
+- Schedule summary: Greek "5η εργάσιμη" instead of "εργάσιμη 5", and the shift rule is shown when it is not "none".
+
+## Phase 1d decisions (owner, 2026-10-19; planning, not implemented)
+
+- A "profile" is a first-run wizard that creates income sources with the existing `IncomeType`. One profile per
+  installation.
+- Extra payments are separate sources with a new schedule type `Yearly` (month, day, shift rule).
+- Amounts are fixed, net and set by the user. The wizard prefills a suggestion once. No link to the salary and no tax
+  calculation.
+- The Greek preset pack is a data file with the date of its last verification. In the UI a preset line is shown as
+  "Suggested" until the user confirms it.
+- Database protection and export (open decision #15) does NOT belong to 1d; it moves to after Phase 2.
+- Research on the rules: `docs/extra-payments.md` (read 2026-10-19). Finding that affects the design: the Easter
+  bonus is due on Holy Wednesday, which is relative to Orthodox Easter, so a fixed month and day is not enough.
 
 ## Phase 4b - Direct import of JPEG/PDF with on-device OCR (Pro)
 
@@ -124,6 +162,21 @@ manual entry.
    `armv7`).
 10. **Weekend/holiday rule: decided (implemented in 1b).** A payment that falls on a weekend or holiday moves to
     the previous working day by default. Per source the owner can choose the next working day or no shift.
+11. **Currency conversion (Phase 2 or 6).** Open when it happens. Principle: no infrastructure of our own,
+    everything local. Using the internet is allowed for time, exchange rates and other third-party services, as
+    long as no personal data is sent. Conversion: manual exchange rates are always available (offline), plus an
+    optional automatic download from a public source chosen later. The result is a total in the primary currency.
+    Phase 1c does not convert.
+12. **Shared Scan/Budget JSON schema (before Phase 3).** Open. Field names and a stable `documentId`, agreed
+    between both apps.
+13. **Several profiles per household.** Open. Is it one database file per profile?
+14. **OCR engine and Greek (Phase 4b, see #7).** Open. ML Kit does not list Greek on its official list of
+    supported languages, so it needs a test with real documents before it is a candidate.
+15. **Database protection and export (after Phase 2; not in 1d).** Direction from the owner: the copy belongs to the user and
+    lives where the user chooses; encryption, if any, is the business of the cloud provider the user picks. The
+    app produces the database file and can export to a spreadsheet. The app should also offer to restore a copy
+    when it starts on an empty database (accidental uninstall or reinstall). Open: file format of the copy,
+    spreadsheet format (CSV or XLSX), when the copy is made, and how the restore offer works.
 
 ## Rules for every phase
 
