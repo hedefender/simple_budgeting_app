@@ -130,6 +130,28 @@ class AppLocalizationsEl extends AppLocalizations {
   String get cashFlowExpected => 'Αναμενόμενα';
 
   @override
+  String get cashFlowExpenses => 'Έξοδα';
+
+  @override
+  String cashFlowPendingExpenses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count έξοδα αναμένουν ποσό (δεν μετρούν)',
+      one: '1 έξοδο αναμένει ποσό (δεν μετρά)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cashFlowBalanceStarts(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Το υπόλοιπο ξεκινά στις $dateString';
+  }
+
+  @override
   String get cashFlowClosing => 'Προβλεπόμενο τελικό υπόλοιπο';
 
   @override
@@ -538,6 +560,156 @@ class AppLocalizationsEl extends AppLocalizations {
   @override
   String get settingsSetupWizardHelp =>
       'Ανοίξτε ξανά τον οδηγό για να προσθέσετε τακτικές και έκτακτες πληρωμές ενός προφίλ.';
+
+  @override
+  String get navExpenses => 'Έξοδα';
+
+  @override
+  String get expensesTitle => 'Έξοδα';
+
+  @override
+  String get expensesAllCategories => 'Όλες οι κατηγορίες';
+
+  @override
+  String get expensesCategoryLabel => 'Κατηγορία';
+
+  @override
+  String get expensesNone => 'Δεν υπάρχουν έξοδα αυτόν τον μήνα';
+
+  @override
+  String get expensesNoneInCategory =>
+      'Δεν υπάρχουν έξοδα σε αυτή την κατηγορία αυτόν τον μήνα';
+
+  @override
+  String get expensesTotal => 'Σύνολο';
+
+  @override
+  String get expenseAwaitingAmount => 'Αναμένει ποσό';
+
+  @override
+  String get categoryEnergy => 'Ενέργεια';
+
+  @override
+  String get categoryWater => 'Νερό';
+
+  @override
+  String get categoryTelecom => 'Τηλεπικοινωνίες';
+
+  @override
+  String get categoryFood => 'Τρόφιμα';
+
+  @override
+  String get categoryFuelTransport => 'Καύσιμα / Μεταφορές';
+
+  @override
+  String get categoryHealth => 'Υγεία';
+
+  @override
+  String get categoryInsurance => 'Ασφάλειες';
+
+  @override
+  String get categoryOther => 'Άλλο';
+
+  @override
+  String get errorExpenseAmountRequired =>
+      'Εισαγάγετε το ποσό που χρεώθηκε ή το αρχικό ποσό και το νόμισμά του';
+
+  @override
+  String get errorExpenseOriginalIncomplete =>
+      'Εισαγάγετε και το αρχικό ποσό και το νόμισμά του';
+
+  @override
+  String get errorExpenseOriginalSameCurrency =>
+      'Το αρχικό νόμισμα πρέπει να διαφέρει από το νόμισμα του λογαριασμού';
+
+  @override
+  String get errorExpenseTaxNoAmount =>
+      'Ο ΦΠΑ/οι φόροι χρειάζονται το ποσό που χρεώθηκε';
+
+  @override
+  String get errorExpenseTaxTooLarge =>
+      'Ο ΦΠΑ/οι φόροι δεν μπορούν να είναι περισσότεροι από το σύνολο';
+
+  @override
+  String get errorExpenseCategory => 'Επιλέξτε κατηγορία';
+
+  @override
+  String get errorExpenseNotFound => 'Αυτό το έξοδο δεν υπάρχει πια';
+
+  @override
+  String get expenseAdd => 'Προσθήκη εξόδου';
+
+  @override
+  String get expenseEditTitle => 'Επεξεργασία εξόδου';
+
+  @override
+  String get expenseDescription => 'Περιγραφή (προαιρετική)';
+
+  @override
+  String get expenseAccountCurrency => 'Νόμισμα λογαριασμού';
+
+  @override
+  String get expenseAmountCharged => 'Ποσό που χρεώθηκε';
+
+  @override
+  String get expenseAmountChargedHelp =>
+      'Ό,τι έφυγε από την τσέπη σας, όπως στο μήνυμα ή την κίνηση της τράπεζας.';
+
+  @override
+  String get expenseOriginalSection => 'Αρχικό ποσό και νόμισμα (προαιρετικό)';
+
+  @override
+  String get expenseOriginalAmount => 'Αρχικό ποσό';
+
+  @override
+  String get expenseOriginalCurrency => 'Αρχικό νόμισμα';
+
+  @override
+  String get expenseOriginalHelp =>
+      'Ενημερωτικό, π.χ. το ποσό σε λίρες στην απόδειξη. Δεν γίνεται καμία μετατροπή.';
+
+  @override
+  String get expenseTaxSection => 'Εκ των οποίων ΦΠΑ / φόροι (προαιρετικό)';
+
+  @override
+  String get expenseTaxAmount => 'ΦΠΑ / φόροι';
+
+  @override
+  String get expenseTaxHelp =>
+      'Ενημερωτικό: μέρος του συνόλου, δεν προστίθεται σε κανένα άθροισμα.';
+
+  @override
+  String get expensePendingNotice =>
+      'Δεν έχει δοθεί ακόμα ποσό που χρεώθηκε. Το έξοδο αποθηκεύεται ως «αναμένει ποσό»: φαίνεται πάντα στη λίστα, αλλά δεν μετρά σε κανένα σύνολο ή υπόλοιπο μέχρι να εισαγάγετε το ποσό που χρεώθηκε, όπως στο μήνυμα ή την κίνηση της τράπεζας.';
+
+  @override
+  String expenseBeforeBalanceWarning(DateTime start, DateTime suggested) {
+    final intl.DateFormat startDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String startString = startDateFormat.format(start);
+    final intl.DateFormat suggestedDateFormat = intl.DateFormat.yMMMd(
+      localeName,
+    );
+    final String suggestedString = suggestedDateFormat.format(suggested);
+
+    return 'Το υπόλοιπο ξεκινά στις $startString. Ένα έξοδο με προηγούμενη ημερομηνία καταγράφεται στο ιστορικό και στα σύνολα, αλλά δεν επηρεάζει το υπόλοιπο. Επιλέξτε ημερομηνία από $suggestedString και μετά.';
+  }
+
+  @override
+  String expenseUseBalanceStart(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Χρήση $dateString';
+  }
+
+  @override
+  String get expenseDeleteTitle => 'Διαγραφή αυτού του εξόδου;';
+
+  @override
+  String get expenseDeleteBody => 'Θα αφαιρεθεί οριστικά.';
+
+  @override
+  String get actionDelete => 'Διαγραφή';
 
   @override
   String get settingsTitle => 'Ρυθμίσεις';

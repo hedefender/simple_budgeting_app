@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_budgeting_app/app/di/providers.dart';
 import 'package:simple_budgeting_app/core/money/money.dart';
 import 'package:simple_budgeting_app/core/money/money_formatter.dart';
+import 'package:simple_budgeting_app/core/presentation/fab_clearance.dart';
+import 'package:simple_budgeting_app/core/presentation/month_selector.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/income_source.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/monthly_cash_flow.dart';
 import 'package:simple_budgeting_app/features/income/presentation/income_dialogs.dart';
@@ -36,31 +38,12 @@ class IncomePage extends ConsumerWidget {
         child: const Icon(Icons.add),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+        padding: EdgeInsets.fromLTRB(16, 8, 16, fabListBottomPadding(context)),
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              IconButton(
-                key: const Key('month-previous'),
-                tooltip: l10n.incomePreviousMonth,
-                onPressed: ref.read(selectedMonthProvider.notifier).previous,
-                icon: const Icon(Icons.chevron_left),
-              ),
-              Expanded(
-                child: Text(
-                  l10n.incomeMonthLabel(month.firstDay.toUtcDateTime()),
-                  key: const Key('month-label'),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              IconButton(
-                key: const Key('month-next'),
-                tooltip: l10n.incomeNextMonth,
-                onPressed: ref.read(selectedMonthProvider.notifier).next,
-                icon: const Icon(Icons.chevron_right),
-              ),
-            ],
+          MonthSelector(
+            month: month,
+            onPrevious: ref.read(selectedMonthProvider.notifier).previous,
+            onNext: ref.read(selectedMonthProvider.notifier).next,
           ),
           cashFlow.when(
             data: (MonthlyCashFlowSummary summary) =>
@@ -176,15 +159,21 @@ class _CurrencyBlock extends ConsumerWidget {
       currencyCode: code,
     );
 
-    Widget row(String key, String label, Money value) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: <Widget>[
-          Expanded(child: Text(label)),
-          Text(formatter.format(value), key: Key('$key-$code')),
-        ],
-      ),
-    );
+    // [unknown]: the balance is not known on that day, so no number is shown.
+    Widget row(String key, String label, Money value, {bool unknown = false}) =>
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            children: <Widget>[
+              Expanded(child: Text(label)),
+              Text(
+                unknown ? '—' : formatter.format(value),
+                key: Key('$key-$code'),
+              ),
+            ],
+          ),
+        );
+    final unknown = flow.balanceUnknown;
 
     return Card(
       key: Key('cash-block-$code'),
@@ -196,15 +185,42 @@ class _CurrencyBlock extends ConsumerWidget {
               alignment: Alignment.centerLeft,
               child: Text(code, style: Theme.of(context).textTheme.titleSmall),
             ),
-            row('cash-opening', l10n.cashFlowOpening, flow.openingBalance),
+            row(
+              'cash-opening',
+              l10n.cashFlowOpening,
+              flow.openingBalance,
+              unknown: unknown,
+            ),
             row('cash-received', l10n.cashFlowReceived, flow.receivedIncome),
             row('cash-expected', l10n.cashFlowExpected, flow.expectedIncome),
+            row('cash-expenses', l10n.cashFlowExpenses, flow.expenses),
+            if (flow.pendingExpenseCount > 0)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  l10n.cashFlowPendingExpenses(flow.pendingExpenseCount),
+                  key: Key('cash-pending-$code'),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
             const Divider(),
             row(
               'cash-closing',
               l10n.cashFlowClosing,
               flow.projectedClosingBalance,
+              unknown: unknown,
             ),
+            if (unknown)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  l10n.cashFlowBalanceStarts(
+                    flow.balanceStart!.date.toUtcDateTime(),
+                  ),
+                  key: Key('cash-balance-start-note-$code'),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(

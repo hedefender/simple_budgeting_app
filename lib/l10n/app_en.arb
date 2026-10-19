@@ -67,6 +67,13 @@
   "cashFlowOpening": "Opening balance",
   "cashFlowReceived": "Received",
   "cashFlowExpected": "Expected",
+  "cashFlowExpenses": "Expenses",
+  "cashFlowPendingExpenses": "{count, plural, =1{1 expense awaits an amount (not counted)} other{{count} expenses await an amount (not counted)}}",
+  "@cashFlowPendingExpenses": { "placeholders": { "count": { "type": "int" } } },
+  "cashFlowBalanceStarts": "The balance starts on {date}",
+  "@cashFlowBalanceStarts": {
+    "placeholders": { "date": { "type": "DateTime", "format": "yMMMd" } }
+  },
   "cashFlowClosing": "Projected closing balance",
   "cashFlowSetBalance": "Set balance",
 
@@ -227,6 +234,60 @@
   "setupSkip": "Skip for now",
   "settingsSetupWizard": "Set up income sources",
   "settingsSetupWizardHelp": "Open the setup wizard again to add the regular and extra payments of a profile.",
+
+  "navExpenses": "Expenses",
+  "expensesTitle": "Expenses",
+  "expensesAllCategories": "All categories",
+  "expensesCategoryLabel": "Category",
+  "expensesNone": "No expenses this month",
+  "expensesNoneInCategory": "No expenses in this category this month",
+  "expensesTotal": "Total",
+  "expenseAwaitingAmount": "Awaiting amount",
+  "categoryEnergy": "Energy",
+  "categoryWater": "Water",
+  "categoryTelecom": "Telecommunications",
+  "categoryFood": "Food",
+  "categoryFuelTransport": "Fuel / Transport",
+  "categoryHealth": "Health",
+  "categoryInsurance": "Insurance",
+  "categoryOther": "Other",
+
+  "errorExpenseAmountRequired": "Enter the amount that was charged, or the original amount and its currency",
+  "errorExpenseOriginalIncomplete": "Enter both the original amount and its currency",
+  "errorExpenseOriginalSameCurrency": "The original currency must differ from the account currency",
+  "errorExpenseTaxNoAmount": "VAT/taxes need the amount that was charged",
+  "errorExpenseTaxTooLarge": "VAT/taxes cannot be more than the total",
+  "errorExpenseCategory": "Choose a category",
+  "errorExpenseNotFound": "This expense no longer exists",
+
+  "expenseAdd": "Add expense",
+  "expenseEditTitle": "Edit expense",
+  "expenseDescription": "Description (optional)",
+  "expenseAccountCurrency": "Account currency",
+  "expenseAmountCharged": "Amount charged",
+  "expenseAmountChargedHelp": "What left your pocket, as in your bank's message or movement.",
+  "expenseOriginalSection": "Original amount and currency (optional)",
+  "expenseOriginalAmount": "Original amount",
+  "expenseOriginalCurrency": "Original currency",
+  "expenseOriginalHelp": "Informational, for example the amount in pounds on a receipt. Nothing is converted.",
+  "expenseTaxSection": "Of which VAT / taxes (optional)",
+  "expenseTaxAmount": "VAT / taxes",
+  "expenseTaxHelp": "Informational: part of the total, added to no sum.",
+  "expensePendingNotice": "No amount has been charged yet. The expense is saved as \"awaiting amount\": it is always listed, but it counts in no total and no balance until you enter the amount that was charged, as in your bank's message or movement.",
+  "expenseBeforeBalanceWarning": "The balance starts on {start}. An expense dated before that is kept in the history and the totals, but it does not change the balance. Choose a date from {suggested} on.",
+  "@expenseBeforeBalanceWarning": {
+    "placeholders": {
+      "start": { "type": "DateTime", "format": "yMMMd" },
+      "suggested": { "type": "DateTime", "format": "yMMMd" }
+    }
+  },
+  "expenseUseBalanceStart": "Use {date}",
+  "@expenseUseBalanceStart": {
+    "placeholders": { "date": { "type": "DateTime", "format": "yMMMd" } }
+  },
+  "expenseDeleteTitle": "Delete this expense?",
+  "expenseDeleteBody": "It is removed for good.",
+  "actionDelete": "Delete",
 
   "settingsTitle": "Settings",
   "settingsOpen": "Settings",

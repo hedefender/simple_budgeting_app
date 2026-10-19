@@ -4,6 +4,7 @@ import 'package:simple_budgeting_app/core/database/app_database.dart';
 import 'package:simple_budgeting_app/core/money/money.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
 import 'package:simple_budgeting_app/core/time/year_month.dart';
+import 'package:simple_budgeting_app/features/expenses/data/expense_repository_impl.dart';
 import 'package:simple_budgeting_app/features/income/data/balance_anchor_repository_impl.dart';
 import 'package:simple_budgeting_app/features/income/data/income_repository_impl.dart';
 import 'package:simple_budgeting_app/features/income/data/income_schedule_codec.dart';
@@ -260,6 +261,7 @@ void main() {
       final cashFlow = GetMonthlyCashFlow(
         repository,
         anchors,
+        ExpenseRepositoryImpl(db),
         calculator,
         () => now,
       );

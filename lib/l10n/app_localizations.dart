@@ -290,6 +290,24 @@ abstract class AppLocalizations {
   /// **'Expected'**
   String get cashFlowExpected;
 
+  /// No description provided for @cashFlowExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get cashFlowExpenses;
+
+  /// No description provided for @cashFlowPendingExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 expense awaits an amount (not counted)} other{{count} expenses await an amount (not counted)}}'**
+  String cashFlowPendingExpenses(int count);
+
+  /// No description provided for @cashFlowBalanceStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'The balance starts on {date}'**
+  String cashFlowBalanceStarts(DateTime date);
+
   /// No description provided for @cashFlowClosing.
   ///
   /// In en, this message translates to:
@@ -991,6 +1009,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open the setup wizard again to add the regular and extra payments of a profile.'**
   String get settingsSetupWizardHelp;
+
+  /// No description provided for @navExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get navExpenses;
+
+  /// No description provided for @expensesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get expensesTitle;
+
+  /// No description provided for @expensesAllCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get expensesAllCategories;
+
+  /// No description provided for @expensesCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get expensesCategoryLabel;
+
+  /// No description provided for @expensesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses this month'**
+  String get expensesNone;
+
+  /// No description provided for @expensesNoneInCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses in this category this month'**
+  String get expensesNoneInCategory;
+
+  /// No description provided for @expensesTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get expensesTotal;
+
+  /// No description provided for @expenseAwaitingAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting amount'**
+  String get expenseAwaitingAmount;
+
+  /// No description provided for @categoryEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy'**
+  String get categoryEnergy;
+
+  /// No description provided for @categoryWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get categoryWater;
+
+  /// No description provided for @categoryTelecom.
+  ///
+  /// In en, this message translates to:
+  /// **'Telecommunications'**
+  String get categoryTelecom;
+
+  /// No description provided for @categoryFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get categoryFood;
+
+  /// No description provided for @categoryFuelTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel / Transport'**
+  String get categoryFuelTransport;
+
+  /// No description provided for @categoryHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get categoryHealth;
+
+  /// No description provided for @categoryInsurance.
+  ///
+  /// In en, this message translates to:
+  /// **'Insurance'**
+  String get categoryInsurance;
+
+  /// No description provided for @categoryOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get categoryOther;
+
+  /// No description provided for @errorExpenseAmountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount that was charged, or the original amount and its currency'**
+  String get errorExpenseAmountRequired;
+
+  /// No description provided for @errorExpenseOriginalIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter both the original amount and its currency'**
+  String get errorExpenseOriginalIncomplete;
+
+  /// No description provided for @errorExpenseOriginalSameCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'The original currency must differ from the account currency'**
+  String get errorExpenseOriginalSameCurrency;
+
+  /// No description provided for @errorExpenseTaxNoAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'VAT/taxes need the amount that was charged'**
+  String get errorExpenseTaxNoAmount;
+
+  /// No description provided for @errorExpenseTaxTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'VAT/taxes cannot be more than the total'**
+  String get errorExpenseTaxTooLarge;
+
+  /// No description provided for @errorExpenseCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get errorExpenseCategory;
+
+  /// No description provided for @errorExpenseNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This expense no longer exists'**
+  String get errorExpenseNotFound;
+
+  /// No description provided for @expenseAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get expenseAdd;
+
+  /// No description provided for @expenseEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit expense'**
+  String get expenseEditTitle;
+
+  /// No description provided for @expenseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get expenseDescription;
+
+  /// No description provided for @expenseAccountCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Account currency'**
+  String get expenseAccountCurrency;
+
+  /// No description provided for @expenseAmountCharged.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount charged'**
+  String get expenseAmountCharged;
+
+  /// No description provided for @expenseAmountChargedHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'What left your pocket, as in your bank\'s message or movement.'**
+  String get expenseAmountChargedHelp;
+
+  /// No description provided for @expenseOriginalSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Original amount and currency (optional)'**
+  String get expenseOriginalSection;
+
+  /// No description provided for @expenseOriginalAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Original amount'**
+  String get expenseOriginalAmount;
+
+  /// No description provided for @expenseOriginalCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Original currency'**
+  String get expenseOriginalCurrency;
+
+  /// No description provided for @expenseOriginalHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Informational, for example the amount in pounds on a receipt. Nothing is converted.'**
+  String get expenseOriginalHelp;
+
+  /// No description provided for @expenseTaxSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Of which VAT / taxes (optional)'**
+  String get expenseTaxSection;
+
+  /// No description provided for @expenseTaxAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'VAT / taxes'**
+  String get expenseTaxAmount;
+
+  /// No description provided for @expenseTaxHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Informational: part of the total, added to no sum.'**
+  String get expenseTaxHelp;
+
+  /// No description provided for @expensePendingNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'No amount has been charged yet. The expense is saved as \"awaiting amount\": it is always listed, but it counts in no total and no balance until you enter the amount that was charged, as in your bank\'s message or movement.'**
+  String get expensePendingNotice;
+
+  /// No description provided for @expenseBeforeBalanceWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The balance starts on {start}. An expense dated before that is kept in the history and the totals, but it does not change the balance. Choose a date from {suggested} on.'**
+  String expenseBeforeBalanceWarning(DateTime start, DateTime suggested);
+
+  /// No description provided for @expenseUseBalanceStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {date}'**
+  String expenseUseBalanceStart(DateTime date);
+
+  /// No description provided for @expenseDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this expense?'**
+  String get expenseDeleteTitle;
+
+  /// No description provided for @expenseDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It is removed for good.'**
+  String get expenseDeleteBody;
+
+  /// No description provided for @actionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get actionDelete;
 
   /// No description provided for @settingsTitle.
   ///

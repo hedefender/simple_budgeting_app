@@ -193,6 +193,58 @@ the setup wizard before Home. In the earlier sections (1-10), press "Skip for no
 12. Upgrade check (only with data from the Phase 1c build): install this build over it. Your sources are there and
     the wizard does NOT open by itself. It is still available in Settings.
 
+## 12. Phase 2: expenses
+
+Prerequisite: `flutter analyze`, `flutter test` and `cargo test` pass. Remember the warning at the top about on-device
+tests. Start from the data of section 11 (or press "Skip for now" in the wizard on a fresh install).
+
+1. Bottom bar: a third tab "Έξοδα" (Expenses). It is empty: "Δεν υπάρχουν έξοδα αυτόν τον μήνα".
+2. Press "+". The form has: description, category (preselected "Άλλο"), date (today), account currency (your primary
+   currency), "Ποσό που χρεώθηκε", and two collapsed sections (original amount, VAT/taxes). Choose "Τρόφιμα", enter
+   `45,00`, save. The expense is in the list and the total for the currency is `45,00`.
+3. Income tab: the cash flow card has a new line "Έξοδα" (`45,00`) and the projected closing balance is lower by `45,00`.
+4. Anchor rule (Income tab -> Set balance): set a balance of `500,00` dated TODAY. Then add expenses on three dates:
+   one the day before, one ON the anchor day, one the day after (use the date button in the form). Only the one
+   AFTER the anchor lowers the closing balance. The two others are inside the anchor.
+5. With an anchor inside the month, the "Έξοδα" line does NOT equal the difference of the opening and closing
+   balances: the line shows all the month's expenses, the balance applies the anchor rule. The same is already true
+   for the received income line. This is intended.
+6. Pending expense: add an expense, leave "Ποσό που χρεώθηκε" empty, open "Αρχικό ποσό και νόμισμα", choose `GBP` and
+   enter `24,50`. A notice says that the expense is saved as "awaiting amount" and counts nowhere. Save. In the list
+   it has the marker "Αναμένει ποσό", it is not in the total (the total says "1 έξοδο αναμένει ποσό (δεν μετρά)") and
+   the Income card shows the same indicator. The balance did not change.
+7. Open the pending expense, enter `28,90` in "Ποσό που χρεώθηκε", save. The marker is gone, the total grows by
+   `28,90`, the balance drops. The original amount `24,50 GBP` is still shown (informational).
+8. Press Save with both amounts empty: an error asks for the amount charged or the original amount. Nothing is saved.
+9. VAT/taxes: open the section, enter an amount smaller than the total: saved, no total changes. A larger amount shows
+   "ο ΦΠΑ/οι φόροι δεν μπορούν να είναι περισσότεροι από το σύνολο".
+10. Original currency equal to the account currency is rejected.
+11. Currencies: the account currency list holds the currencies already in the app, and "Άλλο…". Type `sek` -> `SEK`;
+    `ab` -> "Εισάγετε κωδικό νομίσματος με 3 γράμματα". An expense in a new currency creates its own card on the Income
+    page; totals of different currencies are never added.
+12. Month selector: previous/next month. The Expenses month is independent of the Income month.
+13. Category filter: choose "Υγεία": only that category is listed and the totals follow. "Όλες οι κατηγορίες" resets
+    it. An empty filtered month says so.
+14. Edit an expense: change the amount and the category, save. Delete: the confirmation dialog appears; "Ακύρωση" keeps
+    it, "Διαγραφή" removes it and the totals and the Income card update.
+15. Force-close and reopen: expenses, the pending one and the categories are still there.
+16. Upgrade check (only with data from the Phase 1d build): install this build over it. Income, the setup flag and the
+    balance are unchanged; the Expenses tab opens with the eight categories.
+
+17. Balance start (found on the emulator): set a balance of `780,00` dated 12 October, then add an expense of `98,00`
+    dated 24 September. Before saving, the form shows a warning under the date: "Το υπόλοιπο ξεκινά στις 12 Οκτ 2026 ...",
+    with a button "Χρήση 13 Οκτ 2026" (the day AFTER the anchor, because the anchor day is already inside the balance).
+    The warning does not block: save the expense with the September date.
+18. Go to September on the Income tab: "Αρχικό υπόλοιπο" and "Προβλεπόμενο τελικό υπόλοιπο" show "—" (not `-98,00`) and the
+    note "Το υπόλοιπο ξεκινά στις 12 Οκτ 2026". "Έξοδα" still shows `98,00`. October shows numbers (closing `780,00`, the
+    September expense is history and changes no balance), November starts from `780,00`.
+19. Edit the September expense: the warning is there. Press "Χρήση 13 Οκτ 2026": the date changes and the warning goes. Change the
+    date back, then change the account currency to one that has no anchor and no income source: the warning goes
+    (the start is per currency). Without any anchor, the start is the start date of the oldest income source of that
+    currency; then the warning is for dates BEFORE that day and the button proposes that day itself.
+20. Long lists: add enough expenses (or sources) to fill the screen and scroll to the end on the Expenses and Income
+    tabs: the last row can be scrolled completely above the "+" button.
+
 ## Checklist
 
 - [ ] `flutter analyze` clean
@@ -209,4 +261,5 @@ the setup wizard before Home. In the earlier sections (1-10), press "Skip for no
 - [ ] Phase 1b steps 1-13 pass
 - [ ] Phase 1c steps 1-11 pass
 - [ ] Phase 1d steps 1-12 pass
+- [ ] Phase 2 steps 1-20 pass
 - [ ] Cold start time noted (profile build): ______ ms

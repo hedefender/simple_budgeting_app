@@ -4,11 +4,13 @@ import 'package:simple_budgeting_app/core/clock.dart';
 import 'package:simple_budgeting_app/core/money/money.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
 import 'package:simple_budgeting_app/core/time/year_month.dart';
+import 'package:simple_budgeting_app/features/income/domain/entities/balance_start.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/income_schedule.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/income_source.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/monthly_cash_flow.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/archive_income_source.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/create_income_source.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/get_balance_start.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/get_monthly_cash_flow.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/list_income_sources.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/occurrence_actions.dart';
@@ -55,6 +57,14 @@ final FutureProvider<MonthlyCashFlowSummary> monthlyCashFlowProvider =
           .forAllCurrencies(month, primary);
     });
 
+/// Where the balance of a currency starts (null: no anchor and no source).
+final balanceStartProvider =
+    FutureProvider.autoDispose.family<BalanceStart?, String>(
+      (Ref ref, String currencyCode) => ref
+          .watch(serviceLocatorProvider)
+          .get<GetBalanceStart>()(currencyCode),
+    );
+
 final Provider<IncomeActions> incomeActionsProvider = Provider<IncomeActions>(
   (Ref ref) => IncomeActions(ref),
 );
@@ -70,6 +80,7 @@ class IncomeActions {
   void _refresh() {
     _ref
       ..invalidate(incomeSourcesProvider)
+      ..invalidate(balanceStartProvider)
       ..invalidate(monthlyCashFlowProvider);
   }
 

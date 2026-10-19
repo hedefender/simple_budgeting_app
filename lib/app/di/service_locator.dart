@@ -6,6 +6,14 @@ import 'package:simple_budgeting_app/core/clock.dart';
 import 'package:simple_budgeting_app/core/database/app_database.dart';
 import 'package:simple_budgeting_app/core/id_generator.dart';
 import 'package:simple_budgeting_app/features/foundation/data/app_status_repository_impl.dart';
+import 'package:simple_budgeting_app/features/expenses/data/category_repository_impl.dart';
+import 'package:simple_budgeting_app/features/expenses/data/expense_repository_impl.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/repositories/category_repository.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/repositories/expense_repository.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/usecases/create_expense.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/usecases/delete_expense.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/usecases/list_expenses.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/usecases/update_expense.dart';
 import 'package:simple_budgeting_app/features/income/data/balance_anchor_repository_impl.dart';
 import 'package:simple_budgeting_app/features/income/data/greek_holiday_calendar.dart';
 import 'package:simple_budgeting_app/features/income/data/income_repository_impl.dart';
@@ -15,6 +23,7 @@ import 'package:simple_budgeting_app/features/income/domain/services/income_calc
 import 'package:simple_budgeting_app/features/income/domain/services/schedule_engine.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/archive_income_source.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/create_income_source.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/get_balance_start.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/get_monthly_cash_flow.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/list_income_sources.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/occurrence_actions.dart';
@@ -28,6 +37,7 @@ import 'package:simple_budgeting_app/features/foundation/domain/usecases/record_
 import 'package:simple_budgeting_app/features/settings/data/settings_repository_impl.dart';
 import 'package:simple_budgeting_app/features/settings/domain/repositories/settings_repository.dart';
 import 'package:simple_budgeting_app/features/settings/domain/usecases/get_primary_currency.dart';
+import 'package:simple_budgeting_app/features/settings/domain/usecases/list_known_currencies.dart';
 import 'package:simple_budgeting_app/features/settings/domain/usecases/set_primary_currency.dart';
 import 'package:simple_budgeting_app/features/settings/domain/usecases/setup_status.dart';
 import 'package:simple_budgeting_app/src/rust/frb_generated.dart';
@@ -97,8 +107,15 @@ void configureDependencies(
       () => GetMonthlyCashFlow(
         locator<IncomeRepository>(),
         locator<BalanceAnchorRepository>(),
+        locator<ExpenseRepository>(),
         locator<IncomeCalculator>(),
         now,
+      ),
+    )
+    ..registerFactory<GetBalanceStart>(
+      () => GetBalanceStart(
+        locator<IncomeRepository>(),
+        locator<BalanceAnchorRepository>(),
       ),
     )
     ..registerFactory<ChangeOccurrenceAmount>(
@@ -113,6 +130,36 @@ void configureDependencies(
     ..registerFactory<SetBalanceAnchor>(
       () => SetBalanceAnchor(locator<BalanceAnchorRepository>(), now, newId),
     )
+    ..registerLazySingleton<ExpenseRepository>(
+      () => ExpenseRepositoryImpl(locator<AppDatabase>()),
+    )
+    ..registerLazySingleton<CategoryRepository>(
+      () => CategoryRepositoryImpl(locator<AppDatabase>()),
+    )
+    ..registerFactory<CreateExpense>(
+      () => CreateExpense(
+        locator<ExpenseRepository>(),
+        locator<CategoryRepository>(),
+        now,
+        newId,
+      ),
+    )
+    ..registerFactory<UpdateExpense>(
+      () => UpdateExpense(
+        locator<ExpenseRepository>(),
+        locator<CategoryRepository>(),
+        now,
+      ),
+    )
+    ..registerFactory<DeleteExpense>(
+      () => DeleteExpense(locator<ExpenseRepository>()),
+    )
+    ..registerFactory<ListExpenses>(
+      () => ListExpenses(locator<ExpenseRepository>()),
+    )
+    ..registerFactory<ListExpenseCategories>(
+      () => ListExpenseCategories(locator<CategoryRepository>()),
+    )
     ..registerLazySingleton<SettingsRepository>(
       () => SettingsRepositoryImpl(locator<AppDatabase>()),
     )
@@ -124,6 +171,13 @@ void configureDependencies(
     )
     ..registerFactory<SetPrimaryCurrency>(
       () => SetPrimaryCurrency(locator<SettingsRepository>()),
+    )
+    ..registerFactory<ListKnownCurrencies>(
+      () => ListKnownCurrencies(
+        locator<IncomeRepository>(),
+        locator<BalanceAnchorRepository>(),
+        locator<ExpenseRepository>(),
+      ),
     )
     ..registerFactory<ShouldShowSetup>(
       () => ShouldShowSetup(

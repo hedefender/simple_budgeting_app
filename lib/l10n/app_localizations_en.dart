@@ -130,6 +130,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cashFlowExpected => 'Expected';
 
   @override
+  String get cashFlowExpenses => 'Expenses';
+
+  @override
+  String cashFlowPendingExpenses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count expenses await an amount (not counted)',
+      one: '1 expense awaits an amount (not counted)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cashFlowBalanceStarts(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'The balance starts on $dateString';
+  }
+
+  @override
   String get cashFlowClosing => 'Projected closing balance';
 
   @override
@@ -538,6 +560,157 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsSetupWizardHelp =>
       'Open the setup wizard again to add the regular and extra payments of a profile.';
+
+  @override
+  String get navExpenses => 'Expenses';
+
+  @override
+  String get expensesTitle => 'Expenses';
+
+  @override
+  String get expensesAllCategories => 'All categories';
+
+  @override
+  String get expensesCategoryLabel => 'Category';
+
+  @override
+  String get expensesNone => 'No expenses this month';
+
+  @override
+  String get expensesNoneInCategory =>
+      'No expenses in this category this month';
+
+  @override
+  String get expensesTotal => 'Total';
+
+  @override
+  String get expenseAwaitingAmount => 'Awaiting amount';
+
+  @override
+  String get categoryEnergy => 'Energy';
+
+  @override
+  String get categoryWater => 'Water';
+
+  @override
+  String get categoryTelecom => 'Telecommunications';
+
+  @override
+  String get categoryFood => 'Food';
+
+  @override
+  String get categoryFuelTransport => 'Fuel / Transport';
+
+  @override
+  String get categoryHealth => 'Health';
+
+  @override
+  String get categoryInsurance => 'Insurance';
+
+  @override
+  String get categoryOther => 'Other';
+
+  @override
+  String get errorExpenseAmountRequired =>
+      'Enter the amount that was charged, or the original amount and its currency';
+
+  @override
+  String get errorExpenseOriginalIncomplete =>
+      'Enter both the original amount and its currency';
+
+  @override
+  String get errorExpenseOriginalSameCurrency =>
+      'The original currency must differ from the account currency';
+
+  @override
+  String get errorExpenseTaxNoAmount =>
+      'VAT/taxes need the amount that was charged';
+
+  @override
+  String get errorExpenseTaxTooLarge =>
+      'VAT/taxes cannot be more than the total';
+
+  @override
+  String get errorExpenseCategory => 'Choose a category';
+
+  @override
+  String get errorExpenseNotFound => 'This expense no longer exists';
+
+  @override
+  String get expenseAdd => 'Add expense';
+
+  @override
+  String get expenseEditTitle => 'Edit expense';
+
+  @override
+  String get expenseDescription => 'Description (optional)';
+
+  @override
+  String get expenseAccountCurrency => 'Account currency';
+
+  @override
+  String get expenseAmountCharged => 'Amount charged';
+
+  @override
+  String get expenseAmountChargedHelp =>
+      'What left your pocket, as in your bank\'s message or movement.';
+
+  @override
+  String get expenseOriginalSection =>
+      'Original amount and currency (optional)';
+
+  @override
+  String get expenseOriginalAmount => 'Original amount';
+
+  @override
+  String get expenseOriginalCurrency => 'Original currency';
+
+  @override
+  String get expenseOriginalHelp =>
+      'Informational, for example the amount in pounds on a receipt. Nothing is converted.';
+
+  @override
+  String get expenseTaxSection => 'Of which VAT / taxes (optional)';
+
+  @override
+  String get expenseTaxAmount => 'VAT / taxes';
+
+  @override
+  String get expenseTaxHelp =>
+      'Informational: part of the total, added to no sum.';
+
+  @override
+  String get expensePendingNotice =>
+      'No amount has been charged yet. The expense is saved as \"awaiting amount\": it is always listed, but it counts in no total and no balance until you enter the amount that was charged, as in your bank\'s message or movement.';
+
+  @override
+  String expenseBeforeBalanceWarning(DateTime start, DateTime suggested) {
+    final intl.DateFormat startDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String startString = startDateFormat.format(start);
+    final intl.DateFormat suggestedDateFormat = intl.DateFormat.yMMMd(
+      localeName,
+    );
+    final String suggestedString = suggestedDateFormat.format(suggested);
+
+    return 'The balance starts on $startString. An expense dated before that is kept in the history and the totals, but it does not change the balance. Choose a date from $suggestedString on.';
+  }
+
+  @override
+  String expenseUseBalanceStart(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Use $dateString';
+  }
+
+  @override
+  String get expenseDeleteTitle => 'Delete this expense?';
+
+  @override
+  String get expenseDeleteBody => 'It is removed for good.';
+
+  @override
+  String get actionDelete => 'Delete';
 
   @override
   String get settingsTitle => 'Settings';

@@ -12,7 +12,7 @@
 | Phase 1b: full schedule engine | Done (2026-10-19) |
 | Phase 1c: currency handling (primary currency, per-source currency, no hidden data) | Done (2026-10-19) |
 | Phase 1d: worker profiles and extra payments | Done (2026-10-19) |
-| Phase 2: expenses | Next (planning) |
+| Phase 2: expenses | Implemented, waiting for the owner's manual check (`docs/manual-validation.md` section 12). Plan: `docs/phase-2-plan.md`. Report: `docs/reports/phase-2-report.md` |
 | Phase 2b and later | Not started |
 
 Each step starts only after the owner confirms the previous one compiles and passes.
@@ -77,7 +77,7 @@ Rust is a stateless compute engine. Dart owns persistence (drift) and the UI.
 | 1b | Income: full schedule engine | Weekly, 2 or 4 payments a month, last day, Nth working day, weekend/holiday shifting, offline Greek holiday calendar | - |
 | 1c | Currency handling | `primary_currency` setting, minimal Settings page, currency chosen per source at creation, anchors per currency, Income page never hides data (per-currency cash flow blocks, all payments listed with their currency). No conversion | - |
 | 1d | Income: first-run wizard and extra payments | First-run wizard (profile: employee, freelancer, side-hustle) that creates income sources with the existing `IncomeType`; extra payments as separate sources with a new `Yearly` schedule and `IncomeType.extraPayment`; Greek preset pack as a data file, shown as "Suggested" with an empty amount; no schema change (research: `docs/extra-payments.md`) | - |
-| 2 | Expenses | Manual entry, editing, history, CRUD tests | - |
+| 2 | Expenses | Manual entry (one total, one category, optional original amount/currency and VAT note, pending state), editing, deleting, history with month and category filter, categories as data, expenses in the cash flow (schema v4; see "Phase 2 decisions") | - |
 | 2b | Month close / reconciliation | Month close against an anchor, a separate "adjustment" entry for the difference | - |
 | 3 | JSON import | File picker, import records, malformed-input messages | Parse and validate Scan JSON (single, multi, malformed). Reuse the owner's working parser |
 | 4 | Rule engine | Test dataset runner | Amount, date, vendor, VAT detection; keyword rules; confidence score; datasets for ΔΕΗ, ΕΥΔΑΠ, Cosmote, supermarket, περίπτερο |
@@ -156,6 +156,52 @@ Rust is a stateless compute engine. Dart owns persistence (drift) and the UI.
 - Research on the rules: `docs/extra-payments.md` (read 2026-10-19). Finding that affects the design: the Easter
   bonus is due on Holy Wednesday, which is relative to Orthodox Easter, so a fixed month and day is not enough.
 
+## Phase 2 decisions (owner, 2026-10-19; plan approved: docs/phase-2-plan.md)
+
+Notes added with the approval of the plan:
+
+- **Refunds** are entered as income "Other" for now. Reconsider in Phase 6.
+- **`vendor`**: a nullable column of `expenses`, added (additive migration) when the Scan JSON arrives (Phase 3/4).
+- The "Other..." account currency in the expense form uses the same ISO code validation as the Settings page.
+
+
+1. **One expense = one total and one category.** No per-product lines in Phase 2. Later (local LLM, Phase 7) optional
+   lines are added in a NEW table (additive migration) whose sum equals the total; the category of the expense stays
+   as the default. The Phase 2 model must allow this (the expense id is a UUID that a future lines table can point to;
+   nothing in `expenses` may assume that there are no lines).
+2. **The total is what left the user's pocket.** An optional, informational field "of which VAT/taxes" (an amount,
+   part of the total, added to no sum). It is shown in a collapsible section of the form. There is no setting for it.
+3. **Currency.** An expense stores its amount in the currency of the account that was charged (default: the primary
+   currency; the choice offers the currencies that exist in the app). It may also store an original amount and
+   currency (for example 24.50 GBP), informational only. No currency conversion and no exchange rates. Open decision
+   #11 does not concern expenses.
+4. **Pending expense.** If the user gave only the original amount and currency and not the amount in the account
+   currency, the expense is saved as "awaiting amount". It is always visible in the list with a marker, does not count
+   in the totals or the balance, and is completed when the user enters the amount that was charged (as in the bank's
+   message or movement). The form says so explicitly. It is never hidden silently. Every expense has either an account
+   amount, or an original amount with a currency.
+5. **Categories in Phase 2.** A fixed catalogue with stable keys and names from the ARB files: Energy, Water,
+   Telecommunications, Food, Fuel/Transport, Health, Insurance, Other. Chosen by hand. The catalogue is DATA (a
+   `categories` table with keys), not an enum in the code, so later additions (medical costs, medicines, pets, ...)
+   need no schema change. Choosing the category from the document type (ΔΕΗ/Protergia -> Energy, petrol station ->
+   Fuel, supermarket/kiosk -> Food) belongs to Phase 4/5. The user's own categories come in Phase 5.
+6. **Balance.** Registered expenses are subtracted from the balance and from the projected closing balance of the
+   month, per account currency, inside the existing cash flow block (a new line "Expenses"). Only expenses dated AFTER
+   the date of the balance anchor count, because earlier ones are already inside it. Same-day semantics follow the
+   anchor rule already in force for income: the anchor is the balance at the END of its day, so an expense dated ON the
+   anchor day is part of the anchor and is not subtracted again. Pending expenses never count.
+7. **History.** The list shows all expenses with a month selector (as in Income), a category filter, and a total per
+   currency. Edit and delete (with confirmation). No export (CSV/JSON is open decision #15, after Phase 2).
+- **Balance start (added after the first emulator check).** Per currency, the balance start is the date of the oldest
+  balance anchor; without an anchor, the start date of the oldest income source (archived too); without either there
+  is no start and no warning. Before the start the app does not know the balance. A month that ends before the start
+  shows "-" for the opening and closing balance and the note "The balance starts on <date>"; the income and expense
+  lines stay visible. From the start month on, the calculation is unchanged. Expenses dated before the start stay in
+  the history and the totals but never change a balance, also without an anchor. The expense form warns (not
+  blocking, computed every time, never stored) when the date is too early: with a start taken from an anchor that
+  means on or before the anchor day (the anchor day is inside the anchor) and the button proposes the next day; with a
+  start taken from a source it means before that day and the button proposes that day.
+
 ## Phase 4b - Direct import of JPEG/PDF with on-device OCR (Pro)
 
 Goal: the user does not need Scan to import documents.
@@ -181,7 +227,7 @@ manual entry.
    `armv7`).
 10. **Weekend/holiday rule: decided (implemented in 1b).** A payment that falls on a weekend or holiday moves to
     the previous working day by default. Per source the owner can choose the next working day or no shift.
-11. **Currency conversion (Phase 2 or 6).** Open when it happens. Principle: no infrastructure of our own,
+11. **Currency conversion (Phase 6 or later; NOT Phase 2, see "Phase 2 decisions" #3).** Open when it happens. Principle: no infrastructure of our own,
     everything local. Using the internet is allowed for time, exchange rates and other third-party services, as
     long as no personal data is sent. Conversion: manual exchange rates are always available (offline), plus an
     optional automatic download from a public source chosen later. The result is a total in the primary currency.

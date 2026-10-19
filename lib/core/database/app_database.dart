@@ -1,5 +1,7 @@
 import 'package:drift/drift.dart';
+import 'package:simple_budgeting_app/core/database/seed/built_in_categories.dart';
 import 'package:simple_budgeting_app/core/database/tables/app_settings.dart';
+import 'package:simple_budgeting_app/core/database/tables/expense_tables.dart';
 import 'package:simple_budgeting_app/core/database/tables/income_tables.dart';
 
 part 'app_database.g.dart';
@@ -9,7 +11,14 @@ part 'app_database.g.dart';
 /// The [QueryExecutor] is injected so production uses a file database
 /// (`drift_flutter`) and tests use an in-memory or temp-file database.
 @DriftDatabase(
-  tables: [AppSettings, IncomeSources, IncomeEntries, BalanceAnchors],
+  tables: [
+    AppSettings,
+    IncomeSources,
+    IncomeEntries,
+    BalanceAnchors,
+    Categories,
+    Expenses,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
@@ -18,9 +27,30 @@ class AppDatabase extends _$AppDatabase {
   /// new schema: `dart run drift_dev schema dump
   /// lib/core/database/app_database.dart drift_schemas/`.
   /// 1: app_settings. 2: income_sources, income_entries, balance_anchors.
-  /// 3: income_entries.actual_date.
+  /// 3: income_entries.actual_date. 4: categories, expenses.
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
+
+  /// Idempotent: runs on every open, adds only the categories that are
+  /// missing. The fixed creation time keeps the rows equal on every device.
+  Future<void> _seedBuiltInCategories() async {
+    final createdAt = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+    await batch((Batch b) {
+      for (var i = 0; i < builtInCategoryKeys.length; i++) {
+        final key = builtInCategoryKeys[i];
+        b.insert(
+          categories,
+          CategoriesCompanion.insert(
+            id: key,
+            categoryKey: key,
+            sortOrder: i,
+            createdAt: createdAt,
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+      }
+    });
+  }
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -31,8 +61,13 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(incomeEntries);
         await m.createTable(balanceAnchors);
       }
-      // A v1 database got the tables above in their current (v3) shape, so
-      // only a v2 database needs the new column.
+      if (from < 4) {
+        // The built-in categories are inserted in beforeOpen.
+        await m.createTable(categories);
+        await m.createTable(expenses);
+      }
+      // A v1 database got the income tables above in their v3 shape, so only
+      // a v2 database needs the new column.
       if (from == 2) {
         await m.addColumn(incomeEntries, incomeEntries.actualDate);
         // Phase 1a froze history without shifting, so for entries up to the
@@ -48,6 +83,7 @@ class AppDatabase extends _$AppDatabase {
     },
     beforeOpen: (OpeningDetails details) async {
       await customStatement('PRAGMA foreign_keys = ON');
+      await _seedBuiltInCategories();
     },
   );
 }

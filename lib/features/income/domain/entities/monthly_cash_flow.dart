@@ -1,6 +1,7 @@
 import 'package:simple_budgeting_app/core/money/money.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
 import 'package:simple_budgeting_app/core/time/year_month.dart';
+import 'package:simple_budgeting_app/features/income/domain/entities/balance_start.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/income_source.dart';
 
 /// received: dated today or earlier and not skipped. expected: later than
@@ -37,7 +38,10 @@ class MonthlyCashFlow {
     required this.openingBalance,
     required this.receivedIncome,
     required this.expectedIncome,
+    required this.expenses,
+    required this.pendingExpenseCount,
     required this.projectedClosingBalance,
+    required this.balanceStart,
   });
 
   final YearMonth month;
@@ -51,10 +55,31 @@ class MonthlyCashFlow {
   final Money receivedIncome;
   final Money expectedIncome;
 
+  /// All registered expenses of the month in this currency, except pending
+  /// ones. Like [receivedIncome] it ignores the anchor, so with an anchor
+  /// inside the month it is not the difference of the two balances.
+  final Money expenses;
+
+  /// Expenses of the month in this currency that await the amount that was
+  /// charged. They are in no sum and no balance.
+  final int pendingExpenseCount;
+
   /// Balance at the end of the last day of the month: the last anchor on or
-  /// before that day, plus all non-skipped income dated after the anchor.
-  /// Expenses are not part of Phase 1a.
+  /// before that day, plus all non-skipped income and minus all expenses dated
+  /// after the anchor.
   final Money projectedClosingBalance;
+
+  /// Where the balance of this currency starts, or null when it has no anchor
+  /// and no source.
+  final BalanceStart? balanceStart;
+
+  /// The whole month is before the balance starts: the opening and closing
+  /// balances are unknown and must not be shown as numbers. Income and expense
+  /// lines stay valid.
+  bool get balanceUnknown {
+    final start = balanceStart;
+    return start != null && month.lastDay.isBefore(start.date);
+  }
 }
 
 /// The month in every currency that appears in the data. Nothing is hidden and

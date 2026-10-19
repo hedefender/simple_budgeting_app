@@ -2,6 +2,12 @@ import 'package:get_it/get_it.dart';
 import 'package:simple_budgeting_app/core/clock.dart';
 import 'package:simple_budgeting_app/core/id_generator.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/repositories/category_repository.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/usecases/create_expense.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/usecases/delete_expense.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/usecases/list_expenses.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/usecases/update_expense.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/repositories/expense_repository.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/balance_anchor.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/income_entry.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/income_source.dart';
@@ -11,6 +17,7 @@ import 'package:simple_budgeting_app/features/income/domain/services/income_calc
 import 'package:simple_budgeting_app/features/income/domain/services/schedule_engine.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/archive_income_source.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/create_income_source.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/get_balance_start.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/get_monthly_cash_flow.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/list_income_sources.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/occurrence_actions.dart';
@@ -18,9 +25,11 @@ import 'package:simple_budgeting_app/features/income/domain/usecases/set_balance
 import 'package:simple_budgeting_app/features/income/domain/usecases/update_income_source.dart';
 import 'package:simple_budgeting_app/features/settings/domain/repositories/settings_repository.dart';
 import 'package:simple_budgeting_app/features/settings/domain/usecases/get_primary_currency.dart';
+import 'package:simple_budgeting_app/features/settings/domain/usecases/list_known_currencies.dart';
 import 'package:simple_budgeting_app/features/settings/domain/usecases/set_primary_currency.dart';
 import 'package:simple_budgeting_app/features/settings/domain/usecases/setup_status.dart';
 
+import 'expense_fakes.dart';
 import 'settings_fakes.dart';
 
 /// In-memory income repository for tests that must not touch SQLite.
@@ -111,11 +120,14 @@ IdGenerator sequentialIds() {
   FakeIncomeRepository income,
   FakeBalanceAnchorRepository anchors,
   FakeSettingsRepository settings,
+  FakeExpenseRepository expenses,
 })
 registerIncomeFakes(GetIt locator, {required Clock clock}) {
   final income = FakeIncomeRepository();
   final anchors = FakeBalanceAnchorRepository();
   final settings = FakeSettingsRepository();
+  final expenses = FakeExpenseRepository();
+  final categories = FakeCategoryRepository();
   final newId = sequentialIds();
   const calculator = IncomeCalculator(ScheduleEngine());
   locator
@@ -123,10 +135,26 @@ registerIncomeFakes(GetIt locator, {required Clock clock}) {
     ..registerSingleton<IncomeRepository>(income)
     ..registerSingleton<BalanceAnchorRepository>(anchors)
     ..registerSingleton<SettingsRepository>(settings)
+    ..registerSingleton<ExpenseRepository>(expenses)
+    ..registerSingleton<CategoryRepository>(categories)
     ..registerFactory<GetPrimaryCurrency>(
       () => GetPrimaryCurrency(settings, income),
     )
     ..registerFactory<SetPrimaryCurrency>(() => SetPrimaryCurrency(settings))
+    ..registerFactory<ListKnownCurrencies>(
+      () => ListKnownCurrencies(income, anchors, expenses),
+    )
+    ..registerFactory<CreateExpense>(
+      () => CreateExpense(expenses, categories, clock, newId),
+    )
+    ..registerFactory<UpdateExpense>(
+      () => UpdateExpense(expenses, categories, clock),
+    )
+    ..registerFactory<DeleteExpense>(() => DeleteExpense(expenses))
+    ..registerFactory<ListExpenses>(() => ListExpenses(expenses))
+    ..registerFactory<ListExpenseCategories>(
+      () => ListExpenseCategories(categories),
+    )
     ..registerFactory<ShouldShowSetup>(() => ShouldShowSetup(settings, income))
     ..registerFactory<CompleteSetup>(() => CompleteSetup(settings))
     ..registerFactory<CreateIncomeSource>(
@@ -140,8 +168,9 @@ registerIncomeFakes(GetIt locator, {required Clock clock}) {
     )
     ..registerFactory<ListIncomeSources>(() => ListIncomeSources(income))
     ..registerFactory<GetMonthlyCashFlow>(
-      () => GetMonthlyCashFlow(income, anchors, calculator, clock),
+      () => GetMonthlyCashFlow(income, anchors, expenses, calculator, clock),
     )
+    ..registerFactory<GetBalanceStart>(() => GetBalanceStart(income, anchors))
     ..registerFactory<ChangeOccurrenceAmount>(
       () => ChangeOccurrenceAmount(income, clock, newId),
     )
@@ -152,5 +181,10 @@ registerIncomeFakes(GetIt locator, {required Clock clock}) {
     ..registerFactory<SetBalanceAnchor>(
       () => SetBalanceAnchor(anchors, clock, newId),
     );
-  return (income: income, anchors: anchors, settings: settings);
+  return (
+    income: income,
+    anchors: anchors,
+    settings: settings,
+    expenses: expenses,
+  );
 }

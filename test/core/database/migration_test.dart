@@ -5,48 +5,52 @@ import 'package:simple_budgeting_app/core/database/app_database.dart';
 import '../../generated_migrations/schema.dart';
 import '../../generated_migrations/schema_v1.dart' as v1;
 import '../../generated_migrations/schema_v2.dart' as v2;
+import '../../generated_migrations/schema_v3.dart' as v3;
 
 void main() {
   late SchemaVerifier verifier;
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('v1 -> v3 creates the income tables and keeps existing data', () async {
-    final schema = await verifier.schemaAt(1);
+  test(
+    'v1 -> v4 creates the income and expense tables and keeps existing data',
+    () async {
+      final schema = await verifier.schemaAt(1);
 
-    final oldDb = v1.DatabaseAtV1(schema.newConnection());
-    await oldDb.customStatement(
-      "INSERT INTO app_settings (setting_key, setting_value) "
-      "VALUES ('launch_count', '7')",
-    );
-    await oldDb.close();
+      final oldDb = v1.DatabaseAtV1(schema.newConnection());
+      await oldDb.customStatement(
+        "INSERT INTO app_settings (setting_key, setting_value) "
+        "VALUES ('launch_count', '7')",
+      );
+      await oldDb.close();
 
-    final db = AppDatabase(schema.newConnection());
-    addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 3);
+      final db = AppDatabase(schema.newConnection());
+      addTearDown(db.close);
+      await verifier.migrateAndValidate(db, 4);
 
-    final kept = await db
-        .customSelect(
-          "SELECT setting_value FROM app_settings "
-          "WHERE setting_key = 'launch_count'",
-        )
-        .getSingle();
-    expect(kept.read<String>('setting_value'), '7');
+      final kept = await db
+          .customSelect(
+            "SELECT setting_value FROM app_settings "
+            "WHERE setting_key = 'launch_count'",
+          )
+          .getSingle();
+      expect(kept.read<String>('setting_value'), '7');
 
-    await db.customStatement(
-      "INSERT INTO income_sources (id, name, type, amount_minor, "
-      "currency_code, schedule_json, start_date, created_at) VALUES "
-      "('s1', 'Salary', 'salary', 100000, 'EUR', "
-      "'{\"v\":2,\"type\":\"monthly\",\"rule\":{\"kind\":\"last\"},"
-      "\"shift\":\"none\"}', '2026-01-01', 0)",
-    );
-    final count = await db
-        .customSelect('SELECT COUNT(*) AS c FROM income_sources')
-        .getSingle();
-    expect(count.read<int>('c'), 1);
-  });
+      await db.customStatement(
+        "INSERT INTO income_sources (id, name, type, amount_minor, "
+        "currency_code, schedule_json, start_date, created_at) VALUES "
+        "('s1', 'Salary', 'salary', 100000, 'EUR', "
+        "'{\"v\":2,\"type\":\"monthly\",\"rule\":{\"kind\":\"last\"},"
+        "\"shift\":\"none\"}', '2026-01-01', 0)",
+      );
+      final count = await db
+          .customSelect('SELECT COUNT(*) AS c FROM income_sources')
+          .getSingle();
+      expect(count.read<int>('c'), 1);
+    },
+  );
 
-  group('v2 -> v3 (actual_date)', () {
+  group('v2 -> v4 (actual_date, then expenses)', () {
     Future<void> seedV2(v2.DatabaseAtV2 db) async {
       Future<void> source(String id, {String? frozenThrough}) =>
           db.customStatement(
@@ -87,7 +91,7 @@ void main() {
 
         final db = AppDatabase(schema.newConnection());
         addTearDown(db.close);
-        await verifier.migrateAndValidate(db, 3);
+        await verifier.migrateAndValidate(db, 4);
 
         final rows = await db
             .customSelect(
@@ -116,7 +120,7 @@ void main() {
 
       final db = AppDatabase(schema.newConnection());
       addTearDown(db.close);
-      await verifier.migrateAndValidate(db, 3);
+      await verifier.migrateAndValidate(db, 4);
 
       final count = await db
           .customSelect('SELECT COUNT(*) AS c FROM income_entries')
@@ -135,7 +139,7 @@ void main() {
       await oldDb.close();
       final db = AppDatabase(schema.newConnection());
       addTearDown(db.close);
-      await verifier.migrateAndValidate(db, 3);
+      await verifier.migrateAndValidate(db, 4);
 
       await db.customStatement(
         "INSERT INTO income_entries (id, source_id, original_date, "
@@ -148,6 +152,89 @@ void main() {
           )
           .getSingle();
       expect(row.read<String>('actual_date'), '2026-11-30');
+    });
+  });
+  group('v3 -> v4 (categories and expenses)', () {
+    Future<AppDatabase> migrated() async {
+      final schema = await verifier.schemaAt(3);
+      final oldDb = v3.DatabaseAtV3(schema.newConnection());
+      await oldDb.customStatement(
+        "INSERT INTO app_settings (setting_key, setting_value) "
+        "VALUES ('primary_currency', 'EUR')",
+      );
+      await oldDb.customStatement(
+        "INSERT INTO income_sources (id, name, type, amount_minor, "
+        "currency_code, schedule_json, start_date, created_at) VALUES "
+        "('s1', 'Salary', 'salary', 100000, 'EUR', "
+        "'{\"v\":2,\"type\":\"monthly\",\"rule\":{\"kind\":\"last\"},"
+        "\"shift\":\"none\"}', '2026-01-01', 0)",
+      );
+      await oldDb.customStatement(
+        "INSERT INTO income_entries (id, source_id, original_date, "
+        "actual_date, status, amount_minor, created_at) VALUES "
+        "('e1', 's1', '2026-09-30', '2026-09-30', 'received', 100000, 0)",
+      );
+      await oldDb.close();
+
+      final db = AppDatabase(schema.newConnection());
+      addTearDown(db.close);
+      await verifier.migrateAndValidate(db, 4);
+      return db;
+    }
+
+    Future<int> count(AppDatabase db, String table) async =>
+        (await db.customSelect('SELECT COUNT(*) AS c FROM $table').getSingle())
+            .read<int>('c');
+
+    test('keeps the existing data', () async {
+      final db = await migrated();
+      expect(await count(db, 'income_sources'), 1);
+      expect(await count(db, 'income_entries'), 1);
+      final setting = await db
+          .customSelect(
+            "SELECT setting_value FROM app_settings "
+            "WHERE setting_key = 'primary_currency'",
+          )
+          .getSingle();
+      expect(setting.read<String>('setting_value'), 'EUR');
+    });
+
+    test('creates the expenses table, empty', () async {
+      final db = await migrated();
+      expect(await count(db, 'expenses'), 0);
+    });
+
+    test('has the eight built-in categories, ids equal to keys', () async {
+      final db = await migrated();
+      final rows = await db
+          .customSelect(
+            'SELECT id, category_key FROM categories ORDER BY sort_order',
+          )
+          .get();
+      expect(rows.map((r) => r.read<String>('id')).toList(), [
+        'energy',
+        'water',
+        'telecom',
+        'food',
+        'fuel_transport',
+        'health',
+        'insurance',
+        'other',
+      ]);
+      expect(
+        rows.map((r) => r.read<String>('category_key')),
+        rows.map((r) => r.read<String>('id')),
+      );
+    });
+
+    test('an expense can be stored for a seeded category', () async {
+      final db = await migrated();
+      await db.customStatement(
+        "INSERT INTO expenses (id, category_id, expense_date, currency_code, "
+        "amount_minor, created_at, updated_at) VALUES "
+        "('x1', 'food', '2026-10-19', 'EUR', 4500, 0, 0)",
+      );
+      expect(await count(db, 'expenses'), 1);
     });
   });
 }

@@ -16,6 +16,7 @@ class CurrencyDropdown extends StatelessWidget {
     this.options = commonCurrencyCodes,
     this.allowOther = true,
     this.label,
+    this.fieldKey = const Key('currency-dropdown'),
   });
 
   final String value;
@@ -23,6 +24,10 @@ class CurrencyDropdown extends StatelessWidget {
   final List<String> options;
   final bool allowOther;
   final String? label;
+
+  /// The key of the dropdown itself; give each one a different key when a
+  /// form has more than one.
+  final Key fieldKey;
 
   Future<void> _onSelected(BuildContext context, String? selected) async {
     if (selected == null || selected == value) return;
@@ -46,7 +51,7 @@ class CurrencyDropdown extends StatelessWidget {
       decoration: InputDecoration(labelText: label ?? l10n.formCurrency),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          key: const Key('currency-dropdown'),
+          key: fieldKey,
           value: value,
           isDense: true,
           isExpanded: true,

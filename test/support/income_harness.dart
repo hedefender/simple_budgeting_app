@@ -7,12 +7,14 @@ import 'package:simple_budgeting_app/features/income/domain/services/income_calc
 import 'package:simple_budgeting_app/features/income/domain/services/schedule_engine.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/archive_income_source.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/create_income_source.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/get_balance_start.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/get_monthly_cash_flow.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/list_income_sources.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/occurrence_actions.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/set_balance_anchor.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/update_income_source.dart';
 
+import 'expense_fakes.dart';
 import 'income_fakes.dart';
 
 /// Real use cases over in-memory repositories, with a clock the test moves.
@@ -28,6 +30,7 @@ class IncomeHarness {
 
   final income = FakeIncomeRepository();
   final anchors = FakeBalanceAnchorRepository();
+  final expenses = FakeExpenseRepository();
   final _newId = sequentialIds();
   final IncomeCalculator calculator;
 
@@ -39,12 +42,14 @@ class IncomeHarness {
   ArchiveIncomeSource get archive => ArchiveIncomeSource(income, _clock);
   ListIncomeSources get list => ListIncomeSources(income);
   GetMonthlyCashFlow get cashFlow =>
-      GetMonthlyCashFlow(income, anchors, calculator, _clock);
+      GetMonthlyCashFlow(income, anchors, expenses, calculator, _clock);
   ChangeOccurrenceAmount get changeAmount =>
       ChangeOccurrenceAmount(income, _clock, _newId);
   SkipOccurrence get skip => SkipOccurrence(income, _clock, _newId);
   ResetOccurrence get reset => ResetOccurrence(income);
   SetBalanceAnchor get setAnchor => SetBalanceAnchor(anchors, _clock, _newId);
+
+  GetBalanceStart get balanceStart => GetBalanceStart(income, anchors);
 
   CalendarDate get today => CalendarDate.fromInstant(now);
 

@@ -143,3 +143,26 @@ presentation -> domain (interface, e.g. ReceiptParser) <- data (adapter) -> gene
 - Host tests (`flutter test`) cannot load the native library: they pass `initNative: () async {}` and fake
   `CoreInfoService`. Only `integration_test/` uses the real core.
 - Android builds go through `rust_builder/` (cargokit), which runs cargo during the Gradle build.
+
+## Expenses (Phase 2)
+
+Feature `lib/features/expenses/{domain,data,presentation}`, same layering as `income`. Decisions:
+`docs/roadmap.md` ("Phase 2 decisions"); plan: `docs/phase-2-plan.md`.
+
+- **Schema v4:** `categories` and `expenses` (`lib/core/database/tables/expense_tables.dart`). `expenses` has CHECK
+  constraints that handle NULL explicitly (an amount, or an original amount with its currency; both original fields or
+  none; amounts greater than zero). The domain checks the same rules and gives messages
+  (`expense_validation.dart`).
+- **Pending expense:** `amount_minor IS NULL`. It is listed and marked, and counts in no total and no balance. The
+  account currency is always stored, so a pending expense still belongs to a currency block.
+- **Categories are data:** built-in rows with `id = category_key` (a documented exception to the UUID rule, so
+  the ids are the same on every device). The catalogue (`lib/core/database/seed/built_in_categories.dart`) is inserted
+  with `INSERT OR IGNORE` every time the database opens, so a new category is one more line plus its ARB name, without
+  a schema change. The display name comes from the ARB files by key (`expense_labels.dart`).
+- **Cash flow:** `GetMonthlyCashFlow` takes an `ExpenseRepository`. Expenses dated after the anchor are subtracted
+  in `_balanceAt`; an expense dated on the anchor day is inside the anchor. `MonthlyCashFlow.expenses` is all
+  non-pending expenses of the month (like `receivedIncome`, it ignores the anchor); `pendingExpenseCount` feeds the
+  indicator on the card.
+- **Navigation:** `HomeShell` has three tabs: Home, Income, Expenses. The month and the category filter of the
+  Expenses page are their own providers. Shared widget: `lib/core/presentation/month_selector.dart`.
+- **Future:** a table `expense_lines` can point to `expenses.id`; a nullable `vendor` column arrives with Scan JSON.
