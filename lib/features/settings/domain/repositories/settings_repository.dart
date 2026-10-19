@@ -3,4 +3,9 @@ abstract interface class SettingsRepository {
   Future<String?> getPrimaryCurrency();
 
   Future<void> setPrimaryCurrency(String currencyCode);
+
+  /// Whether the first-run setup wizard was finished or skipped.
+  Future<bool> isSetupCompleted();
+
+  Future<void> markSetupCompleted();
 }

@@ -9,6 +9,28 @@ class SettingsRepositoryImpl implements SettingsRepository {
 
   static const String _kPrimaryCurrency = 'primary_currency';
 
+  static const String _kSetupCompleted = 'setup_completed';
+
+  @override
+  Future<bool> isSetupCompleted() async {
+    final row = await (_db.select(
+      _db.appSettings,
+    )..where((t) => t.settingKey.equals(_kSetupCompleted))).getSingleOrNull();
+    return row?.settingValue == 'true';
+  }
+
+  @override
+  Future<void> markSetupCompleted() {
+    return _db
+        .into(_db.appSettings)
+        .insertOnConflictUpdate(
+          AppSettingsCompanion.insert(
+            settingKey: _kSetupCompleted,
+            settingValue: 'true',
+          ),
+        );
+  }
+
   @override
   Future<String?> getPrimaryCurrency() async {
     final row = await (_db.select(

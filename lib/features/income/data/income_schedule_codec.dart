@@ -24,7 +24,11 @@ class ScheduleDecodeException implements Exception {
 /// {"v":2,"type":"monthly","rule":{"kind":"nth_working","n":3},"shift":"none"}
 /// {"v":2,"type":"several_per_month","rules":[{"kind":"day","day":1},{"kind":"day","day":15}],"shift":"next"}
 /// {"v":2,"type":"weekly","weekday":5,"shift":"previous"}
+/// {"v":2,"type":"yearly","anchor":{"kind":"fixed","month":12,"day":21},"shift":"previous"}
+/// {"v":2,"type":"yearly","anchor":{"kind":"easter","offset":-4},"shift":"previous"}
 /// ```
+/// `yearly` (Phase 1d) is an addition inside version 2: older files never
+/// contain it, so no version bump is needed.
 /// Version 1 (read only, written by Phase 1a): `one_off` as above, and
 /// `{"v":1,"type":"monthly","day":31}` / `"day":"last"`. Version 1 had no
 /// shifting, so it is read with `ShiftRule.none` and nothing moves.
@@ -54,6 +58,22 @@ abstract final class IncomeScheduleCodec {
         'v': currentVersion,
         'type': 'weekly',
         'weekday': weekday,
+        'shift': _encodeShift(shift),
+      },
+      Yearly(:final anchor, :final shift) => <String, Object?>{
+        'v': currentVersion,
+        'type': 'yearly',
+        'anchor': switch (anchor) {
+          FixedDate(:final month, :final day) => <String, Object?>{
+            'kind': 'fixed',
+            'month': month,
+            'day': day,
+          },
+          EasterRelative(:final offsetDays) => <String, Object?>{
+            'kind': 'easter',
+            'offset': offsetDays,
+          },
+        },
         'shift': _encodeShift(shift),
       },
     };
@@ -119,6 +139,11 @@ abstract final class IncomeScheduleCodec {
           throw const ScheduleDecodeException('weekly weekday is invalid');
         }
         return Weekly(weekday, shift: _decodeShift(json['shift']));
+      case 'yearly':
+        return Yearly(
+          _decodeAnchor(json['anchor']),
+          shift: _decodeShift(json['shift']),
+        );
       default:
         throw ScheduleDecodeException('unknown schedule type: ${json['type']}');
     }
@@ -133,6 +158,36 @@ abstract final class IncomeScheduleCodec {
       return OneOff(CalendarDate.parse(date));
     } on FormatException {
       throw const ScheduleDecodeException('one_off date is invalid');
+    }
+  }
+
+  static YearlyAnchor _decodeAnchor(Object? json) {
+    if (json is! Map<String, Object?>) {
+      throw const ScheduleDecodeException('yearly anchor is not an object');
+    }
+    switch (json['kind']) {
+      case 'fixed':
+        final month = json['month'];
+        final day = json['day'];
+        if (month is int &&
+            day is int &&
+            month >= 1 &&
+            month <= 12 &&
+            day >= 1 &&
+            day <= 31) {
+          return FixedDate(month, day);
+        }
+        throw const ScheduleDecodeException('yearly fixed date is invalid');
+      case 'easter':
+        final offset = json['offset'];
+        if (offset is int && offset.abs() <= EasterRelative.maxOffsetDays) {
+          return EasterRelative(offset);
+        }
+        throw const ScheduleDecodeException('yearly easter offset is invalid');
+      default:
+        throw ScheduleDecodeException(
+          'unknown yearly anchor kind: ${json['kind']}',
+        );
     }
   }
 

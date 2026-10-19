@@ -25,4 +25,12 @@ void main() {
     await repository.setPrimaryCurrency('USD');
     expect(await repository.getPrimaryCurrency(), 'USD');
   });
+
+  test('the setup wizard is not completed until it is marked', () async {
+    expect(await repository.isSetupCompleted(), isFalse);
+    await repository.markSetupCompleted();
+    expect(await repository.isSetupCompleted(), isTrue);
+    await repository.markSetupCompleted();
+    expect(await repository.isSetupCompleted(), isTrue);
+  });
 }

@@ -92,6 +92,7 @@
   "typeFreelance": "Freelance",
   "typeSideHustle": "Side hustle",
   "typeOther": "Other",
+  "typeExtraPayment": "Extra payment",
   "sourceSubtitle": "{type} · {schedule}",
   "@sourceSubtitle": {
     "placeholders": { "type": { "type": "String" }, "schedule": { "type": "String" } }
@@ -167,6 +168,21 @@
   },
   "occurrenceDateLabel": "Paid on",
 
+  "scheduleYearly": "Yearly",
+  "formYearlyAnchor": "Date",
+  "yearlyAnchorFixed": "Fixed date",
+  "yearlyAnchorHolyWednesday": "Holy Wednesday (Orthodox Easter)",
+  "yearlyAnchorEasterOffset": "Orthodox Easter {offset} days",
+  "@yearlyAnchorEasterOffset": { "placeholders": { "offset": { "type": "String" } } },
+  "formMonth": "Month",
+  "scheduleSummaryYearlyFixed": "Every year on {date}",
+  "@scheduleSummaryYearlyFixed": {
+    "placeholders": { "date": { "type": "DateTime", "format": "MMMMd" } }
+  },
+  "scheduleSummaryYearlyHolyWednesday": "Every year on Holy Wednesday",
+  "scheduleSummaryYearlyEaster": "Every year, Orthodox Easter {offset} days",
+  "@scheduleSummaryYearlyEaster": { "placeholders": { "offset": { "type": "String" } } },
+
   "formCurrency": "Currency",
   "formCurrencyLocked": "The currency cannot be changed. Create a new source to use another currency.",
   "currencyOther": "Other…",
@@ -180,6 +196,37 @@
   "@scheduleSummaryWithShift": {
     "placeholders": { "summary": { "type": "String" }, "shift": { "type": "String" } }
   },
+
+  "setupTitle": "Set up your income",
+  "setupIntro": "Tick what applies to you and enter the amounts. Nothing is saved for a line that is not ticked or has no amount. Amounts are net, as you receive them.",
+  "setupProfileLabel": "I am",
+  "profileEmployee": "Employee",
+  "profileFreelancer": "Freelancer",
+  "profileSideHustle": "Side hustle",
+  "setupMainSection": "Regular income",
+  "setupExtraSection": "Extra payments",
+  "setupPrivateSectorNote": "These suggestions are for private-sector employees. Public-sector rules are not included.",
+  "setupSuggested": "Suggested",
+  "presetChristmasBonus": "Christmas bonus",
+  "presetEasterBonus": "Easter bonus",
+  "presetLeaveAllowance": "Leave allowance",
+  "amountHintChristmas": "Roughly up to your net monthly salary",
+  "amountHintEaster": "Roughly up to half of your net monthly salary",
+  "amountHintLeave": "Optional. Paid when your leave starts; enter that date",
+  "setupLeaveDate": "Date of payment",
+  "setupAddYearly": "Add another yearly payment",
+  "setupCustomName": "Yearly payment",
+  "setupRemoveLine": "Remove this line",
+  "setupLastVerified": "Suggestions last checked on {date}",
+  "@setupLastVerified": {
+    "placeholders": { "date": { "type": "DateTime", "format": "yMMMd" } }
+  },
+  "setupDuplicateWarning": "A source named \"{name}\" already exists. Saving creates another one.",
+  "@setupDuplicateWarning": { "placeholders": { "name": { "type": "String" } } },
+  "setupFinish": "Create sources",
+  "setupSkip": "Skip for now",
+  "settingsSetupWizard": "Set up income sources",
+  "settingsSetupWizardHelp": "Open the setup wizard again to add the regular and extra payments of a profile.",
 
   "settingsTitle": "Settings",
   "settingsOpen": "Settings",

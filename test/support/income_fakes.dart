@@ -19,6 +19,7 @@ import 'package:simple_budgeting_app/features/income/domain/usecases/update_inco
 import 'package:simple_budgeting_app/features/settings/domain/repositories/settings_repository.dart';
 import 'package:simple_budgeting_app/features/settings/domain/usecases/get_primary_currency.dart';
 import 'package:simple_budgeting_app/features/settings/domain/usecases/set_primary_currency.dart';
+import 'package:simple_budgeting_app/features/settings/domain/usecases/setup_status.dart';
 
 import 'settings_fakes.dart';
 
@@ -126,6 +127,8 @@ registerIncomeFakes(GetIt locator, {required Clock clock}) {
       () => GetPrimaryCurrency(settings, income),
     )
     ..registerFactory<SetPrimaryCurrency>(() => SetPrimaryCurrency(settings))
+    ..registerFactory<ShouldShowSetup>(() => ShouldShowSetup(settings, income))
+    ..registerFactory<CompleteSetup>(() => CompleteSetup(settings))
     ..registerFactory<CreateIncomeSource>(
       () => CreateIncomeSource(income, clock, newId),
     )

@@ -15,7 +15,11 @@ import 'package:simple_budgeting_app/features/settings/presentation/currency_dro
 import 'package:simple_budgeting_app/features/settings/presentation/settings_providers.dart';
 import 'package:simple_budgeting_app/l10n/app_localizations.dart';
 
-enum _ScheduleKind { oneOff, monthly, several, weekly }
+enum _ScheduleKind { oneOff, monthly, several, weekly, yearly }
+
+/// Where a yearly payment sits: a fixed date, Holy Wednesday, or another
+/// offset from Orthodox Easter (kept as it is when an existing source has one).
+enum _YearlyAnchorKind { fixed, holyWednesday, easterOffset }
 
 enum _RuleKind { day, last, nth }
 
@@ -66,6 +70,10 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
   late List<_RuleDraft> _rules;
   late int _weekday;
   late ShiftRule _shift;
+  late int _yearMonth;
+  late int _yearDay;
+  _YearlyAnchorKind _anchorKind = _YearlyAnchorKind.fixed;
+  int _easterOffset = EasterRelative.holyWednesdayOffset;
   late CalendarDate _oneOffDate;
   late CalendarDate _startDate;
   CalendarDate? _endDate;
@@ -103,6 +111,8 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
     _oneOffDate = today;
     _rules = <_RuleDraft>[_RuleDraft(_RuleKind.day, today.day)];
     _weekday = today.weekday;
+    _yearMonth = today.month;
+    _yearDay = today.day;
     _shift = ShiftRule.previousWorkingDay;
     _kind = _ScheduleKind.monthly;
     switch (source?.schedule) {
@@ -120,6 +130,19 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
         _kind = _ScheduleKind.weekly;
         _weekday = weekday;
         _shift = shift;
+      case Yearly(:final anchor, :final shift):
+        _kind = _ScheduleKind.yearly;
+        _shift = shift;
+        switch (anchor) {
+          case FixedDate(:final month, :final day):
+            _yearMonth = month;
+            _yearDay = day;
+          case EasterRelative(:final offsetDays):
+            _easterOffset = offsetDays;
+            _anchorKind = offsetDays == EasterRelative.holyWednesdayOffset
+                ? _YearlyAnchorKind.holyWednesday
+                : _YearlyAnchorKind.easterOffset;
+        }
       case null:
         break;
     }
@@ -153,6 +176,12 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
       shift: _shift,
     ),
     _ScheduleKind.weekly => Weekly(_weekday, shift: _shift),
+    _ScheduleKind.yearly => Yearly(
+      _anchorKind == _YearlyAnchorKind.fixed
+          ? FixedDate(_yearMonth, _yearDay)
+          : EasterRelative(_easterOffset),
+      shift: _shift,
+    ),
   };
 
   bool get _hasEndDate => _kind != _ScheduleKind.oneOff;
@@ -160,7 +189,7 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
   /// The shift rule does not apply when every rule is a Nth working day.
   bool get _showShift => switch (_kind) {
     _ScheduleKind.oneOff => false,
-    _ScheduleKind.weekly => true,
+    _ScheduleKind.weekly || _ScheduleKind.yearly => true,
     _ScheduleKind.monthly ||
     _ScheduleKind.several => _rules.any((r) => r.kind != _RuleKind.nth),
   };
@@ -382,6 +411,69 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
     );
   }
 
+  List<Widget> _yearlyEditor(AppLocalizations l10n) {
+    final localeTag = Localizations.localeOf(context).toString();
+    final maxDay = DateTime.utc(2024, _yearMonth + 1, 0).day;
+    return <Widget>[
+      _dropdown<_YearlyAnchorKind>(
+        fieldKey: const Key('income-yearly-anchor'),
+        label: l10n.formYearlyAnchor,
+        value: _anchorKind,
+        items: <_YearlyAnchorKind, String>{
+          _YearlyAnchorKind.fixed: l10n.yearlyAnchorFixed,
+          _YearlyAnchorKind.holyWednesday: l10n.yearlyAnchorHolyWednesday,
+          if (_anchorKind == _YearlyAnchorKind.easterOffset ||
+              _easterOffset != EasterRelative.holyWednesdayOffset)
+            _YearlyAnchorKind.easterOffset: l10n.yearlyAnchorEasterOffset(
+              signedDays(_easterOffset),
+            ),
+        },
+        onChanged: (_YearlyAnchorKind v) => setState(() {
+          _anchorKind = v;
+          if (v == _YearlyAnchorKind.holyWednesday) {
+            _easterOffset = EasterRelative.holyWednesdayOffset;
+          }
+        }),
+      ),
+      if (_anchorKind == _YearlyAnchorKind.fixed) ...<Widget>[
+        const SizedBox(height: 12),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              flex: 3,
+              child: _dropdown<int>(
+                fieldKey: const Key('income-yearly-month'),
+                label: l10n.formMonth,
+                value: _yearMonth,
+                items: <int, String>{
+                  for (var m = 1; m <= 12; m++)
+                    m: DateFormat.MMMM(localeTag).format(DateTime.utc(2024, m)),
+                },
+                onChanged: (int v) => setState(() {
+                  _yearMonth = v;
+                  final max = DateTime.utc(2024, v + 1, 0).day;
+                  if (_yearDay > max) _yearDay = max;
+                }),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: _dropdown<int>(
+                fieldKey: const Key('income-yearly-day'),
+                label: l10n.formDayOfMonth,
+                value: _yearDay.clamp(1, maxDay),
+                items: <int, String>{for (var d = 1; d <= maxDay; d++) d: '$d'},
+                onChanged: (int v) => setState(() => _yearDay = v),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     // Rebuild when the primary currency has loaded.
@@ -484,6 +576,10 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
                   value: _ScheduleKind.weekly,
                   label: Text(l10n.scheduleWeekly),
                 ),
+                ButtonSegment<_ScheduleKind>(
+                  value: _ScheduleKind.yearly,
+                  label: Text(l10n.scheduleYearly),
+                ),
               ],
               selected: <_ScheduleKind>{_kind},
               onSelectionChanged: (Set<_ScheduleKind> s) =>
@@ -511,6 +607,8 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
                   },
                   onChanged: (int v) => setState(() => _weekday = v),
                 )
+              else if (_kind == _ScheduleKind.yearly)
+                ..._yearlyEditor(l10n)
               else ...<Widget>[
                 for (var i = 0; i < _rules.length; i++) _ruleEditor(l10n, i),
                 if (_kind == _ScheduleKind.several) ...<Widget>[

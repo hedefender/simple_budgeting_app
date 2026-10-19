@@ -162,6 +162,37 @@ data of step 9. Remember the warning at the top about on-device tests.
 11. Upgrade check (only with data from the Phase 1b build): install this build over it. Sources keep their currency,
     and the primary is the currency of the oldest source.
 
+## 11. Phase 1d: setup wizard and extra payments
+
+Prerequisite: `flutter analyze`, `flutter test` and `cargo test` pass. Note: from this phase on, a FRESH install opens
+the setup wizard before Home. In the earlier sections (1-10), press "Skip for now" first (or finish the wizard).
+
+1. Fresh install (device in Greek): the wizard opens by itself. The profile is "Μισθωτός". Three lines are marked
+   "Προτεινόμενο" (Δώρο Χριστουγέννων, Δώρο Πάσχα, Επίδομα αδείας), all unticked, all with an EMPTY amount. The
+   helper texts read "Ενδεικτικά έως ο καθαρός μισθός" and "Ενδεικτικά έως ο μισός καθαρός μισθός". A note says the
+   suggestions are for the private sector. At the bottom: "Οι προτάσεις ελέγχθηκαν τελευταία φορά στις 19 Οκτ 2026".
+2. Choose "Ελεύθερος επαγγελματίας": the three suggestions and the note disappear; the first line is renamed
+   "Ελεύθερος επαγγελματίας". Go back to "Μισθωτός": the suggestions return.
+3. Fill the salary `1.500,00` (the line ticks itself), the Christmas bonus `1.200,00` and the Easter bonus `600,00`.
+   Leave the leave allowance unticked. Press "Δημιουργία πηγών".
+4. Income page: the salary and the two extra payments are in the source list. The Christmas bonus reads "Κάθε χρόνο
+   στις 21 Δεκεμβρίου · μετατόπιση: προηγούμενη εργάσιμη", the Easter bonus "Κάθε χρόνο τη Μεγάλη Τετάρτη ·
+   μετατόπιση: προηγούμενη εργάσιμη", type "Έκτακτη πληρωμή". There is no "leave allowance" source.
+5. Go to December 2026 in the month navigator: the Christmas bonus is on Monday 21 December. Go to April 2027: the Easter
+   bonus is on Wednesday 28 April (Orthodox Easter 2027 is 2 May). Sources made by the wizard start today, so earlier months show nothing.
+6. Force-close and reopen: the wizard does not open again.
+7. Settings -> "Ρύθμιση πηγών εισοδήματος": the wizard opens again, with empty amounts. Tick "Δώρο Χριστουγέννων": a
+   warning says that a source with this name already exists. It does not block saving. Press "Παράλειψη".
+8. In the wizard, tick "Επίδομα αδείας", enter `500,00`, choose a month and a day. After saving, the source repeats
+   every year on that date.
+9. "Προσθήκη άλλης ετήσιας πληρωμής": a new line appears (ticked); name it "13ος μισθός", amount `1.400,00`, month
+   and day. The remove (x) button removes the line. After saving, the source is a yearly "Έκτακτη πληρωμή".
+10. Edit the Christmas bonus: the source form shows "Ετήσιο", the date `Δεκέμβριος` / `21` and the shift rule. In the
+    schedule choices you can switch between a fixed date and "Μεγάλη Τετάρτη (Ορθόδοξο Πάσχα)".
+11. Ticking a line and leaving the amount empty shows "Εισαγάγετε έγκυρο ποσό" and saves nothing.
+12. Upgrade check (only with data from the Phase 1c build): install this build over it. Your sources are there and
+    the wizard does NOT open by itself. It is still available in Settings.
+
 ## Checklist
 
 - [ ] `flutter analyze` clean
@@ -177,4 +208,5 @@ data of step 9. Remember the warning at the top about on-device tests.
 - [ ] Phase 1a steps 1-11 pass
 - [ ] Phase 1b steps 1-13 pass
 - [ ] Phase 1c steps 1-11 pass
+- [ ] Phase 1d steps 1-12 pass
 - [ ] Cold start time noted (profile build): ______ ms

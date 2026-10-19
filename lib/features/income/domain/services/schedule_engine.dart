@@ -2,6 +2,7 @@ import 'package:simple_budgeting_app/core/time/calendar_date.dart';
 import 'package:simple_budgeting_app/core/time/year_month.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/income_schedule.dart';
 import 'package:simple_budgeting_app/features/income/domain/services/holiday_calendar.dart';
+import 'package:simple_budgeting_app/features/income/domain/services/orthodox_easter.dart';
 import 'package:simple_budgeting_app/features/income/domain/services/working_days.dart';
 
 /// One scheduled payment: the date the rule gave ([nominal]) and the date it
@@ -82,6 +83,18 @@ class ScheduleEngine {
             if (CalendarDate(month.year, month.month, d).weekday == weekday)
               _shifted(CalendarDate(month.year, month.month, d), shift),
         ];
+      case Yearly(:final anchor, :final shift):
+        final nominal = switch (anchor) {
+          FixedDate(month: final m, :final day) =>
+            m == month.month ? month.dayClamped(day) : null,
+          EasterRelative(:final offsetDays) => _easterBased(
+            month.year,
+            offsetDays,
+          ),
+        };
+        return nominal != null && month.contains(nominal)
+            ? <ScheduledPayment>[_shifted(nominal, shift)]
+            : <ScheduledPayment>[];
     }
   }
 
@@ -110,6 +123,9 @@ class ScheduleEngine {
     }
     return payments;
   }
+
+  CalendarDate _easterBased(int year, int offsetDays) =>
+      orthodoxEaster(year).addDays(offsetDays);
 
   ScheduledPayment _shifted(CalendarDate nominal, ShiftRule shift) =>
       ScheduledPayment(

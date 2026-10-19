@@ -11,8 +11,9 @@
 | Phase 1a: income data model, manual entry, basic cash flow | Done (2026-10-19) |
 | Phase 1b: full schedule engine | Done (2026-10-19) |
 | Phase 1c: currency handling (primary currency, per-source currency, no hidden data) | Done (2026-10-19) |
-| Phase 1d: worker profiles and extra payments | Next (planning) |
-| Phase 2 and later | Not started |
+| Phase 1d: worker profiles and extra payments | Done (2026-10-19) |
+| Phase 2: expenses | Next (planning) |
+| Phase 2b and later | Not started |
 
 Each step starts only after the owner confirms the previous one compiles and passes.
 
@@ -47,6 +48,12 @@ Phase 1c note (Done; the owner's manual check of `docs/manual-validation.md` sec
 (no schema change), Settings page, currency chosen when a source is created, balance per currency, Income page with
 one cash flow block per currency and all payments listed. No conversion. Report: docs/reports/phase-1c-report.md.
 
+Phase 1d note (Done; the owner's manual check of `docs/manual-validation.md` section 11 passed on 2026-10-19):
+first-run setup wizard, `Yearly` schedule (fixed date or Orthodox Easter offset), `IncomeType.extraPayment`, Greek
+private-sector preset pack shown as "Suggested" with empty amounts. No schema change (still v3). `flutter analyze` is
+clean, `flutter test` passes (330/330), `cargo test` passes (2/2), the integration tests pass on the emulator (4/4).
+Report: docs/reports/phase-1d-report.md.
+
 ## Product decisions
 
 - **Budget and Scan are independent apps.** Each is fully usable alone; neither requires the other.
@@ -69,7 +76,7 @@ Rust is a stateless compute engine. Dart owns persistence (drift) and the UI.
 | 1a | Income: data model, manual entry, basic cash flow | Tables (UUID keys), one-off and monthly schedules, computed occurrences with stored overrides, balance anchors, cash flow of a month, entry UI | - |
 | 1b | Income: full schedule engine | Weekly, 2 or 4 payments a month, last day, Nth working day, weekend/holiday shifting, offline Greek holiday calendar | - |
 | 1c | Currency handling | `primary_currency` setting, minimal Settings page, currency chosen per source at creation, anchors per currency, Income page never hides data (per-currency cash flow blocks, all payments listed with their currency). No conversion | - |
-| 1d | Income: first-run wizard and extra payments | First-run wizard (profile: employee, freelancer, side-hustle) that creates income sources with the existing `IncomeType`; extra payments as separate sources with a new `Yearly` schedule; Greek preset pack as a data file, shown as "Suggested" until the user confirms it (research: `docs/extra-payments.md`) | - |
+| 1d | Income: first-run wizard and extra payments | First-run wizard (profile: employee, freelancer, side-hustle) that creates income sources with the existing `IncomeType`; extra payments as separate sources with a new `Yearly` schedule and `IncomeType.extraPayment`; Greek preset pack as a data file, shown as "Suggested" with an empty amount; no schema change (research: `docs/extra-payments.md`) | - |
 | 2 | Expenses | Manual entry, editing, history, CRUD tests | - |
 | 2b | Month close / reconciliation | Month close against an anchor, a separate "adjustment" entry for the difference | - |
 | 3 | JSON import | File picker, import records, malformed-input messages | Parse and validate Scan JSON (single, multi, malformed). Reuse the owner's working parser |
@@ -124,15 +131,27 @@ Rust is a stateless compute engine. Dart owns persistence (drift) and the UI.
 - No currency conversion in this phase. Amounts of different currencies are never added.
 - Schedule summary: Greek "5η εργάσιμη" instead of "εργάσιμη 5", and the shift rule is shown when it is not "none".
 
-## Phase 1d decisions (owner, 2026-10-19; planning, not implemented)
+## Phase 1d decisions (owner, 2026-10-19; implemented, report: docs/reports/phase-1d-report.md)
 
 - A "profile" is a first-run wizard that creates income sources with the existing `IncomeType`. One profile per
   installation.
-- Extra payments are separate sources with a new schedule type `Yearly` (month, day, shift rule).
-- Amounts are fixed, net and set by the user. The wizard prefills a suggestion once. No link to the salary and no tax
-  calculation.
-- The Greek preset pack is a data file with the date of its last verification. In the UI a preset line is shown as
-  "Suggested" until the user confirms it.
+- Extra payments are separate sources with a new schedule type `Yearly` (a fixed month and day, or an offset from
+  Orthodox Easter, plus a shift rule) and a new `IncomeType.extraPayment`, added at the END of the enum. The type is
+  stored as text (`IncomeType.name`), so it needs no migration.
+- **No schema change (no v4).** No "unconfirmed" state is stored, because it would count in the cash flow. The wizard
+  shows the preset lines with a "Suggested" label and an EMPTY amount field. A source is created only for the lines
+  the user ticks and gives an amount. After that they are ordinary sources. No `preset_key` or `confirmed_at` column.
+  If the wizard runs again from Settings, it warns when a source with the same name already exists.
+- Amounts are fixed, net and typed by the user. No link to the salary and no tax calculation. Helper text under the
+  empty field: Christmas "indicatively up to the net salary", Easter "up to half of it".
+- Dates: Christmas bonus 21 December, Easter bonus Holy Wednesday (Orthodox Easter - 4 days), both with the shift
+  "previous working day".
+- Leave allowance is optional: off by default, and the user gives the date.
+- Part-time and intermittent work: manual amounts only, no calculation.
+- No preset for the public sector. The wizard says the suggestions are for the private sector.
+- A button "Add another yearly payment" covers a 13th or 14th salary and similar.
+- `lastVerified` of the preset pack is shown in the wizard only.
+- The Greek preset pack is a data file with the date of its last verification.
 - Database protection and export (open decision #15) does NOT belong to 1d; it moves to after Phase 2.
 - Research on the rules: `docs/extra-payments.md` (read 2026-10-19). Finding that affects the design: the Easter
   bonus is due on Holy Wednesday, which is relative to Orthodox Easter, so a fixed month and day is not enough.

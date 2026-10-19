@@ -4,6 +4,7 @@ import 'package:simple_budgeting_app/app/di/providers.dart';
 import 'package:simple_budgeting_app/features/settings/domain/usecases/set_primary_currency.dart';
 import 'package:simple_budgeting_app/features/settings/presentation/currency_dropdown.dart';
 import 'package:simple_budgeting_app/features/settings/presentation/settings_providers.dart';
+import 'package:simple_budgeting_app/features/setup/presentation/setup_wizard_page.dart';
 import 'package:simple_budgeting_app/l10n/app_localizations.dart';
 
 /// Minimal settings: for now only the primary currency.
@@ -40,6 +41,17 @@ class SettingsPage extends ConsumerWidget {
           Text(
             l10n.settingsPrimaryCurrencyHelp,
             style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 24),
+          ListTile(
+            key: const Key('settings-setup-wizard'),
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.auto_fix_high_outlined),
+            title: Text(l10n.settingsSetupWizard),
+            subtitle: Text(l10n.settingsSetupWizardHelp),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const SetupWizardPage()),
+            ),
           ),
         ],
       ),

@@ -10,6 +10,7 @@ String incomeTypeLabel(AppLocalizations l10n, IncomeType type) {
     IncomeType.freelance => l10n.typeFreelance,
     IncomeType.sideHustle => l10n.typeSideHustle,
     IncomeType.other => l10n.typeOther,
+    IncomeType.extraPayment => l10n.typeExtraPayment,
   };
 }
 
@@ -24,6 +25,7 @@ String scheduleSummary(AppLocalizations l10n, IncomeSchedule schedule) {
     SeveralPerMonth(:final rules, :final shift) =>
       rules.every((r) => r is NthWorkingDay) ? ShiftRule.none : shift,
     Weekly(:final shift) => shift,
+    Yearly(:final shift) => shift,
   };
   return switch (shift) {
     ShiftRule.none => base,
@@ -50,8 +52,22 @@ String _scheduleBase(AppLocalizations l10n, IncomeSchedule schedule) {
       rules.map((r) => dayRuleShort(l10n, r)).join(', '),
     ),
     Weekly(:final weekday) => l10n.scheduleSummaryWeekly(weekdayDate(weekday)),
+    Yearly(:final anchor) => switch (anchor) {
+      FixedDate(:final month, :final day) => l10n.scheduleSummaryYearlyFixed(
+        // 2024 is a leap year, so 29 February stays valid.
+        DateTime.utc(2024, month, day),
+      ),
+      EasterRelative(isHolyWednesday: true) =>
+        l10n.scheduleSummaryYearlyHolyWednesday,
+      EasterRelative(:final offsetDays) => l10n.scheduleSummaryYearlyEaster(
+        signedDays(offsetDays),
+      ),
+    },
   };
 }
+
+/// "+3" / "-4", for Easter offsets.
+String signedDays(int days) => days > 0 ? '+$days' : '$days';
 
 /// Short text of one rule, for lists such as "day 1, working day 3".
 String dayRuleShort(AppLocalizations l10n, DayRule rule) {

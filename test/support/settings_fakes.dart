@@ -2,6 +2,7 @@ import 'package:simple_budgeting_app/features/settings/domain/repositories/setti
 
 class FakeSettingsRepository implements SettingsRepository {
   String? primaryCurrency;
+  bool setupCompleted = false;
 
   @override
   Future<String?> getPrimaryCurrency() async => primaryCurrency;
@@ -9,4 +10,10 @@ class FakeSettingsRepository implements SettingsRepository {
   @override
   Future<void> setPrimaryCurrency(String currencyCode) async =>
       primaryCurrency = currencyCode;
+
+  @override
+  Future<bool> isSetupCompleted() async => setupCompleted;
+
+  @override
+  Future<void> markSetupCompleted() async => setupCompleted = true;
 }

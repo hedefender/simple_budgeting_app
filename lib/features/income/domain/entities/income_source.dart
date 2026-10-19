@@ -2,7 +2,9 @@ import 'package:simple_budgeting_app/core/money/money.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/income_schedule.dart';
 
-enum IncomeType { salary, freelance, sideHustle, other }
+/// Stored as text (`IncomeType.name`): new values go at the END and need no
+/// migration.
+enum IncomeType { salary, freelance, sideHustle, other, extraPayment }
 
 /// A recurring or one-off source of income. Amounts are net (as received).
 class IncomeSource {

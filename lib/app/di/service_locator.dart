@@ -29,6 +29,7 @@ import 'package:simple_budgeting_app/features/settings/data/settings_repository_
 import 'package:simple_budgeting_app/features/settings/domain/repositories/settings_repository.dart';
 import 'package:simple_budgeting_app/features/settings/domain/usecases/get_primary_currency.dart';
 import 'package:simple_budgeting_app/features/settings/domain/usecases/set_primary_currency.dart';
+import 'package:simple_budgeting_app/features/settings/domain/usecases/setup_status.dart';
 import 'package:simple_budgeting_app/src/rust/frb_generated.dart';
 
 /// flutter_rust_bridge throws if initialized twice, so a bootstrap retry (or an
@@ -123,6 +124,15 @@ void configureDependencies(
     )
     ..registerFactory<SetPrimaryCurrency>(
       () => SetPrimaryCurrency(locator<SettingsRepository>()),
+    )
+    ..registerFactory<ShouldShowSetup>(
+      () => ShouldShowSetup(
+        locator<SettingsRepository>(),
+        locator<IncomeRepository>(),
+      ),
+    )
+    ..registerFactory<CompleteSetup>(
+      () => CompleteSetup(locator<SettingsRepository>()),
     )
     ..registerFactory<RecordStartupDuration>(
       () => RecordStartupDuration(locator<AppStatusRepository>()),

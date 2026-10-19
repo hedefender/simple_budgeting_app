@@ -392,6 +392,12 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get typeOther;
 
+  /// No description provided for @typeExtraPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra payment'**
+  String get typeExtraPayment;
+
   /// No description provided for @sourceSubtitle.
   ///
   /// In en, this message translates to:
@@ -722,6 +728,60 @@ abstract class AppLocalizations {
   /// **'Paid on'**
   String get occurrenceDateLabel;
 
+  /// No description provided for @scheduleYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get scheduleYearly;
+
+  /// No description provided for @formYearlyAnchor.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get formYearlyAnchor;
+
+  /// No description provided for @yearlyAnchorFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed date'**
+  String get yearlyAnchorFixed;
+
+  /// No description provided for @yearlyAnchorHolyWednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Holy Wednesday (Orthodox Easter)'**
+  String get yearlyAnchorHolyWednesday;
+
+  /// No description provided for @yearlyAnchorEasterOffset.
+  ///
+  /// In en, this message translates to:
+  /// **'Orthodox Easter {offset} days'**
+  String yearlyAnchorEasterOffset(String offset);
+
+  /// No description provided for @formMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get formMonth;
+
+  /// No description provided for @scheduleSummaryYearlyFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Every year on {date}'**
+  String scheduleSummaryYearlyFixed(DateTime date);
+
+  /// No description provided for @scheduleSummaryYearlyHolyWednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Every year on Holy Wednesday'**
+  String get scheduleSummaryYearlyHolyWednesday;
+
+  /// No description provided for @scheduleSummaryYearlyEaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Every year, Orthodox Easter {offset} days'**
+  String scheduleSummaryYearlyEaster(String offset);
+
   /// No description provided for @formCurrency.
   ///
   /// In en, this message translates to:
@@ -775,6 +835,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{summary} · shift: {shift}'**
   String scheduleSummaryWithShift(String summary, String shift);
+
+  /// No description provided for @setupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your income'**
+  String get setupTitle;
+
+  /// No description provided for @setupIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick what applies to you and enter the amounts. Nothing is saved for a line that is not ticked or has no amount. Amounts are net, as you receive them.'**
+  String get setupIntro;
+
+  /// No description provided for @setupProfileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'I am'**
+  String get setupProfileLabel;
+
+  /// No description provided for @profileEmployee.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee'**
+  String get profileEmployee;
+
+  /// No description provided for @profileFreelancer.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelancer'**
+  String get profileFreelancer;
+
+  /// No description provided for @profileSideHustle.
+  ///
+  /// In en, this message translates to:
+  /// **'Side hustle'**
+  String get profileSideHustle;
+
+  /// No description provided for @setupMainSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular income'**
+  String get setupMainSection;
+
+  /// No description provided for @setupExtraSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra payments'**
+  String get setupExtraSection;
+
+  /// No description provided for @setupPrivateSectorNote.
+  ///
+  /// In en, this message translates to:
+  /// **'These suggestions are for private-sector employees. Public-sector rules are not included.'**
+  String get setupPrivateSectorNote;
+
+  /// No description provided for @setupSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested'**
+  String get setupSuggested;
+
+  /// No description provided for @presetChristmasBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Christmas bonus'**
+  String get presetChristmasBonus;
+
+  /// No description provided for @presetEasterBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Easter bonus'**
+  String get presetEasterBonus;
+
+  /// No description provided for @presetLeaveAllowance.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave allowance'**
+  String get presetLeaveAllowance;
+
+  /// No description provided for @amountHintChristmas.
+  ///
+  /// In en, this message translates to:
+  /// **'Roughly up to your net monthly salary'**
+  String get amountHintChristmas;
+
+  /// No description provided for @amountHintEaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Roughly up to half of your net monthly salary'**
+  String get amountHintEaster;
+
+  /// No description provided for @amountHintLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Paid when your leave starts; enter that date'**
+  String get amountHintLeave;
+
+  /// No description provided for @setupLeaveDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of payment'**
+  String get setupLeaveDate;
+
+  /// No description provided for @setupAddYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another yearly payment'**
+  String get setupAddYearly;
+
+  /// No description provided for @setupCustomName.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly payment'**
+  String get setupCustomName;
+
+  /// No description provided for @setupRemoveLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this line'**
+  String get setupRemoveLine;
+
+  /// No description provided for @setupLastVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestions last checked on {date}'**
+  String setupLastVerified(DateTime date);
+
+  /// No description provided for @setupDuplicateWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'A source named \"{name}\" already exists. Saving creates another one.'**
+  String setupDuplicateWarning(String name);
+
+  /// No description provided for @setupFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Create sources'**
+  String get setupFinish;
+
+  /// No description provided for @setupSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get setupSkip;
+
+  /// No description provided for @settingsSetupWizard.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up income sources'**
+  String get settingsSetupWizard;
+
+  /// No description provided for @settingsSetupWizardHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the setup wizard again to add the regular and extra payments of a profile.'**
+  String get settingsSetupWizardHelp;
 
   /// No description provided for @settingsTitle.
   ///

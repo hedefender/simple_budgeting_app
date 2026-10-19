@@ -459,6 +459,44 @@ void main() {
       );
     });
 
+    testWidgets('a yearly source on a fixed date is saved', (tester) async {
+      await openForm(tester);
+      await fill(tester, 'income-name', 'Bonus');
+      await fill(tester, 'income-amount', '700');
+      await selectKind(tester, 'Yearly');
+      await choose(tester, 'income-yearly-month', 'December');
+      await choose(tester, 'income-yearly-day', '21');
+
+      await save(tester);
+
+      expect(
+        income.sources.values.single.schedule,
+        const Yearly(FixedDate(12, 21), shift: ShiftRule.previousWorkingDay),
+      );
+    });
+
+    testWidgets('a yearly source on Holy Wednesday is saved', (tester) async {
+      await openForm(tester);
+      await fill(tester, 'income-name', 'Easter bonus');
+      await fill(tester, 'income-amount', '300');
+      await selectKind(tester, 'Yearly');
+      await choose(
+        tester,
+        'income-yearly-anchor',
+        'Holy Wednesday (Orthodox Easter)',
+      );
+
+      await save(tester);
+
+      expect(
+        income.sources.values.single.schedule,
+        const Yearly(
+          EasterRelative(EasterRelative.holyWednesdayOffset),
+          shift: ShiftRule.previousWorkingDay,
+        ),
+      );
+    });
+
     testWidgets('a monthly source on the Nth working day is saved', (
       tester,
     ) async {

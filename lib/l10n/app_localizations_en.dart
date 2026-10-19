@@ -186,6 +186,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get typeOther => 'Other';
 
   @override
+  String get typeExtraPayment => 'Extra payment';
+
+  @override
   String sourceSubtitle(String type, String schedule) {
     return '$type · $schedule';
   }
@@ -380,6 +383,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get occurrenceDateLabel => 'Paid on';
 
   @override
+  String get scheduleYearly => 'Yearly';
+
+  @override
+  String get formYearlyAnchor => 'Date';
+
+  @override
+  String get yearlyAnchorFixed => 'Fixed date';
+
+  @override
+  String get yearlyAnchorHolyWednesday => 'Holy Wednesday (Orthodox Easter)';
+
+  @override
+  String yearlyAnchorEasterOffset(String offset) {
+    return 'Orthodox Easter $offset days';
+  }
+
+  @override
+  String get formMonth => 'Month';
+
+  @override
+  String scheduleSummaryYearlyFixed(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Every year on $dateString';
+  }
+
+  @override
+  String get scheduleSummaryYearlyHolyWednesday =>
+      'Every year on Holy Wednesday';
+
+  @override
+  String scheduleSummaryYearlyEaster(String offset) {
+    return 'Every year, Orthodox Easter $offset days';
+  }
+
+  @override
   String get formCurrency => 'Currency';
 
   @override
@@ -408,6 +448,96 @@ class AppLocalizationsEn extends AppLocalizations {
   String scheduleSummaryWithShift(String summary, String shift) {
     return '$summary · shift: $shift';
   }
+
+  @override
+  String get setupTitle => 'Set up your income';
+
+  @override
+  String get setupIntro =>
+      'Tick what applies to you and enter the amounts. Nothing is saved for a line that is not ticked or has no amount. Amounts are net, as you receive them.';
+
+  @override
+  String get setupProfileLabel => 'I am';
+
+  @override
+  String get profileEmployee => 'Employee';
+
+  @override
+  String get profileFreelancer => 'Freelancer';
+
+  @override
+  String get profileSideHustle => 'Side hustle';
+
+  @override
+  String get setupMainSection => 'Regular income';
+
+  @override
+  String get setupExtraSection => 'Extra payments';
+
+  @override
+  String get setupPrivateSectorNote =>
+      'These suggestions are for private-sector employees. Public-sector rules are not included.';
+
+  @override
+  String get setupSuggested => 'Suggested';
+
+  @override
+  String get presetChristmasBonus => 'Christmas bonus';
+
+  @override
+  String get presetEasterBonus => 'Easter bonus';
+
+  @override
+  String get presetLeaveAllowance => 'Leave allowance';
+
+  @override
+  String get amountHintChristmas => 'Roughly up to your net monthly salary';
+
+  @override
+  String get amountHintEaster =>
+      'Roughly up to half of your net monthly salary';
+
+  @override
+  String get amountHintLeave =>
+      'Optional. Paid when your leave starts; enter that date';
+
+  @override
+  String get setupLeaveDate => 'Date of payment';
+
+  @override
+  String get setupAddYearly => 'Add another yearly payment';
+
+  @override
+  String get setupCustomName => 'Yearly payment';
+
+  @override
+  String get setupRemoveLine => 'Remove this line';
+
+  @override
+  String setupLastVerified(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Suggestions last checked on $dateString';
+  }
+
+  @override
+  String setupDuplicateWarning(String name) {
+    return 'A source named \"$name\" already exists. Saving creates another one.';
+  }
+
+  @override
+  String get setupFinish => 'Create sources';
+
+  @override
+  String get setupSkip => 'Skip for now';
+
+  @override
+  String get settingsSetupWizard => 'Set up income sources';
+
+  @override
+  String get settingsSetupWizardHelp =>
+      'Open the setup wizard again to add the regular and extra payments of a profile.';
 
   @override
   String get settingsTitle => 'Settings';

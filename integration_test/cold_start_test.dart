@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:simple_budgeting_app/app/app.dart';
 import 'package:simple_budgeting_app/app/di/service_locator.dart';
+import 'package:simple_budgeting_app/features/settings/domain/repositories/settings_repository.dart';
 import 'package:simple_budgeting_app/src/rust/api/core_info.dart';
 
 /// On-device test using the REAL database file. Run on an emulator/phone:
@@ -26,6 +27,8 @@ void main() {
 
   Future<int> startApp(WidgetTester tester) async {
     configureDependencies(GetIt.instance);
+    // The first-run wizard would cover the home screen on a fresh install.
+    await GetIt.instance<SettingsRepository>().markSetupCompleted();
     await tester.pumpWidget(
       ProviderScope(key: UniqueKey(), child: const BudgetApp()),
     );
@@ -33,10 +36,17 @@ void main() {
     await pumpUntilFound(tester, tile);
 
     // Locale-independent: take the digits from "Launch #5" / "Εκκίνηση #5".
-    final text = (tester.widget<ListTile>(
-      find.descendant(of: tile, matching: find.byType(ListTile)),
-    ).title! as Text)
-        .data!;
+    final text =
+        (tester
+                    .widget<ListTile>(
+                      find.descendant(
+                        of: tile,
+                        matching: find.byType(ListTile),
+                      ),
+                    )
+                    .title!
+                as Text)
+            .data!;
     return int.parse(RegExp(r'\d+').firstMatch(text)!.group(0)!);
   }
 
@@ -53,9 +63,10 @@ void main() {
     expect(info.crateVersion, isNotEmpty);
     expect(info.target, contains('-'));
     expect(
-      find.text(
-        'Rust core: v${info.crateVersion} (${info.target})',
-      ).evaluate().isNotEmpty ||
+      find
+              .text('Rust core: v${info.crateVersion} (${info.target})')
+              .evaluate()
+              .isNotEmpty ||
           find
               .text('Πυρήνας Rust: v${info.crateVersion} (${info.target})')
               .evaluate()
@@ -65,8 +76,9 @@ void main() {
     await shutDown(tester);
   });
 
-  testWidgets('cold start reaches home and the counter persists restarts',
-      (tester) async {
+  testWidgets('cold start reaches home and the counter persists restarts', (
+    tester,
+  ) async {
     final first = await startApp(tester);
     await shutDown(tester);
 

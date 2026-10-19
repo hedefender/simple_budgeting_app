@@ -186,6 +186,9 @@ class AppLocalizationsEl extends AppLocalizations {
   String get typeOther => 'Άλλο';
 
   @override
+  String get typeExtraPayment => 'Έκτακτη πληρωμή';
+
+  @override
   String sourceSubtitle(String type, String schedule) {
     return '$type · $schedule';
   }
@@ -381,6 +384,43 @@ class AppLocalizationsEl extends AppLocalizations {
   String get occurrenceDateLabel => 'Ημερομηνία πληρωμής';
 
   @override
+  String get scheduleYearly => 'Ετήσιο';
+
+  @override
+  String get formYearlyAnchor => 'Ημερομηνία';
+
+  @override
+  String get yearlyAnchorFixed => 'Σταθερή ημερομηνία';
+
+  @override
+  String get yearlyAnchorHolyWednesday => 'Μεγάλη Τετάρτη (Ορθόδοξο Πάσχα)';
+
+  @override
+  String yearlyAnchorEasterOffset(String offset) {
+    return 'Ορθόδοξο Πάσχα $offset ημέρες';
+  }
+
+  @override
+  String get formMonth => 'Μήνας';
+
+  @override
+  String scheduleSummaryYearlyFixed(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Κάθε χρόνο στις $dateString';
+  }
+
+  @override
+  String get scheduleSummaryYearlyHolyWednesday =>
+      'Κάθε χρόνο τη Μεγάλη Τετάρτη';
+
+  @override
+  String scheduleSummaryYearlyEaster(String offset) {
+    return 'Κάθε χρόνο, Ορθόδοξο Πάσχα $offset ημέρες';
+  }
+
+  @override
   String get formCurrency => 'Νόμισμα';
 
   @override
@@ -409,6 +449,95 @@ class AppLocalizationsEl extends AppLocalizations {
   String scheduleSummaryWithShift(String summary, String shift) {
     return '$summary · μετατόπιση: $shift';
   }
+
+  @override
+  String get setupTitle => 'Ρύθμιση εισοδήματος';
+
+  @override
+  String get setupIntro =>
+      'Τσεκάρετε ό,τι ισχύει για εσάς και συμπληρώστε τα ποσά. Δεν αποθηκεύεται τίποτα για γραμμή που δεν είναι τσεκαρισμένη ή δεν έχει ποσό. Τα ποσά είναι καθαρά, όπως τα εισπράττετε.';
+
+  @override
+  String get setupProfileLabel => 'Είμαι';
+
+  @override
+  String get profileEmployee => 'Μισθωτός';
+
+  @override
+  String get profileFreelancer => 'Ελεύθερος επαγγελματίας';
+
+  @override
+  String get profileSideHustle => 'Δευτερεύουσα απασχόληση';
+
+  @override
+  String get setupMainSection => 'Τακτικό εισόδημα';
+
+  @override
+  String get setupExtraSection => 'Έκτακτες πληρωμές';
+
+  @override
+  String get setupPrivateSectorNote =>
+      'Οι προτάσεις αφορούν μισθωτούς του ιδιωτικού τομέα. Οι κανόνες του Δημοσίου δεν περιλαμβάνονται.';
+
+  @override
+  String get setupSuggested => 'Προτεινόμενο';
+
+  @override
+  String get presetChristmasBonus => 'Δώρο Χριστουγέννων';
+
+  @override
+  String get presetEasterBonus => 'Δώρο Πάσχα';
+
+  @override
+  String get presetLeaveAllowance => 'Επίδομα αδείας';
+
+  @override
+  String get amountHintChristmas => 'Ενδεικτικά έως ο καθαρός μισθός';
+
+  @override
+  String get amountHintEaster => 'Ενδεικτικά έως ο μισός καθαρός μισθός';
+
+  @override
+  String get amountHintLeave =>
+      'Προαιρετικό. Πληρώνεται με την έναρξη της άδειας· δώστε αυτή την ημερομηνία';
+
+  @override
+  String get setupLeaveDate => 'Ημερομηνία πληρωμής';
+
+  @override
+  String get setupAddYearly => 'Προσθήκη άλλης ετήσιας πληρωμής';
+
+  @override
+  String get setupCustomName => 'Ετήσια πληρωμή';
+
+  @override
+  String get setupRemoveLine => 'Αφαίρεση αυτής της γραμμής';
+
+  @override
+  String setupLastVerified(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Οι προτάσεις ελέγχθηκαν τελευταία φορά στις $dateString';
+  }
+
+  @override
+  String setupDuplicateWarning(String name) {
+    return 'Υπάρχει ήδη πηγή με όνομα «$name». Με την αποθήκευση θα δημιουργηθεί και δεύτερη.';
+  }
+
+  @override
+  String get setupFinish => 'Δημιουργία πηγών';
+
+  @override
+  String get setupSkip => 'Παράλειψη προς το παρόν';
+
+  @override
+  String get settingsSetupWizard => 'Ρύθμιση πηγών εισοδήματος';
+
+  @override
+  String get settingsSetupWizardHelp =>
+      'Ανοίξτε ξανά τον οδηγό για να προσθέσετε τακτικές και έκτακτες πληρωμές ενός προφίλ.';
 
   @override
   String get settingsTitle => 'Ρυθμίσεις';

@@ -162,6 +162,76 @@ final class Weekly extends IncomeSchedule {
   String toString() => 'Weekly($weekday, $shift)';
 }
 
+/// Where a [Yearly] payment sits in the year. Knows nothing about JSON.
+sealed class YearlyAnchor {
+  const YearlyAnchor();
+}
+
+/// A fixed [month] (1-12) and [day] (1-31). A day past the end of the month
+/// (29 February in a common year) is the last day of that month.
+final class FixedDate extends YearlyAnchor {
+  const FixedDate(this.month, this.day)
+    : assert(month >= 1 && month <= 12),
+      assert(day >= 1 && day <= 31);
+
+  final int month;
+  final int day;
+
+  @override
+  bool operator ==(Object other) =>
+      other is FixedDate && other.month == month && other.day == day;
+
+  @override
+  int get hashCode => Object.hash('fixed', month, day);
+
+  @override
+  String toString() => 'FixedDate($month-$day)';
+}
+
+/// [offsetDays] after Orthodox Easter Sunday (negative: before). Holy
+/// Wednesday is [holyWednesdayOffset].
+final class EasterRelative extends YearlyAnchor {
+  const EasterRelative(this.offsetDays)
+    : assert(offsetDays >= -maxOffsetDays && offsetDays <= maxOffsetDays);
+
+  static const int holyWednesdayOffset = -4;
+
+  /// Easter-based dates stay within about 50 days of Easter.
+  static const int maxOffsetDays = 60;
+
+  final int offsetDays;
+
+  bool get isHolyWednesday => offsetDays == holyWednesdayOffset;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EasterRelative && other.offsetDays == offsetDays;
+
+  @override
+  int get hashCode => Object.hash('easter', offsetDays);
+
+  @override
+  String toString() => 'EasterRelative($offsetDays)';
+}
+
+/// One payment a year at [anchor]. [shift] moves it off a weekend or holiday.
+final class Yearly extends IncomeSchedule {
+  const Yearly(this.anchor, {this.shift = ShiftRule.none});
+
+  final YearlyAnchor anchor;
+  final ShiftRule shift;
+
+  @override
+  bool operator ==(Object other) =>
+      other is Yearly && other.anchor == anchor && other.shift == shift;
+
+  @override
+  int get hashCode => Object.hash('yearly', anchor, shift);
+
+  @override
+  String toString() => 'Yearly($anchor, $shift)';
+}
+
 bool _sameRules(List<DayRule> a, List<DayRule> b) {
   if (a.length != b.length) return false;
   for (var i = 0; i < a.length; i++) {
