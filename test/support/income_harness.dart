@@ -2,6 +2,7 @@ import 'package:simple_budgeting_app/core/money/money.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/income_schedule.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/income_source.dart';
+import 'package:simple_budgeting_app/features/income/domain/services/holiday_calendar.dart';
 import 'package:simple_budgeting_app/features/income/domain/services/income_calculator.dart';
 import 'package:simple_budgeting_app/features/income/domain/services/schedule_engine.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/archive_income_source.dart';
@@ -16,7 +17,11 @@ import 'income_fakes.dart';
 
 /// Real use cases over in-memory repositories, with a clock the test moves.
 class IncomeHarness {
-  IncomeHarness({DateTime? now}) : now = now ?? DateTime.utc(2026, 10, 18, 9);
+  IncomeHarness({DateTime? now, HolidayCalendar? holidays})
+    : now = now ?? DateTime.utc(2026, 10, 18, 9),
+      calculator = IncomeCalculator(
+        ScheduleEngine(holidays ?? const NoHolidays()),
+      );
 
   /// "Now" for every use case. Tests assign it to move time.
   DateTime now;
@@ -24,7 +29,7 @@ class IncomeHarness {
   final income = FakeIncomeRepository();
   final anchors = FakeBalanceAnchorRepository();
   final _newId = sequentialIds();
-  final calculator = const IncomeCalculator(ScheduleEngine());
+  final IncomeCalculator calculator;
 
   DateTime _clock() => now;
 

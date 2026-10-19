@@ -341,7 +341,7 @@ abstract class AppLocalizations {
   /// No description provided for @occurrenceChangeAmount.
   ///
   /// In en, this message translates to:
-  /// **'Change amount'**
+  /// **'Change amount or date'**
   String get occurrenceChangeAmount;
 
   /// No description provided for @occurrenceSkip.
@@ -359,7 +359,7 @@ abstract class AppLocalizations {
   /// No description provided for @amountDialogTitle.
   ///
   /// In en, this message translates to:
-  /// **'Change amount'**
+  /// **'Change payment'**
   String get amountDialogTitle;
 
   /// No description provided for @amountDialogField.
@@ -589,6 +589,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Date'**
   String get balanceDialogDate;
+
+  /// No description provided for @scheduleSeveral.
+  ///
+  /// In en, this message translates to:
+  /// **'Several a month'**
+  String get scheduleSeveral;
+
+  /// No description provided for @scheduleWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get scheduleWeekly;
+
+  /// No description provided for @formPaymentDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment day {number}'**
+  String formPaymentDay(int number);
+
+  /// No description provided for @ruleTypeDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of the month'**
+  String get ruleTypeDay;
+
+  /// No description provided for @ruleTypeLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last day of the month'**
+  String get ruleTypeLast;
+
+  /// No description provided for @ruleTypeNth.
+  ///
+  /// In en, this message translates to:
+  /// **'Working day of the month'**
+  String get ruleTypeNth;
+
+  /// No description provided for @formWorkingDayNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Working day number'**
+  String get formWorkingDayNumber;
+
+  /// No description provided for @formAddRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Add payment day'**
+  String get formAddRule;
+
+  /// No description provided for @formRemoveRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove payment day'**
+  String get formRemoveRule;
+
+  /// No description provided for @formWeekday.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekday'**
+  String get formWeekday;
+
+  /// No description provided for @formShift.
+  ///
+  /// In en, this message translates to:
+  /// **'If the day is not a working day'**
+  String get formShift;
+
+  /// No description provided for @shiftPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay on the previous working day'**
+  String get shiftPrevious;
+
+  /// No description provided for @shiftNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay on the next working day'**
+  String get shiftNext;
+
+  /// No description provided for @shiftNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not move'**
+  String get shiftNone;
+
+  /// No description provided for @errorDuplicateRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Two payment days are the same'**
+  String get errorDuplicateRules;
+
+  /// No description provided for @ruleShortDay.
+  ///
+  /// In en, this message translates to:
+  /// **'day {day}'**
+  String ruleShortDay(int day);
+
+  /// No description provided for @ruleShortLast.
+  ///
+  /// In en, this message translates to:
+  /// **'last day'**
+  String get ruleShortLast;
+
+  /// No description provided for @ruleShortNth.
+  ///
+  /// In en, this message translates to:
+  /// **'working day {n}'**
+  String ruleShortNth(int n);
+
+  /// No description provided for @scheduleSummaryMonthlyNth.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly, working day {n}'**
+  String scheduleSummaryMonthlyNth(int n);
+
+  /// No description provided for @scheduleSummarySeveral.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly on {rules}'**
+  String scheduleSummarySeveral(String rules);
+
+  /// No description provided for @scheduleSummaryWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {weekday}'**
+  String scheduleSummaryWeekly(DateTime weekday);
+
+  /// No description provided for @occurrenceDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid on'**
+  String get occurrenceDateLabel;
 }
 
 class _AppLocalizationsDelegate

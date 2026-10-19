@@ -7,12 +7,16 @@ import 'package:simple_budgeting_app/features/income/domain/services/schedule_en
 
 /// Turns a source plus its stored entries into the payments of a month.
 /// Payments are computed, not stored; entries only override them.
+///
+/// Everything time related (which month a payment belongs to, received or
+/// expected, start/end/archive/frozen limits) uses the ACTUAL date. Entries
+/// are matched on the NOMINAL date.
 class IncomeCalculator {
   const IncomeCalculator(this._engine);
 
   final ScheduleEngine _engine;
 
-  /// Payments of [source] in [month], ascending by date.
+  /// Payments of [source] whose actual date is in [month], ascending by date.
   ///
   /// [entries] may contain entries of other sources and other months; only
   /// those of [source] are used.
@@ -22,38 +26,44 @@ class IncomeCalculator {
     required YearMonth month,
     required CalendarDate today,
   }) {
-    final byDate = <CalendarDate, IncomeEntry>{
+    final byNominal = <CalendarDate, IncomeEntry>{
       for (final entry in entries)
         if (entry.sourceId == source.id) entry.originalDate: entry,
     };
 
-    final generated = _engine
-        // Phase 1b stage 1: nominal date only (no shifting exists yet).
-        .occurrencesInMonth(source.schedule, month)
-        .map((p) => p.nominal)
-        .where(source.generatesOn)
-        .toList();
-    final result = <IncomeOccurrence>[
-      for (final date in generated) _build(source, date, byDate[date], today),
-    ];
+    final result = <IncomeOccurrence>[];
+    final shown = <CalendarDate>{}; // nominal dates already in the result
 
-    // History that was frozen when the source was edited: no longer
-    // generated, only stored.
-    final frozen = source.frozenThrough;
-    if (frozen != null) {
-      for (final entry in byDate.values) {
-        if (month.contains(entry.originalDate) &&
-            !entry.originalDate.isAfter(frozen)) {
-          result.add(_build(source, entry.originalDate, entry, today));
-        }
-      }
+    for (final payment in _engine.occurrencesInMonth(source.schedule, month)) {
+      final entry = byNominal[payment.nominal];
+      final pinned = entry?.actualDate;
+      final actual = pinned ?? payment.actual;
+      if (!month.contains(actual)) continue; // the user moved it elsewhere
+      // A pinned entry is a decision of the user (or frozen history): it is
+      // shown whatever the source limits are. Computed payments obey them.
+      if (pinned == null && !source.generatesOn(actual)) continue;
+      shown.add(payment.nominal);
+      result.add(_build(source, payment.nominal, actual, entry, today));
     }
 
-    result.sort((a, b) => a.date.compareTo(b.date));
+    // Pinned entries that the schedule does not produce in this month: frozen
+    // history of an old schedule, or a payment moved into this month.
+    for (final entry in byNominal.values) {
+      final pinned = entry.actualDate;
+      if (pinned == null || !month.contains(pinned)) continue;
+      if (!shown.add(entry.originalDate)) continue;
+      result.add(_build(source, entry.originalDate, pinned, entry, today));
+    }
+
+    result.sort((a, b) {
+      final byDate = a.date.compareTo(b.date);
+      return byDate != 0 ? byDate : a.nominalDate.compareTo(b.nominalDate);
+    });
     return result;
   }
 
-  /// Payments of [source] dated on or before [through], ascending.
+  /// Payments of [source] whose actual date is on or before [through],
+  /// ascending.
   List<IncomeOccurrence> occurrencesThrough({
     required IncomeSource source,
     required Iterable<IncomeEntry> entries,
@@ -63,7 +73,7 @@ class IncomeCalculator {
     var first = YearMonth.of(source.startDate);
     for (final entry in entries) {
       if (entry.sourceId != source.id) continue;
-      final month = YearMonth.of(entry.originalDate);
+      final month = YearMonth.of(entry.actualDate ?? entry.originalDate);
       if (month.compareTo(first) < 0) first = month;
     }
     final last = YearMonth.of(through);
@@ -86,21 +96,23 @@ class IncomeCalculator {
 
   IncomeOccurrence _build(
     IncomeSource source,
-    CalendarDate date,
+    CalendarDate nominal,
+    CalendarDate actual,
     IncomeEntry? entry,
     CalendarDate today,
   ) {
     final OccurrenceState state;
     if (entry?.status == IncomeEntryStatus.skipped) {
       state = OccurrenceState.skipped;
-    } else if (date.isAfter(today)) {
+    } else if (actual.isAfter(today)) {
       state = OccurrenceState.expected;
     } else {
       state = OccurrenceState.received;
     }
     return IncomeOccurrence(
       source: source,
-      date: date,
+      date: actual,
+      nominalDate: nominal,
       amount: entry?.amount ?? source.amount,
       state: state,
       isStored: entry != null,

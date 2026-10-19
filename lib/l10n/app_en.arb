@@ -82,10 +82,10 @@
       "state": { "type": "String" }
     }
   },
-  "occurrenceChangeAmount": "Change amount",
+  "occurrenceChangeAmount": "Change amount or date",
   "occurrenceSkip": "Mark as not received",
   "occurrenceReset": "Restore planned payment",
-  "amountDialogTitle": "Change amount",
+  "amountDialogTitle": "Change payment",
   "amountDialogField": "Amount",
 
   "typeSalary": "Salary",
@@ -134,5 +134,36 @@
   "balanceDialogTitle": "Set balance",
   "balanceDialogHelp": "Your balance at the end of the chosen day. Income after that day is added on top.",
   "balanceDialogAmount": "Balance",
-  "balanceDialogDate": "Date"
+  "balanceDialogDate": "Date",
+
+  "scheduleSeveral": "Several a month",
+  "scheduleWeekly": "Weekly",
+  "formPaymentDay": "Payment day {number}",
+  "@formPaymentDay": { "placeholders": { "number": { "type": "int" } } },
+  "ruleTypeDay": "Day of the month",
+  "ruleTypeLast": "Last day of the month",
+  "ruleTypeNth": "Working day of the month",
+  "formWorkingDayNumber": "Working day number",
+  "formAddRule": "Add payment day",
+  "formRemoveRule": "Remove payment day",
+  "formWeekday": "Weekday",
+  "formShift": "If the day is not a working day",
+  "shiftPrevious": "Pay on the previous working day",
+  "shiftNext": "Pay on the next working day",
+  "shiftNone": "Do not move",
+  "errorDuplicateRules": "Two payment days are the same",
+  "ruleShortDay": "day {day}",
+  "@ruleShortDay": { "placeholders": { "day": { "type": "int" } } },
+  "ruleShortLast": "last day",
+  "ruleShortNth": "working day {n}",
+  "@ruleShortNth": { "placeholders": { "n": { "type": "int" } } },
+  "scheduleSummaryMonthlyNth": "Monthly, working day {n}",
+  "@scheduleSummaryMonthlyNth": { "placeholders": { "n": { "type": "int" } } },
+  "scheduleSummarySeveral": "Monthly on {rules}",
+  "@scheduleSummarySeveral": { "placeholders": { "rules": { "type": "String" } } },
+  "scheduleSummaryWeekly": "Every {weekday}",
+  "@scheduleSummaryWeekly": {
+    "placeholders": { "weekday": { "type": "DateTime", "format": "EEEE" } }
+  },
+  "occurrenceDateLabel": "Paid on"
 }

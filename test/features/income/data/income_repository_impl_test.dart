@@ -179,6 +179,30 @@ void main() {
       expect(await repository.listEntries(), hasLength(2));
     });
 
+    test('a pinned actual date round trips and can be cleared', () async {
+      await repository.addSource(_source('s1'));
+      final nominal = CalendarDate(2026, 11, 1);
+
+      await repository.saveEntry(
+        _entry(
+          'e1',
+          's1',
+          nominal,
+        ).copyWith(actualDate: CalendarDate(2026, 10, 30)),
+      );
+      expect(
+        (await repository.listEntries()).single.actualDate,
+        CalendarDate(2026, 10, 30),
+      );
+      final row = await db.select(db.incomeEntries).getSingle();
+      expect(row.originalDate, '2026-11-01');
+      expect(row.actualDate, '2026-10-30');
+
+      // Saving the same payment again without a date clears the pin.
+      await repository.saveEntry(_entry('e2', 's1', nominal));
+      expect((await repository.listEntries()).single.actualDate, isNull);
+    });
+
     test('removeEntry deletes only that payment', () async {
       await repository.addSource(_source('s1'));
       await repository.saveEntry(_entry('e1', 's1', CalendarDate(2026, 10, 5)));

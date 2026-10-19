@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:simple_budgeting_app/app/di/providers.dart';
 import 'package:simple_budgeting_app/core/money/money_parser.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
@@ -12,7 +13,34 @@ import 'package:simple_budgeting_app/features/income/presentation/income_provide
 import 'package:simple_budgeting_app/features/income/presentation/money_input.dart';
 import 'package:simple_budgeting_app/l10n/app_localizations.dart';
 
-enum _ScheduleKind { oneOff, monthly }
+enum _ScheduleKind { oneOff, monthly, several, weekly }
+
+enum _RuleKind { day, last, nth }
+
+/// A day rule being edited. [value] is the day (1-31) or the working day
+/// number, and unused for the last day.
+class _RuleDraft {
+  _RuleDraft(this.kind, this.value);
+
+  _RuleKind kind;
+  int value;
+
+  factory _RuleDraft.from(DayRule rule) => switch (rule) {
+    DayOfMonth(:final day) => _RuleDraft(_RuleKind.day, day),
+    LastDay() => _RuleDraft(_RuleKind.last, 1),
+    NthWorkingDay(:final n) => _RuleDraft(_RuleKind.nth, n),
+  };
+
+  DayRule toRule() => switch (kind) {
+    _RuleKind.day => DayOfMonth(value),
+    _RuleKind.last => const LastDay(),
+    _RuleKind.nth => NthWorkingDay(value),
+  };
+
+  /// Two drafts are the same payment day.
+  bool sameAs(_RuleDraft other) =>
+      kind == other.kind && (kind == _RuleKind.last || value == other.value);
+}
 
 /// Add or edit an income source. [source] is null when adding.
 class IncomeSourceFormPage extends ConsumerStatefulWidget {
@@ -25,8 +53,7 @@ class IncomeSourceFormPage extends ConsumerStatefulWidget {
       _IncomeSourceFormPageState();
 }
 
-/// Value of the day-of-month dropdown that means "last day".
-const int _lastDayValue = 0;
+const int _maxRules = 6;
 
 class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
   final _formKey = GlobalKey<FormState>();
@@ -34,11 +61,14 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
   late final TextEditingController _amount;
   late IncomeType _type;
   late _ScheduleKind _kind;
-  late int _day;
+  late List<_RuleDraft> _rules;
+  late int _weekday;
+  late ShiftRule _shift;
   late CalendarDate _oneOffDate;
   late CalendarDate _startDate;
   CalendarDate? _endDate;
   bool _showEndError = false;
+  bool _showDuplicateError = false;
   bool _saving = false;
 
   IncomeSource? get _source => widget.source;
@@ -61,17 +91,25 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
     _startDate = source?.startDate ?? today;
     _endDate = source?.endDate;
     _oneOffDate = today;
-    _day = today.day;
+    _rules = <_RuleDraft>[_RuleDraft(_RuleKind.day, today.day)];
+    _weekday = today.weekday;
+    _shift = ShiftRule.previousWorkingDay;
     _kind = _ScheduleKind.monthly;
     switch (source?.schedule) {
       case OneOff(:final date):
         _kind = _ScheduleKind.oneOff;
         _oneOffDate = date;
-      case Monthly(:final dayOfMonth):
-        _day = dayOfMonth ?? _lastDayValue;
-      case SeveralPerMonth() || Weekly():
-        // Phase 1b stage 2 adds the form; no UI can create these yet.
-        throw UnimplementedError('Phase 1b stage 2');
+      case Monthly(:final rule, :final shift):
+        _rules = <_RuleDraft>[_RuleDraft.from(rule)];
+        _shift = shift;
+      case SeveralPerMonth(:final rules, :final shift):
+        _kind = _ScheduleKind.several;
+        _rules = rules.map(_RuleDraft.from).toList();
+        _shift = shift;
+      case Weekly(:final weekday, :final shift):
+        _kind = _ScheduleKind.weekly;
+        _weekday = weekday;
+        _shift = shift;
       case null:
         break;
     }
@@ -99,9 +137,47 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
 
   IncomeSchedule get _schedule => switch (_kind) {
     _ScheduleKind.oneOff => OneOff(_oneOffDate),
-    _ScheduleKind.monthly =>
-      _day == _lastDayValue ? const Monthly.onLastDay() : Monthly.onDay(_day),
+    _ScheduleKind.monthly => Monthly(_rules.first.toRule(), shift: _shift),
+    _ScheduleKind.several => SeveralPerMonth(
+      _rules.map((r) => r.toRule()).toList(),
+      shift: _shift,
+    ),
+    _ScheduleKind.weekly => Weekly(_weekday, shift: _shift),
   };
+
+  bool get _hasEndDate => _kind != _ScheduleKind.oneOff;
+
+  /// The shift rule does not apply when every rule is a Nth working day.
+  bool get _showShift => switch (_kind) {
+    _ScheduleKind.oneOff => false,
+    _ScheduleKind.weekly => true,
+    _ScheduleKind.monthly ||
+    _ScheduleKind.several => _rules.any((r) => r.kind != _RuleKind.nth),
+  };
+
+  bool get _hasDuplicateRules {
+    if (_kind != _ScheduleKind.several) return false;
+    for (var i = 0; i < _rules.length; i++) {
+      for (var j = i + 1; j < _rules.length; j++) {
+        if (_rules[i].sameAs(_rules[j])) return true;
+      }
+    }
+    return false;
+  }
+
+  void _selectKind(_ScheduleKind kind) {
+    setState(() {
+      if (kind == _ScheduleKind.several && _rules.length < 2) {
+        final first = _rules.first;
+        final other = first.kind == _RuleKind.day && first.value == 15 ? 1 : 15;
+        _rules.add(_RuleDraft(_RuleKind.day, other));
+      } else if (kind == _ScheduleKind.monthly && _rules.length > 1) {
+        _rules = <_RuleDraft>[_rules.first];
+      }
+      _showDuplicateError = false;
+      _kind = kind;
+    });
+  }
 
   Future<void> _pick(
     CalendarDate current,
@@ -114,11 +190,15 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context);
     final endBeforeStart =
-        _kind == _ScheduleKind.monthly &&
-        _endDate != null &&
-        _endDate!.isBefore(_startDate);
-    setState(() => _showEndError = endBeforeStart);
-    if (!_formKey.currentState!.validate() || endBeforeStart) return;
+        _hasEndDate && _endDate != null && _endDate!.isBefore(_startDate);
+    final duplicates = _hasDuplicateRules;
+    setState(() {
+      _showEndError = endBeforeStart;
+      _showDuplicateError = duplicates;
+    });
+    if (!_formKey.currentState!.validate() || endBeforeStart || duplicates) {
+      return;
+    }
 
     final amount = tryParseMoney(_parser, _amount.text);
     if (amount == null) return;
@@ -136,7 +216,7 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
           currencyCode: _currencyCode,
           schedule: _schedule,
           startDate: _startDate,
-          endDate: _kind == _ScheduleKind.monthly ? _endDate : null,
+          endDate: _hasEndDate ? _endDate : null,
         );
       } else {
         await actions.updateSource(
@@ -146,7 +226,7 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
           amount: amount,
           schedule: _schedule,
           startDate: _startDate,
-          endDate: _kind == _ScheduleKind.monthly ? _endDate : null,
+          endDate: _hasEndDate ? _endDate : null,
         );
       }
       navigator.pop();
@@ -186,6 +266,110 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
     final navigator = Navigator.of(context);
     await ref.read(incomeActionsProvider).archiveSource(_source!.id);
     navigator.pop();
+  }
+
+  /// A controlled dropdown (it always shows [value], also after the list of
+  /// rules changes).
+  Widget _dropdown<T>({
+    required Key fieldKey,
+    required String label,
+    required T value,
+    required Map<T, String> items,
+    required void Function(T) onChanged,
+  }) {
+    return InputDecorator(
+      decoration: InputDecoration(labelText: label),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          key: fieldKey,
+          value: value,
+          isExpanded: true,
+          isDense: true,
+          items: <DropdownMenuItem<T>>[
+            for (final entry in items.entries)
+              DropdownMenuItem<T>(value: entry.key, child: Text(entry.value)),
+          ],
+          onChanged: (T? v) {
+            if (v != null) onChanged(v);
+          },
+        ),
+      ),
+    );
+  }
+
+  /// A rule that no other rule uses yet, for the "add" button.
+  _RuleDraft _nextFreeRule() {
+    for (final day in <int>[1, 15, 10, 20, 5, 25]) {
+      final draft = _RuleDraft(_RuleKind.day, day);
+      if (!_rules.any(draft.sameAs)) return draft;
+    }
+    return _RuleDraft(_RuleKind.last, 1);
+  }
+
+  Widget _ruleEditor(AppLocalizations l10n, int index) {
+    final rule = _rules[index];
+    final several = _kind == _ScheduleKind.several;
+    final maxValue = rule.kind == _RuleKind.day
+        ? 31
+        : (rule.value > 20 ? rule.value : 20);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            flex: 3,
+            child: _dropdown<_RuleKind>(
+              fieldKey: Key('income-rule-type-$index'),
+              label: several
+                  ? l10n.formPaymentDay(index + 1)
+                  : l10n.formDayOfMonth,
+              value: rule.kind,
+              items: <_RuleKind, String>{
+                _RuleKind.day: l10n.ruleTypeDay,
+                _RuleKind.last: l10n.ruleTypeLast,
+                _RuleKind.nth: l10n.ruleTypeNth,
+              },
+              onChanged: (_RuleKind v) => setState(() {
+                rule.kind = v;
+                if (v == _RuleKind.day && rule.value > 31) rule.value = 31;
+                _showDuplicateError = false;
+              }),
+            ),
+          ),
+          if (rule.kind != _RuleKind.last) ...<Widget>[
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: _dropdown<int>(
+                fieldKey: Key('income-rule-value-$index'),
+                label: rule.kind == _RuleKind.day
+                    ? l10n.formDayOfMonth
+                    : l10n.formWorkingDayNumber,
+                value: rule.value.clamp(1, maxValue),
+                items: <int, String>{
+                  for (var v = 1; v <= maxValue; v++) v: '$v',
+                },
+                onChanged: (int v) => setState(() {
+                  rule.value = v;
+                  _showDuplicateError = false;
+                }),
+              ),
+            ),
+          ],
+          if (several && _rules.length > 2)
+            IconButton(
+              key: Key('income-rule-remove-$index'),
+              tooltip: l10n.formRemoveRule,
+              onPressed: () => setState(() {
+                _rules.removeAt(index);
+                _showDuplicateError = false;
+              }),
+              icon: const Icon(Icons.remove_circle_outline),
+            ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -251,6 +435,7 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
             const SizedBox(height: 8),
             SegmentedButton<_ScheduleKind>(
               key: const Key('income-schedule-kind'),
+              showSelectedIcon: false,
               segments: <ButtonSegment<_ScheduleKind>>[
                 ButtonSegment<_ScheduleKind>(
                   value: _ScheduleKind.oneOff,
@@ -260,10 +445,18 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
                   value: _ScheduleKind.monthly,
                   label: Text(l10n.scheduleMonthly),
                 ),
+                ButtonSegment<_ScheduleKind>(
+                  value: _ScheduleKind.several,
+                  label: Text(l10n.scheduleSeveral),
+                ),
+                ButtonSegment<_ScheduleKind>(
+                  value: _ScheduleKind.weekly,
+                  label: Text(l10n.scheduleWeekly),
+                ),
               ],
               selected: <_ScheduleKind>{_kind},
               onSelectionChanged: (Set<_ScheduleKind> s) =>
-                  setState(() => _kind = s.first),
+                  _selectKind(s.first),
             ),
             const SizedBox(height: 16),
             if (_kind == _ScheduleKind.oneOff)
@@ -274,20 +467,61 @@ class _IncomeSourceFormPageState extends ConsumerState<IncomeSourceFormPage> {
                 label: Text('${l10n.formDate}: ${fmt(_oneOffDate)}'),
               )
             else ...<Widget>[
-              DropdownButtonFormField<int>(
-                key: const Key('income-day'),
-                initialValue: _day,
-                decoration: InputDecoration(labelText: l10n.formDayOfMonth),
-                items: <DropdownMenuItem<int>>[
-                  for (var d = 1; d <= 31; d++)
-                    DropdownMenuItem<int>(value: d, child: Text('$d')),
-                  DropdownMenuItem<int>(
-                    value: _lastDayValue,
-                    child: Text(l10n.formLastDay),
-                  ),
+              if (_kind == _ScheduleKind.weekly)
+                _dropdown<int>(
+                  fieldKey: const Key('income-weekday'),
+                  label: l10n.formWeekday,
+                  value: _weekday,
+                  items: <int, String>{
+                    for (var d = 1; d <= 7; d++)
+                      d: DateFormat.EEEE(
+                        Localizations.localeOf(context).toString(),
+                      ).format(weekdayDate(d)),
+                  },
+                  onChanged: (int v) => setState(() => _weekday = v),
+                )
+              else ...<Widget>[
+                for (var i = 0; i < _rules.length; i++) _ruleEditor(l10n, i),
+                if (_kind == _ScheduleKind.several) ...<Widget>[
+                  if (_rules.length < _maxRules)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        key: const Key('income-rule-add'),
+                        onPressed: () => setState(() {
+                          _showDuplicateError = false;
+                          _rules.add(_nextFreeRule());
+                        }),
+                        icon: const Icon(Icons.add),
+                        label: Text(l10n.formAddRule),
+                      ),
+                    ),
+                  if (_showDuplicateError)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        l10n.errorDuplicateRules,
+                        key: const Key('income-duplicate-error'),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
                 ],
-                onChanged: (int? v) => setState(() => _day = v ?? _day),
-              ),
+              ],
+              if (_showShift) ...<Widget>[
+                const SizedBox(height: 16),
+                _dropdown<ShiftRule>(
+                  fieldKey: const Key('income-shift'),
+                  label: l10n.formShift,
+                  value: _shift,
+                  items: <ShiftRule, String>{
+                    for (final shift in ShiftRule.values)
+                      shift: shiftRuleLabel(l10n, shift),
+                  },
+                  onChanged: (ShiftRule v) => setState(() => _shift = v),
+                ),
+              ],
               const SizedBox(height: 16),
               OutlinedButton.icon(
                 key: const Key('income-start-date'),

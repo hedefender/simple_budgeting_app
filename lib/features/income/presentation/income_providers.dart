@@ -121,12 +121,14 @@ class IncomeActions {
   Future<void> changeAmount(
     String sourceId,
     CalendarDate originalDate,
-    Money amount,
-  ) async {
+    Money amount, {
+    CalendarDate? actualDate,
+  }) async {
     await _use<ChangeOccurrenceAmount>()(
       sourceId: sourceId,
       originalDate: originalDate,
       amount: amount,
+      actualDate: actualDate,
     );
     _refresh();
   }

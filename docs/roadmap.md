@@ -28,6 +28,11 @@ Startup before and after adding Rust (debug build, emulator, first start in the 
 Phase 0a 756-868 ms, Phase 0b 726-981 ms. The difference is within noise. Profile builds on a real phone are
 still to be measured.
 
+Phase 1b note (implemented, awaiting the owner's confirmation; NOT Done yet): schedule engine with weekly, several per
+month, Nth working day, shift rules and an offline Greek holiday calendar (docs/holidays.md); drift schema v3 adds
+income_entries.actual_date; the form, the cash flow and the freeze-on-edit use actual dates. Report:
+docs/reports/phase-1b-report.md.
+
 Phase 1a note: `flutter analyze` is clean, `flutter test` passes (147/147), `cargo test` passes (2/2), the
 integration tests pass on the emulator, and the owner's manual check of steps 1-9 passes. Details:
 `docs/reports/phase-1a-report.md`.

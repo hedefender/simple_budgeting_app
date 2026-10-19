@@ -7,12 +7,15 @@ import 'package:simple_budgeting_app/features/income/domain/entities/income_sour
 /// today. skipped: the user marked it as not received.
 enum OccurrenceState { received, expected, skipped }
 
-/// One payment of a source on [date] (its original date). Computed, except
-/// when [isStored] is true: then a stored entry changed it.
+/// One payment of a source. [date] is the day it is paid (after shifting);
+/// [nominalDate] is the day the schedule rule gave, and identifies the payment
+/// for actions and stored entries. Computed, except when [isStored] is true:
+/// then a stored entry changed it.
 class IncomeOccurrence {
   const IncomeOccurrence({
     required this.source,
     required this.date,
+    required this.nominalDate,
     required this.amount,
     required this.state,
     required this.isStored,
@@ -20,6 +23,7 @@ class IncomeOccurrence {
 
   final IncomeSource source;
   final CalendarDate date;
+  final CalendarDate nominalDate;
   final Money amount;
   final OccurrenceState state;
   final bool isStored;

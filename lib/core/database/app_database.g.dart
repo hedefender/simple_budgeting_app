@@ -952,6 +952,17 @@ class $IncomeEntriesTable extends IncomeEntries
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _actualDateMeta = const VerificationMeta(
+    'actualDate',
+  );
+  @override
+  late final GeneratedColumn<String> actualDate = GeneratedColumn<String>(
+    'actual_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
   late final GeneratedColumn<String> status = GeneratedColumn<String>(
@@ -988,6 +999,7 @@ class $IncomeEntriesTable extends IncomeEntries
     id,
     sourceId,
     originalDate,
+    actualDate,
     status,
     amountMinor,
     createdAt,
@@ -1027,6 +1039,12 @@ class $IncomeEntriesTable extends IncomeEntries
       );
     } else if (isInserting) {
       context.missing(_originalDateMeta);
+    }
+    if (data.containsKey('actual_date')) {
+      context.handle(
+        _actualDateMeta,
+        actualDate.isAcceptableOrUnknown(data['actual_date']!, _actualDateMeta),
+      );
     }
     if (data.containsKey('status')) {
       context.handle(
@@ -1080,6 +1098,10 @@ class $IncomeEntriesTable extends IncomeEntries
         DriftSqlType.string,
         data['${effectivePrefix}original_date'],
       )!,
+      actualDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}actual_date'],
+      ),
       status: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}status'],
@@ -1108,6 +1130,10 @@ class IncomeEntryRow extends DataClass implements Insertable<IncomeEntryRow> {
   /// The date the schedule produced for the payment this row replaces.
   final String originalDate;
 
+  /// The date the payment is paid, when it is pinned (frozen history or a
+  /// date the user changed). Null: the date is computed from the schedule.
+  final String? actualDate;
+
   /// `IncomeEntryStatus.name`: received or skipped.
   final String status;
   final int amountMinor;
@@ -1116,6 +1142,7 @@ class IncomeEntryRow extends DataClass implements Insertable<IncomeEntryRow> {
     required this.id,
     required this.sourceId,
     required this.originalDate,
+    this.actualDate,
     required this.status,
     required this.amountMinor,
     required this.createdAt,
@@ -1126,6 +1153,9 @@ class IncomeEntryRow extends DataClass implements Insertable<IncomeEntryRow> {
     map['id'] = Variable<String>(id);
     map['source_id'] = Variable<String>(sourceId);
     map['original_date'] = Variable<String>(originalDate);
+    if (!nullToAbsent || actualDate != null) {
+      map['actual_date'] = Variable<String>(actualDate);
+    }
     map['status'] = Variable<String>(status);
     map['amount_minor'] = Variable<int>(amountMinor);
     map['created_at'] = Variable<DateTime>(createdAt);
@@ -1137,6 +1167,9 @@ class IncomeEntryRow extends DataClass implements Insertable<IncomeEntryRow> {
       id: Value(id),
       sourceId: Value(sourceId),
       originalDate: Value(originalDate),
+      actualDate: actualDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(actualDate),
       status: Value(status),
       amountMinor: Value(amountMinor),
       createdAt: Value(createdAt),
@@ -1152,6 +1185,7 @@ class IncomeEntryRow extends DataClass implements Insertable<IncomeEntryRow> {
       id: serializer.fromJson<String>(json['id']),
       sourceId: serializer.fromJson<String>(json['sourceId']),
       originalDate: serializer.fromJson<String>(json['originalDate']),
+      actualDate: serializer.fromJson<String?>(json['actualDate']),
       status: serializer.fromJson<String>(json['status']),
       amountMinor: serializer.fromJson<int>(json['amountMinor']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -1164,6 +1198,7 @@ class IncomeEntryRow extends DataClass implements Insertable<IncomeEntryRow> {
       'id': serializer.toJson<String>(id),
       'sourceId': serializer.toJson<String>(sourceId),
       'originalDate': serializer.toJson<String>(originalDate),
+      'actualDate': serializer.toJson<String?>(actualDate),
       'status': serializer.toJson<String>(status),
       'amountMinor': serializer.toJson<int>(amountMinor),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -1174,6 +1209,7 @@ class IncomeEntryRow extends DataClass implements Insertable<IncomeEntryRow> {
     String? id,
     String? sourceId,
     String? originalDate,
+    Value<String?> actualDate = const Value.absent(),
     String? status,
     int? amountMinor,
     DateTime? createdAt,
@@ -1181,6 +1217,7 @@ class IncomeEntryRow extends DataClass implements Insertable<IncomeEntryRow> {
     id: id ?? this.id,
     sourceId: sourceId ?? this.sourceId,
     originalDate: originalDate ?? this.originalDate,
+    actualDate: actualDate.present ? actualDate.value : this.actualDate,
     status: status ?? this.status,
     amountMinor: amountMinor ?? this.amountMinor,
     createdAt: createdAt ?? this.createdAt,
@@ -1192,6 +1229,9 @@ class IncomeEntryRow extends DataClass implements Insertable<IncomeEntryRow> {
       originalDate: data.originalDate.present
           ? data.originalDate.value
           : this.originalDate,
+      actualDate: data.actualDate.present
+          ? data.actualDate.value
+          : this.actualDate,
       status: data.status.present ? data.status.value : this.status,
       amountMinor: data.amountMinor.present
           ? data.amountMinor.value
@@ -1206,6 +1246,7 @@ class IncomeEntryRow extends DataClass implements Insertable<IncomeEntryRow> {
           ..write('id: $id, ')
           ..write('sourceId: $sourceId, ')
           ..write('originalDate: $originalDate, ')
+          ..write('actualDate: $actualDate, ')
           ..write('status: $status, ')
           ..write('amountMinor: $amountMinor, ')
           ..write('createdAt: $createdAt')
@@ -1214,8 +1255,15 @@ class IncomeEntryRow extends DataClass implements Insertable<IncomeEntryRow> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, sourceId, originalDate, status, amountMinor, createdAt);
+  int get hashCode => Object.hash(
+    id,
+    sourceId,
+    originalDate,
+    actualDate,
+    status,
+    amountMinor,
+    createdAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1223,6 +1271,7 @@ class IncomeEntryRow extends DataClass implements Insertable<IncomeEntryRow> {
           other.id == this.id &&
           other.sourceId == this.sourceId &&
           other.originalDate == this.originalDate &&
+          other.actualDate == this.actualDate &&
           other.status == this.status &&
           other.amountMinor == this.amountMinor &&
           other.createdAt == this.createdAt);
@@ -1232,6 +1281,7 @@ class IncomeEntriesCompanion extends UpdateCompanion<IncomeEntryRow> {
   final Value<String> id;
   final Value<String> sourceId;
   final Value<String> originalDate;
+  final Value<String?> actualDate;
   final Value<String> status;
   final Value<int> amountMinor;
   final Value<DateTime> createdAt;
@@ -1240,6 +1290,7 @@ class IncomeEntriesCompanion extends UpdateCompanion<IncomeEntryRow> {
     this.id = const Value.absent(),
     this.sourceId = const Value.absent(),
     this.originalDate = const Value.absent(),
+    this.actualDate = const Value.absent(),
     this.status = const Value.absent(),
     this.amountMinor = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1249,6 +1300,7 @@ class IncomeEntriesCompanion extends UpdateCompanion<IncomeEntryRow> {
     required String id,
     required String sourceId,
     required String originalDate,
+    this.actualDate = const Value.absent(),
     required String status,
     required int amountMinor,
     required DateTime createdAt,
@@ -1263,6 +1315,7 @@ class IncomeEntriesCompanion extends UpdateCompanion<IncomeEntryRow> {
     Expression<String>? id,
     Expression<String>? sourceId,
     Expression<String>? originalDate,
+    Expression<String>? actualDate,
     Expression<String>? status,
     Expression<int>? amountMinor,
     Expression<DateTime>? createdAt,
@@ -1272,6 +1325,7 @@ class IncomeEntriesCompanion extends UpdateCompanion<IncomeEntryRow> {
       if (id != null) 'id': id,
       if (sourceId != null) 'source_id': sourceId,
       if (originalDate != null) 'original_date': originalDate,
+      if (actualDate != null) 'actual_date': actualDate,
       if (status != null) 'status': status,
       if (amountMinor != null) 'amount_minor': amountMinor,
       if (createdAt != null) 'created_at': createdAt,
@@ -1283,6 +1337,7 @@ class IncomeEntriesCompanion extends UpdateCompanion<IncomeEntryRow> {
     Value<String>? id,
     Value<String>? sourceId,
     Value<String>? originalDate,
+    Value<String?>? actualDate,
     Value<String>? status,
     Value<int>? amountMinor,
     Value<DateTime>? createdAt,
@@ -1292,6 +1347,7 @@ class IncomeEntriesCompanion extends UpdateCompanion<IncomeEntryRow> {
       id: id ?? this.id,
       sourceId: sourceId ?? this.sourceId,
       originalDate: originalDate ?? this.originalDate,
+      actualDate: actualDate ?? this.actualDate,
       status: status ?? this.status,
       amountMinor: amountMinor ?? this.amountMinor,
       createdAt: createdAt ?? this.createdAt,
@@ -1310,6 +1366,9 @@ class IncomeEntriesCompanion extends UpdateCompanion<IncomeEntryRow> {
     }
     if (originalDate.present) {
       map['original_date'] = Variable<String>(originalDate.value);
+    }
+    if (actualDate.present) {
+      map['actual_date'] = Variable<String>(actualDate.value);
     }
     if (status.present) {
       map['status'] = Variable<String>(status.value);
@@ -1332,6 +1391,7 @@ class IncomeEntriesCompanion extends UpdateCompanion<IncomeEntryRow> {
           ..write('id: $id, ')
           ..write('sourceId: $sourceId, ')
           ..write('originalDate: $originalDate, ')
+          ..write('actualDate: $actualDate, ')
           ..write('status: $status, ')
           ..write('amountMinor: $amountMinor, ')
           ..write('createdAt: $createdAt, ')
@@ -2335,6 +2395,7 @@ typedef $$IncomeEntriesTableCreateCompanionBuilder =
       required String id,
       required String sourceId,
       required String originalDate,
+      Value<String?> actualDate,
       required String status,
       required int amountMinor,
       required DateTime createdAt,
@@ -2345,6 +2406,7 @@ typedef $$IncomeEntriesTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> sourceId,
       Value<String> originalDate,
+      Value<String?> actualDate,
       Value<String> status,
       Value<int> amountMinor,
       Value<DateTime> createdAt,
@@ -2394,6 +2456,11 @@ class $$IncomeEntriesTableFilterComposer
 
   ColumnFilters<String> get originalDate => $composableBuilder(
     column: $table.originalDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get actualDate => $composableBuilder(
+    column: $table.actualDate,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2455,6 +2522,11 @@ class $$IncomeEntriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get actualDate => $composableBuilder(
+    column: $table.actualDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get status => $composableBuilder(
     column: $table.status,
     builder: (column) => ColumnOrderings(column),
@@ -2508,6 +2580,11 @@ class $$IncomeEntriesTableAnnotationComposer
 
   GeneratedColumn<String> get originalDate => $composableBuilder(
     column: $table.originalDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get actualDate => $composableBuilder(
+    column: $table.actualDate,
     builder: (column) => column,
   );
 
@@ -2577,6 +2654,7 @@ class $$IncomeEntriesTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> sourceId = const Value.absent(),
                 Value<String> originalDate = const Value.absent(),
+                Value<String?> actualDate = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<int> amountMinor = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -2585,6 +2663,7 @@ class $$IncomeEntriesTableTableManager
                 id: id,
                 sourceId: sourceId,
                 originalDate: originalDate,
+                actualDate: actualDate,
                 status: status,
                 amountMinor: amountMinor,
                 createdAt: createdAt,
@@ -2595,6 +2674,7 @@ class $$IncomeEntriesTableTableManager
                 required String id,
                 required String sourceId,
                 required String originalDate,
+                Value<String?> actualDate = const Value.absent(),
                 required String status,
                 required int amountMinor,
                 required DateTime createdAt,
@@ -2603,6 +2683,7 @@ class $$IncomeEntriesTableTableManager
                 id: id,
                 sourceId: sourceId,
                 originalDate: originalDate,
+                actualDate: actualDate,
                 status: status,
                 amountMinor: amountMinor,
                 createdAt: createdAt,

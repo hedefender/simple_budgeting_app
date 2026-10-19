@@ -16,13 +16,36 @@ String incomeTypeLabel(AppLocalizations l10n, IncomeType type) {
 String scheduleSummary(AppLocalizations l10n, IncomeSchedule schedule) {
   return switch (schedule) {
     OneOff(:final date) => l10n.scheduleSummaryOneOff(date.toUtcDateTime()),
-    Monthly(:final dayOfMonth) =>
-      dayOfMonth == null
-          ? l10n.scheduleSummaryMonthlyLast
-          : l10n.scheduleSummaryMonthlyDay(dayOfMonth),
-    // Phase 1b stage 2 adds the labels; no UI can create these yet.
-    SeveralPerMonth() ||
-    Weekly() => throw UnimplementedError('Phase 1b stage 2'),
+    Monthly(:final rule) => switch (rule) {
+      DayOfMonth(:final day) => l10n.scheduleSummaryMonthlyDay(day),
+      LastDay() => l10n.scheduleSummaryMonthlyLast,
+      NthWorkingDay(:final n) => l10n.scheduleSummaryMonthlyNth(n),
+    },
+    SeveralPerMonth(:final rules) => l10n.scheduleSummarySeveral(
+      rules.map((r) => dayRuleShort(l10n, r)).join(', '),
+    ),
+    Weekly(:final weekday) => l10n.scheduleSummaryWeekly(weekdayDate(weekday)),
+  };
+}
+
+/// Short text of one rule, for lists such as "day 1, working day 3".
+String dayRuleShort(AppLocalizations l10n, DayRule rule) {
+  return switch (rule) {
+    DayOfMonth(:final day) => l10n.ruleShortDay(day),
+    LastDay() => l10n.ruleShortLast,
+    NthWorkingDay(:final n) => l10n.ruleShortNth(n),
+  };
+}
+
+/// Any date that falls on [weekday] (1 = Monday), for weekday names.
+/// 5 October 2026 is a Monday.
+DateTime weekdayDate(int weekday) => DateTime.utc(2026, 10, 4 + weekday);
+
+String shiftRuleLabel(AppLocalizations l10n, ShiftRule shift) {
+  return switch (shift) {
+    ShiftRule.previousWorkingDay => l10n.shiftPrevious,
+    ShiftRule.nextWorkingDay => l10n.shiftNext,
+    ShiftRule.none => l10n.shiftNone,
   };
 }
 

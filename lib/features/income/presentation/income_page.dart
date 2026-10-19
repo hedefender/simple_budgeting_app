@@ -232,7 +232,7 @@ class _OccurrenceTile extends ConsumerWidget {
 
     return Card(
       child: ListTile(
-        key: Key('occurrence-${source.id}-${occurrence.date}'),
+        key: Key('occurrence-${source.id}-${occurrence.nominalDate}'),
         title: Text(source.name),
         subtitle: Text(
           l10n.occurrenceSubtitle(
@@ -250,27 +250,34 @@ class _OccurrenceTile extends ConsumerWidget {
                   : null,
             ),
             PopupMenuButton<String>(
-              key: Key('occurrence-menu-${source.id}-${occurrence.date}'),
+              key: Key(
+                'occurrence-menu-${source.id}-${occurrence.nominalDate}',
+              ),
               onSelected: (String choice) async {
                 switch (choice) {
                   case 'amount':
-                    final amount = await showChangeAmountDialog(
+                    final change = await showChangePaymentDialog(
                       context,
                       ref,
                       currencyCode: source.currencyCode,
                       initial: occurrence.amount,
+                      date: occurrence.date,
                     );
-                    if (amount != null) {
+                    if (change != null) {
                       await actions.changeAmount(
                         source.id,
-                        occurrence.date,
-                        amount,
+                        occurrence.nominalDate,
+                        change.amount,
+                        // Pin the date only when the user really changed it.
+                        actualDate: change.date == occurrence.date
+                            ? null
+                            : change.date,
                       );
                     }
                   case 'skip':
-                    await actions.skip(source.id, occurrence.date);
+                    await actions.skip(source.id, occurrence.nominalDate);
                   case 'reset':
-                    await actions.reset(source.id, occurrence.date);
+                    await actions.reset(source.id, occurrence.nominalDate);
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

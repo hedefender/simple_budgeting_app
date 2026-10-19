@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,6 +12,7 @@ import 'package:simple_budgeting_app/features/income/domain/entities/income_sche
 import 'package:simple_budgeting_app/features/income/domain/entities/income_source.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/create_income_source.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/get_monthly_cash_flow.dart';
+import 'package:simple_budgeting_app/features/income/domain/usecases/occurrence_actions.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/list_income_sources.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/set_balance_anchor.dart';
 
@@ -45,6 +46,14 @@ void main() {
       schedule: const Monthly.onDay(5),
       startDate: CalendarDate(2026, 1, 1),
     );
+    final created = (await locator.get<ListIncomeSources>()()).single;
+    // Move the January payment (nominal 5 Jan) to 8 Jan: a pinned actual date.
+    await locator.get<ChangeOccurrenceAmount>()(
+      sourceId: created.id,
+      originalDate: CalendarDate(2026, 1, 5),
+      amount: const Money(123456),
+      actualDate: CalendarDate(2026, 1, 8),
+    );
     await locator.get<SetBalanceAnchor>()(
       date: CalendarDate(2026, 1, 1),
       balance: const Money(50000),
@@ -65,6 +74,9 @@ void main() {
       'EUR',
     );
     expect(january.occurrences, hasLength(1));
+    // The pinned date survived the restart; the key is still the nominal date.
+    expect(january.occurrences.single.date, CalendarDate(2026, 1, 8));
+    expect(january.occurrences.single.nominalDate, CalendarDate(2026, 1, 5));
     // The anchor is the balance at the END of 1 Jan; the payment of the 5th is
     // added on top, so the closing balance is anchor + one payment.
     expect(january.projectedClosingBalance, const Money(50000 + 123456));

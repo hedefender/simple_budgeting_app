@@ -35,59 +35,55 @@ Future<CalendarDate?> pickCalendarDate(
   return CalendarDate(picked.year, picked.month, picked.day);
 }
 
-/// Asks for a new amount for one payment. Returns null when cancelled.
-Future<Money?> showChangeAmountDialog(
+typedef PaymentChange = ({Money amount, CalendarDate date});
+
+/// Asks for a new amount and/or paid date for one payment. Returns null when
+/// cancelled. [date] is the day the payment is paid now.
+Future<PaymentChange?> showChangePaymentDialog(
   BuildContext context,
   WidgetRef ref, {
   required String currencyCode,
   required Money initial,
+  required CalendarDate date,
 }) {
-  final parser = _parserFor(ref, currencyCode);
-  return showDialog<Money>(
+  return showDialog<PaymentChange>(
     context: context,
-    builder: (_) => _MoneyDialog(
-      title: AppLocalizations.of(context).amountDialogTitle,
-      fieldLabel: AppLocalizations.of(context).amountDialogField,
-      parser: parser,
+    builder: (_) => _PaymentDialog(
+      parser: _parserFor(ref, currencyCode),
       localeTag: ref.read(deviceLocaleProvider).toString(),
       initial: initial,
-      requirePositive: true,
+      date: date,
     ),
   );
 }
 
-class _MoneyDialog extends StatefulWidget {
-  const _MoneyDialog({
-    required this.title,
-    required this.fieldLabel,
+class _PaymentDialog extends StatefulWidget {
+  const _PaymentDialog({
     required this.parser,
     required this.localeTag,
-    required this.requirePositive,
-    this.initial,
+    required this.initial,
+    required this.date,
   });
 
-  final String title;
-  final String fieldLabel;
   final MoneyParser parser;
   final String localeTag;
-  final bool requirePositive;
-  final Money? initial;
+  final Money initial;
+  final CalendarDate date;
 
   @override
-  State<_MoneyDialog> createState() => _MoneyDialogState();
+  State<_PaymentDialog> createState() => _PaymentDialogState();
 }
 
-class _MoneyDialogState extends State<_MoneyDialog> {
+class _PaymentDialogState extends State<_PaymentDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _controller = TextEditingController(
-    text: widget.initial == null
-        ? ''
-        : formatMoneyForInput(
-            widget.initial!,
-            localeTag: widget.localeTag,
-            decimalDigits: widget.parser.decimalDigits,
-          ),
+    text: formatMoneyForInput(
+      widget.initial,
+      localeTag: widget.localeTag,
+      decimalDigits: widget.parser.decimalDigits,
+    ),
   );
+  late CalendarDate _date = widget.date;
 
   @override
   void dispose() {
@@ -95,34 +91,55 @@ class _MoneyDialogState extends State<_MoneyDialog> {
     super.dispose();
   }
 
+  Future<void> _pickDate() async {
+    final picked = await pickCalendarDate(context, _date);
+    if (picked != null) setState(() => _date = picked);
+  }
+
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    Navigator.of(context).pop(tryParseMoney(widget.parser, _controller.text));
+    final amount = tryParseMoney(widget.parser, _controller.text);
+    if (amount == null) return;
+    Navigator.of(context).pop((amount: amount, date: _date));
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: Text(widget.title),
+      title: Text(l10n.amountDialogTitle),
       content: Form(
         key: _formKey,
-        child: TextFormField(
-          key: const Key('money-dialog-field'),
-          controller: _controller,
-          autofocus: true,
-          keyboardType: const TextInputType.numberWithOptions(
-            decimal: true,
-            signed: true,
-          ),
-          decoration: InputDecoration(labelText: widget.fieldLabel),
-          validator: (String? text) => validateMoneyText(
-            l10n,
-            widget.parser,
-            text,
-            requirePositive: widget.requirePositive,
-          ),
-          onFieldSubmitted: (_) => _submit(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            TextFormField(
+              key: const Key('money-dialog-field'),
+              controller: _controller,
+              autofocus: true,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(labelText: l10n.amountDialogField),
+              validator: (String? text) => validateMoneyText(
+                l10n,
+                widget.parser,
+                text,
+                requirePositive: true,
+              ),
+              onFieldSubmitted: (_) => _submit(),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              key: const Key('payment-date'),
+              onPressed: _pickDate,
+              icon: const Icon(Icons.event_outlined),
+              label: Text(
+                '${l10n.occurrenceDateLabel}: '
+                '${MaterialLocalizations.of(context).formatMediumDate(_date.toUtcDateTime())}',
+              ),
+            ),
+          ],
         ),
       ),
       actions: <Widget>[

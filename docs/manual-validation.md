@@ -100,6 +100,34 @@ Prerequisite: `flutter analyze`, `flutter test` and `cargo test` pass; on a devi
 10. Force-close and reopen: sources, changed amounts and the balance are still there.
 11. Switch the device to Greek and back: all texts translate; amounts follow the region's currency.
 
+## 9. Phase 1b: schedule engine
+
+Prerequisite: `flutter analyze`, `flutter test` and `cargo test` pass; on a device, both integration tests pass.
+Use a fresh install or the existing data of step 8. Today's date matters for "received" vs "expected".
+
+1. Add a source, **Monthly**, day 1, shift "Pay on the previous working day". Go to a month whose 1st is a
+   Saturday or Sunday (for example November 2026): the payment shows on the Friday before, in the PREVIOUS month
+   (October 30). The previous month's total includes it.
+2. Same source with "Do not move": the payment stays on the 1st, even on a weekend.
+3. Day 25 around 25 March (a holiday) with "previous working day": March shows the 24th (or the 23rd if the 24th is a
+   weekend). With "next working day": the 26th.
+4. **Last day of the month** with "next working day" when the month ends on a weekend: the payment moves to the next
+   month (for example October 31, 2026 -> November 2).
+5. **Working day of the month** (for example 3): the 3rd working day, skipping weekends and holidays (January 2026:
+   Jan 7). The shift field disappears when the only rule is a working day; it comes back when you choose another type.
+6. **Several a month**: two payment days appear. Add a third, remove it again (the remove button shows only when
+   there are more than two). Make two days equal, save: "Two payment days are the same". Fix and save.
+7. **Weekly**, Friday: a month with five Fridays (October 2026) shows five payments. A Friday holiday
+   (1 May 2026) moves according to the shift rule, possibly into the neighbouring month.
+8. The source list shows an understandable summary for every kind (for example "Every Friday", "Monthly on day 1,
+   day 15", "Monthly, working day 3"), in Greek and English.
+9. Open a payment menu -> "Change amount or date". Change only the amount: the date does not change. Change the date:
+   the payment moves (also to another month) and keeps its tile. "Restore planned payment" brings it back.
+10. Edit a source (change its amount): earlier months and the dates they were paid on do not change.
+11. Skip a payment that was shifted into another month: it is shown as "Not received" in the month where it is paid.
+12. Force-close and reopen: everything above is still there.
+13. Upgrade check (only if you have an older install): install the Phase 1a build, create a source and change its
+    amount once, then install this build over it. Sources and past payments are unchanged.
 ## Checklist
 
 - [ ] `flutter analyze` clean
@@ -113,4 +141,5 @@ Prerequisite: `flutter analyze`, `flutter test` and `cargo test` pass; on a devi
 - [ ] Home shows the Rust core line (en and el)
 - [ ] Hot restart works with the Rust core
 - [ ] Phase 1a steps 1-11 pass
+- [ ] Phase 1b steps 1-13 pass
 - [ ] Cold start time noted (profile build): ______ ms

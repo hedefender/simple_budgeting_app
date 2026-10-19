@@ -318,4 +318,249 @@ void main() {
       expect(anchors.anchors, isEmpty);
     });
   });
+
+  Future<void> choose(WidgetTester tester, String key, String label) async {
+    await tester.ensureVisible(find.byKey(Key(key)));
+    await tester.tap(find.byKey(Key(key)));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(label).last);
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> selectKind(WidgetTester tester, String label) async {
+    await tester.ensureVisible(find.text(label));
+    await tester.tap(find.text(label));
+    await tester.pumpAndSettle();
+  }
+
+  Finder field(String key) => find.byKey(Key(key));
+
+  group('source form: frequency, rules and shift', () {
+    Future<void> openForm(WidgetTester tester, {IncomeSource? source}) =>
+        pumpPage(tester, english, opened: IncomeSourceFormPage(source: source));
+
+    testWidgets('choosing a frequency shows the matching fields', (
+      tester,
+    ) async {
+      await openForm(tester);
+
+      // Monthly is the default: one rule, a shift rule, no weekday.
+      expect(field('income-rule-type-0'), findsOneWidget);
+      expect(field('income-rule-type-1'), findsNothing);
+      expect(field('income-shift'), findsOneWidget);
+      expect(field('income-weekday'), findsNothing);
+
+      await selectKind(tester, 'Several a month');
+      expect(field('income-rule-type-0'), findsOneWidget);
+      expect(field('income-rule-type-1'), findsOneWidget);
+      expect(field('income-rule-add'), findsOneWidget);
+
+      await selectKind(tester, 'Weekly');
+      expect(field('income-weekday'), findsOneWidget);
+      expect(field('income-rule-type-0'), findsNothing);
+      expect(field('income-shift'), findsOneWidget);
+
+      await selectKind(tester, 'Once');
+      expect(field('income-date'), findsOneWidget);
+      expect(field('income-shift'), findsNothing);
+      expect(field('income-start-date'), findsNothing);
+
+      await selectKind(tester, 'Monthly');
+      expect(field('income-rule-type-0'), findsOneWidget);
+      expect(field('income-rule-add'), findsNothing);
+    });
+
+    testWidgets('rules can be added and removed (at least two stay)', (
+      tester,
+    ) async {
+      await openForm(tester);
+      await selectKind(tester, 'Several a month');
+
+      // Two rules: nothing to remove.
+      expect(field('income-rule-remove-0'), findsNothing);
+
+      await tester.ensureVisible(field('income-rule-add'));
+      await tester.tap(field('income-rule-add'));
+      await tester.pumpAndSettle();
+      expect(field('income-rule-type-2'), findsOneWidget);
+      expect(field('income-rule-remove-0'), findsOneWidget);
+
+      await tester.ensureVisible(field('income-rule-remove-2'));
+      await tester.tap(field('income-rule-remove-2'));
+      await tester.pumpAndSettle();
+      expect(field('income-rule-type-2'), findsNothing);
+      expect(field('income-rule-remove-0'), findsNothing);
+    });
+
+    testWidgets('the shift rule is hidden when every rule is a working day', (
+      tester,
+    ) async {
+      await openForm(tester);
+      expect(field('income-shift'), findsOneWidget);
+
+      await choose(tester, 'income-rule-type-0', 'Working day of the month');
+      expect(field('income-shift'), findsNothing);
+
+      await choose(tester, 'income-rule-type-0', 'Last day of the month');
+      expect(field('income-shift'), findsOneWidget);
+
+      // Several: one working-day rule and one day rule -> shift still shown.
+      await selectKind(tester, 'Several a month');
+      await choose(tester, 'income-rule-type-0', 'Working day of the month');
+      expect(field('income-shift'), findsOneWidget);
+      await choose(tester, 'income-rule-type-1', 'Working day of the month');
+      expect(field('income-shift'), findsNothing);
+    });
+
+    testWidgets('equal payment days are rejected, different ones are saved', (
+      tester,
+    ) async {
+      await openForm(tester);
+      await fill(tester, 'income-name', 'Salary');
+      await fill(tester, 'income-amount', '500');
+      await selectKind(tester, 'Several a month');
+      // The default rules are day 16 and day 15; make them both 15.
+      await choose(tester, 'income-rule-value-0', '15');
+
+      await save(tester);
+
+      expect(field('income-duplicate-error'), findsOneWidget);
+      expect(find.text('Two payment days are the same'), findsOneWidget);
+      expect(income.sources, isEmpty);
+
+      await choose(tester, 'income-rule-value-0', '20');
+      await save(tester);
+
+      expect(field('income-duplicate-error'), findsNothing);
+      expect(
+        income.sources.values.single.schedule,
+        SeveralPerMonth(const [
+          DayOfMonth(20),
+          DayOfMonth(15),
+        ], shift: ShiftRule.previousWorkingDay),
+      );
+    });
+
+    testWidgets('a weekly source with a chosen shift rule is saved', (
+      tester,
+    ) async {
+      await openForm(tester);
+      await fill(tester, 'income-name', 'Pocket money');
+      await fill(tester, 'income-amount', '20');
+      await selectKind(tester, 'Weekly');
+      await choose(tester, 'income-weekday', 'Friday');
+      await choose(tester, 'income-shift', 'Pay on the next working day');
+
+      await save(tester);
+
+      expect(
+        income.sources.values.single.schedule,
+        const Weekly(DateTime.friday, shift: ShiftRule.nextWorkingDay),
+      );
+    });
+
+    testWidgets('a monthly source on the Nth working day is saved', (
+      tester,
+    ) async {
+      await openForm(tester);
+      await fill(tester, 'income-name', 'Rent');
+      await fill(tester, 'income-amount', '300');
+      await choose(tester, 'income-rule-type-0', 'Working day of the month');
+      await choose(tester, 'income-rule-value-0', '3');
+
+      await save(tester);
+
+      final schedule = income.sources.values.single.schedule as Monthly;
+      expect(schedule.rule, const NthWorkingDay(3));
+    });
+
+    testWidgets('"Do not move" is saved as ShiftRule.none', (tester) async {
+      await openForm(tester);
+      await fill(tester, 'income-name', 'Salary');
+      await fill(tester, 'income-amount', '1000');
+      await choose(tester, 'income-shift', 'Do not move');
+
+      await save(tester);
+
+      final schedule = income.sources.values.single.schedule as Monthly;
+      expect(schedule.shift, ShiftRule.none);
+      expect(schedule.rule, const DayOfMonth(16));
+    });
+
+    testWidgets('editing loads the rules of a several-per-month source', (
+      tester,
+    ) async {
+      final existing = IncomeSource(
+        id: 's1',
+        name: 'Salary',
+        type: IncomeType.salary,
+        amount: const Money(100000),
+        currencyCode: 'USD',
+        schedule: SeveralPerMonth(const [
+          DayOfMonth(1),
+          NthWorkingDay(3),
+        ], shift: ShiftRule.nextWorkingDay),
+        startDate: CalendarDate(2026, 10, 1),
+        createdAt: DateTime.utc(2026, 10, 1),
+      );
+      await income.addSource(existing);
+      await openForm(tester, source: existing);
+
+      expect(field('income-rule-type-1'), findsOneWidget);
+      expect(find.text('Working day of the month'), findsWidgets);
+      expect(find.text('Pay on the next working day'), findsOneWidget);
+    });
+  });
+
+  group('change payment dialog', () {
+    Future<void> openDialog(WidgetTester tester) async {
+      await income.addSource(source('a', 'Salary', 100000, 5));
+      await pumpPage(tester, english, home: const IncomePage());
+      await tester.tap(field('occurrence-menu-a-2026-10-05'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Change amount or date'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('changing only the amount does not pin the date', (
+      tester,
+    ) async {
+      await openDialog(tester);
+
+      await tester.enterText(field('money-dialog-field'), '950');
+      await tester.tap(field('money-dialog-save'));
+      await tester.pumpAndSettle();
+
+      final entry = income.entries.single;
+      expect(entry.amount, const Money(95000));
+      expect(entry.originalDate, CalendarDate(2026, 10, 5));
+      expect(entry.actualDate, isNull);
+    });
+
+    testWidgets('changing the date pins it; the nominal date stays the key', (
+      tester,
+    ) async {
+      await openDialog(tester);
+
+      await tester.tap(field('payment-date'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('12'));
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      await tester.tap(field('money-dialog-save'));
+      await tester.pumpAndSettle();
+
+      final entry = income.entries.single;
+      expect(entry.originalDate, CalendarDate(2026, 10, 5));
+      expect(entry.actualDate, CalendarDate(2026, 10, 12));
+      // Still the same tile (keyed on the nominal date), now dated the 12th.
+      expect(
+        find.descendant(
+          of: field('occurrence-a-2026-10-05'),
+          matching: find.textContaining('Oct 12, 2026'),
+        ),
+        findsOneWidget,
+      );
+    });
+  });
 }

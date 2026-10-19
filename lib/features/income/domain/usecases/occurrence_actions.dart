@@ -7,8 +7,10 @@ import 'package:simple_budgeting_app/features/income/domain/entities/income_sour
 import 'package:simple_budgeting_app/features/income/domain/repositories/income_repository.dart';
 import 'package:simple_budgeting_app/features/income/domain/usecases/income_validation.dart';
 
-/// Stores a different amount for one payment (identified by its original
-/// date). Whether it counts as received or expected still depends on its date.
+/// Stores a different amount and/or a different paid date for one payment
+/// (identified by its NOMINAL date). Whether it counts as received or expected
+/// depends on the paid date. A new [actualDate] is pinned; without it, a date
+/// pinned earlier is kept.
 class ChangeOccurrenceAmount {
   const ChangeOccurrenceAmount(this._repository, this._clock, this._newId);
 
@@ -20,6 +22,7 @@ class ChangeOccurrenceAmount {
     required String sourceId,
     required CalendarDate originalDate,
     required Money amount,
+    CalendarDate? actualDate,
   }) async {
     if (amount.minorUnits <= 0) {
       throw const IncomeValidationException(
@@ -27,6 +30,7 @@ class ChangeOccurrenceAmount {
       );
     }
     await _requireSource(_repository, sourceId);
+    final existing = await _existingEntry(_repository, sourceId, originalDate);
     await _repository.saveEntry(
       IncomeEntry(
         id: _newId(),
@@ -35,6 +39,7 @@ class ChangeOccurrenceAmount {
         status: IncomeEntryStatus.received,
         amount: amount,
         createdAt: _clock().toUtc(),
+        actualDate: actualDate ?? existing?.actualDate,
       ),
     );
   }
@@ -54,10 +59,7 @@ class SkipOccurrence {
     required CalendarDate originalDate,
   }) async {
     final source = await _requireSource(_repository, sourceId);
-    final entries = await _repository.listEntries();
-    final existing = entries
-        .where((e) => e.sourceId == sourceId && e.originalDate == originalDate)
-        .firstOrNull;
+    final existing = await _existingEntry(_repository, sourceId, originalDate);
     await _repository.saveEntry(
       IncomeEntry(
         id: _newId(),
@@ -66,6 +68,7 @@ class SkipOccurrence {
         status: IncomeEntryStatus.skipped,
         amount: existing?.amount ?? source.amount,
         createdAt: _clock().toUtc(),
+        actualDate: existing?.actualDate,
       ),
     );
   }
@@ -81,6 +84,17 @@ class ResetOccurrence {
     required String sourceId,
     required CalendarDate originalDate,
   }) => _repository.removeEntry(sourceId, originalDate);
+}
+
+Future<IncomeEntry?> _existingEntry(
+  IncomeRepository repository,
+  String sourceId,
+  CalendarDate originalDate,
+) async {
+  final entries = await repository.listEntries();
+  return entries
+      .where((e) => e.sourceId == sourceId && e.originalDate == originalDate)
+      .firstOrNull;
 }
 
 Future<IncomeSource> _requireSource(

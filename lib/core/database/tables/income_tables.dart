@@ -44,6 +44,10 @@ class IncomeEntries extends Table {
   /// The date the schedule produced for the payment this row replaces.
   TextColumn get originalDate => text()();
 
+  /// The date the payment is paid, when it is pinned (frozen history or a
+  /// date the user changed). Null: the date is computed from the schedule.
+  TextColumn get actualDate => text().nullable()();
+
   /// `IncomeEntryStatus.name`: received or skipped.
   TextColumn get status => text()();
 

@@ -159,7 +159,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get occurrenceChangeAmount => 'Change amount';
+  String get occurrenceChangeAmount => 'Change amount or date';
 
   @override
   String get occurrenceSkip => 'Mark as not received';
@@ -168,7 +168,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get occurrenceReset => 'Restore planned payment';
 
   @override
-  String get amountDialogTitle => 'Change amount';
+  String get amountDialogTitle => 'Change payment';
 
   @override
   String get amountDialogField => 'Amount';
@@ -297,4 +297,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get balanceDialogDate => 'Date';
+
+  @override
+  String get scheduleSeveral => 'Several a month';
+
+  @override
+  String get scheduleWeekly => 'Weekly';
+
+  @override
+  String formPaymentDay(int number) {
+    return 'Payment day $number';
+  }
+
+  @override
+  String get ruleTypeDay => 'Day of the month';
+
+  @override
+  String get ruleTypeLast => 'Last day of the month';
+
+  @override
+  String get ruleTypeNth => 'Working day of the month';
+
+  @override
+  String get formWorkingDayNumber => 'Working day number';
+
+  @override
+  String get formAddRule => 'Add payment day';
+
+  @override
+  String get formRemoveRule => 'Remove payment day';
+
+  @override
+  String get formWeekday => 'Weekday';
+
+  @override
+  String get formShift => 'If the day is not a working day';
+
+  @override
+  String get shiftPrevious => 'Pay on the previous working day';
+
+  @override
+  String get shiftNext => 'Pay on the next working day';
+
+  @override
+  String get shiftNone => 'Do not move';
+
+  @override
+  String get errorDuplicateRules => 'Two payment days are the same';
+
+  @override
+  String ruleShortDay(int day) {
+    return 'day $day';
+  }
+
+  @override
+  String get ruleShortLast => 'last day';
+
+  @override
+  String ruleShortNth(int n) {
+    return 'working day $n';
+  }
+
+  @override
+  String scheduleSummaryMonthlyNth(int n) {
+    return 'Monthly, working day $n';
+  }
+
+  @override
+  String scheduleSummarySeveral(String rules) {
+    return 'Monthly on $rules';
+  }
+
+  @override
+  String scheduleSummaryWeekly(DateTime weekday) {
+    final intl.DateFormat weekdayDateFormat = intl.DateFormat.EEEE(localeName);
+    final String weekdayString = weekdayDateFormat.format(weekday);
+
+    return 'Every $weekdayString';
+  }
+
+  @override
+  String get occurrenceDateLabel => 'Paid on';
 }

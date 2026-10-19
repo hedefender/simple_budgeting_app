@@ -64,6 +64,12 @@ class UpdateIncomeSource {
     CalendarDate? frozenThrough = old.frozenThrough;
     if (mustFreeze) {
       final entries = await _repository.listEntries();
+      final stored = <CalendarDate, IncomeEntry>{
+        for (final e in entries)
+          if (e.sourceId == old.id) e.originalDate: e,
+      };
+      // Every payment up to today is pinned to the date it was paid, keyed
+      // on its nominal date. Stored decisions keep their status and amount.
       freezeEntries = <IncomeEntry>[
         for (final occurrence in _calculator.occurrencesThrough(
           source: old,
@@ -71,11 +77,17 @@ class UpdateIncomeSource {
           through: today,
           today: today,
         ))
-          if (!occurrence.isStored)
+          if (stored[occurrence.nominalDate] case final IncomeEntry entry)
+            if (entry.actualDate == null)
+              entry.copyWith(actualDate: occurrence.date)
+            else
+              entry
+          else
             IncomeEntry(
               id: _newId(),
               sourceId: old.id,
-              originalDate: occurrence.date,
+              originalDate: occurrence.nominalDate,
+              actualDate: occurrence.date,
               status: IncomeEntryStatus.received,
               amount: occurrence.amount,
               createdAt: now,

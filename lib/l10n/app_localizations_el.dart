@@ -159,7 +159,7 @@ class AppLocalizationsEl extends AppLocalizations {
   }
 
   @override
-  String get occurrenceChangeAmount => 'Αλλαγή ποσού';
+  String get occurrenceChangeAmount => 'Αλλαγή ποσού ή ημερομηνίας';
 
   @override
   String get occurrenceSkip => 'Σήμανση ως μη ληφθείσα';
@@ -168,7 +168,7 @@ class AppLocalizationsEl extends AppLocalizations {
   String get occurrenceReset => 'Επαναφορά προγραμματισμένης πληρωμής';
 
   @override
-  String get amountDialogTitle => 'Αλλαγή ποσού';
+  String get amountDialogTitle => 'Αλλαγή πληρωμής';
 
   @override
   String get amountDialogField => 'Ποσό';
@@ -298,4 +298,85 @@ class AppLocalizationsEl extends AppLocalizations {
 
   @override
   String get balanceDialogDate => 'Ημερομηνία';
+
+  @override
+  String get scheduleSeveral => 'Πολλές φορές τον μήνα';
+
+  @override
+  String get scheduleWeekly => 'Εβδομαδιαία';
+
+  @override
+  String formPaymentDay(int number) {
+    return 'Ημέρα πληρωμής $number';
+  }
+
+  @override
+  String get ruleTypeDay => 'Ημέρα του μήνα';
+
+  @override
+  String get ruleTypeLast => 'Τελευταία ημέρα του μήνα';
+
+  @override
+  String get ruleTypeNth => 'Εργάσιμη του μήνα';
+
+  @override
+  String get formWorkingDayNumber => 'Αριθμός εργάσιμης';
+
+  @override
+  String get formAddRule => 'Προσθήκη ημέρας πληρωμής';
+
+  @override
+  String get formRemoveRule => 'Αφαίρεση ημέρας πληρωμής';
+
+  @override
+  String get formWeekday => 'Ημέρα της εβδομάδας';
+
+  @override
+  String get formShift => 'Αν η ημέρα δεν είναι εργάσιμη';
+
+  @override
+  String get shiftPrevious => 'Πληρωμή την προηγούμενη εργάσιμη';
+
+  @override
+  String get shiftNext => 'Πληρωμή την επόμενη εργάσιμη';
+
+  @override
+  String get shiftNone => 'Χωρίς μετακίνηση';
+
+  @override
+  String get errorDuplicateRules => 'Δύο ημέρες πληρωμής είναι ίδιες';
+
+  @override
+  String ruleShortDay(int day) {
+    return 'ημέρα $day';
+  }
+
+  @override
+  String get ruleShortLast => 'τελευταία ημέρα';
+
+  @override
+  String ruleShortNth(int n) {
+    return 'εργάσιμη $n';
+  }
+
+  @override
+  String scheduleSummaryMonthlyNth(int n) {
+    return 'Κάθε μήνα, εργάσιμη $n';
+  }
+
+  @override
+  String scheduleSummarySeveral(String rules) {
+    return 'Κάθε μήνα: $rules';
+  }
+
+  @override
+  String scheduleSummaryWeekly(DateTime weekday) {
+    final intl.DateFormat weekdayDateFormat = intl.DateFormat.EEEE(localeName);
+    final String weekdayString = weekdayDateFormat.format(weekday);
+
+    return 'Κάθε $weekdayString';
+  }
+
+  @override
+  String get occurrenceDateLabel => 'Ημερομηνία πληρωμής';
 }

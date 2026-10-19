@@ -18,8 +18,9 @@ class AppDatabase extends _$AppDatabase {
   /// new schema: `dart run drift_dev schema dump
   /// lib/core/database/app_database.dart drift_schemas/`.
   /// 1: app_settings. 2: income_sources, income_entries, balance_anchors.
+  /// 3: income_entries.actual_date.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -29,6 +30,20 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(incomeSources);
         await m.createTable(incomeEntries);
         await m.createTable(balanceAnchors);
+      }
+      // A v1 database got the tables above in their current (v3) shape, so
+      // only a v2 database needs the new column.
+      if (from == 2) {
+        await m.addColumn(incomeEntries, incomeEntries.actualDate);
+        // Phase 1a froze history without shifting, so for entries up to the
+        // source's frozen_through day the paid date was the original date.
+        await customStatement(
+          'UPDATE income_entries SET actual_date = original_date '
+          'WHERE EXISTS (SELECT 1 FROM income_sources s '
+          'WHERE s.id = income_entries.source_id '
+          'AND s.frozen_through IS NOT NULL '
+          'AND income_entries.original_date <= s.frozen_through)',
+        );
       }
     },
     beforeOpen: (OpeningDetails details) async {

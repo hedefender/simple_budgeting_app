@@ -82,12 +82,14 @@ class IncomeRepositoryImpl implements IncomeRepository {
             id: entry.id,
             sourceId: entry.sourceId,
             originalDate: entry.originalDate.toString(),
+            actualDate: Value(entry.actualDate?.toString()),
             status: entry.status.name,
             amountMinor: entry.amount.minorUnits,
             createdAt: entry.createdAt,
           ),
           onConflict: DoUpdate(
             (_) => IncomeEntriesCompanion(
+              actualDate: Value(entry.actualDate?.toString()),
               status: Value(entry.status.name),
               amountMinor: Value(entry.amount.minorUnits),
               createdAt: Value(entry.createdAt),
@@ -140,6 +142,9 @@ class IncomeRepositoryImpl implements IncomeRepository {
       id: row.id,
       sourceId: row.sourceId,
       originalDate: CalendarDate.parse(row.originalDate),
+      actualDate: row.actualDate == null
+          ? null
+          : CalendarDate.parse(row.actualDate!),
       status: IncomeEntryStatus.values.byName(row.status),
       amount: Money(row.amountMinor),
       createdAt: row.createdAt.toUtc(),
