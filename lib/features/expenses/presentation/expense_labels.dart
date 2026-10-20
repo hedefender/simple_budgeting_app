@@ -45,5 +45,7 @@ String expenseValidationMessage(
     ExpenseValidationError.taxExceedsTotal => l10n.errorExpenseTaxTooLarge,
     ExpenseValidationError.categoryNotFound => l10n.errorExpenseCategory,
     ExpenseValidationError.expenseNotFound => l10n.errorExpenseNotFound,
+    ExpenseValidationError.documentNotFound =>
+      l10n.errorExpenseDocumentNotFound,
   };
 }

@@ -13,8 +13,21 @@
 | Phase 1c: currency handling (primary currency, per-source currency, no hidden data) | Done (2026-10-19) |
 | Phase 1d: worker profiles and extra payments | Done (2026-10-19) |
 | Phase 2: expenses | Done (2026-10-20; the owner's manual check of `docs/manual-validation.md` section 12 passed). Plan: `docs/phase-2-plan.md`. Report: `docs/reports/phase-2-report.md` |
-| Phase 3: JSON import | Next (planning). Decisions: "Phase 3 decisions" below. Schema: `docs/scan-json-schema.md`. Plan, waiting for approval: `docs/phase-3-plan.md` |
-| Phase 2b and Phase 4 onward | Not started |
+| Phase 3: JSON import | Done (2026-10-21; the owner's manual check of section 13 passed and `integration_test/document_import_test.dart` passes on the Testing_Phone emulator). Decisions: "Phase 3 decisions" below. Schema: `docs/scan-json-schema.md`. Plan: `docs/phase-3-plan.md`. Report: `docs/reports/phase-3-report.md` |
+| Phase 2b and Phase 4 onward | Not started (notes collected for Phase 4: `docs/phase-4-notes.md`) |
+
+Known issue — Phase 3: a failure to load the native library is not shown as a clear error. `RustScanJsonParser` catches only
+`ScanJsonError`; `ImportScanFiles` turns every other error into `Failed(unexpected)` and keeps no detail. If the Rust library is
+not loaded, every file of an import shows as "unexpected" and the real cause (`StateError: flutter_rust_bridge has not been
+initialized`) is lost. It should reach the user as a clear error. Not fixed in Phase 3. Seen in the first run of
+`document_import_test.dart`, which did not load the library (a test bug, fixed in the test only).
+
+Known issue — Phase 3: the picker does not filter to `.json` on Android. Seen in the owner's manual check (2026-10-21): in
+Documents → Import the Android file chooser shows a PDF as selectable although `jsonOnly: true` should grey it out or hide it;
+the import reports the PDF as skipped, so it never becomes a document. From the code: `FileSelectorImportFilePicker.pick()`
+(`lib/features/documents/data/file_selector_import.dart`) calls `openFiles(acceptedTypeGroups: ...)`. With `jsonOnly: true` it
+passes one `XTypeGroup(label: 'JSON', extensions: ['json'], mimeTypes: ['application/json'])`; with the default
+(`jsonOnly: false`, the one the app uses) it passes an empty list. Not fixed; investigation in a later phase, low priority.
 
 Each step starts only after the owner confirms the previous one compiles and passes.
 
@@ -203,7 +216,7 @@ Notes added with the approval of the plan:
   means on or before the anchor day (the anchor day is inside the anchor) and the button proposes the next day; with a
   start taken from a source it means before that day and the button proposes that day.
 
-## Phase 3 decisions (owner, 2026-10-20; plan waiting for approval: docs/phase-3-plan.md)
+## Phase 3 decisions (owner, 2026-10-20; plan approved: docs/phase-3-plan.md; implemented, report: docs/reports/phase-3-report.md)
 
 The shared schema is described in `docs/scan-json-schema.md`.
 
@@ -223,9 +236,63 @@ The shared schema is described in `docs/scan-json-schema.md`.
    limit, an empty file) gives understandable messages and never crashes.
 7. **Privacy:** nothing is sent over the network.
 
-Open question to the owner (recorded, NOT decided): what `pdfPath` and `imagePaths` mean when Scan and Budget are
-separate Android apps that cannot read each other's private files. Options and the consequences for Phase 8 are in
-`docs/scan-json-schema.md`, section "Open question: file references". Listed below as open decision #16.
+Changes and answers given with the approval of the plan (2026-10-20); details in `docs/phase-3-plan.md`, "Approved changes":
+
+- **File references:** option A, file names only; Phase 3 does not copy, read or show PDF/images. Names are cut to the
+  last segment (`/` or `\`) also in the canonical format, and are only labels. Consequences for Phase 8 are in
+  `docs/scan-json-schema.md`.
+- **File picking:** `file_selector`. A JSON filter is tried on the emulator first; if it hides files, every type is
+  accepted. A file that is not `.json` is "Skipped: not a JSON file", a neutral result, not an error.
+- **Parser in Rust** (`rust/src/api/scan_json.rs`, ADR-002), typed errors; `createdAt` comes back as a UTC instant
+  (file with offset or `Z`) or as local time without zone plus the flag "no offset"; Dart applies the device zone. Rust
+  crates `serde`, `serde_json`, `sha2` approved (versions pinned). Scan will write `createdAt` with an offset.
+- **Limits:** 5 MiB per file, 50 files per batch, one file read at a time, UTF-8 BOM removed. A sample over 5 MiB is
+  created inside the test.
+- **Schema v5:** `imports` is one row per batch (counts, source `file_picker`); `documents` has `import_id`,
+  `source_file_name`, `language`, `document_type` (default `unknown`, enum `DocumentType`, no UI) and no `imported_at`;
+  `expenses.document_id` (nullable FK, `ON DELETE SET NULL`).
+- **Optional `language`** (BCP-47) added to the schema without changing `schemaVersion`.
+- **Deleting a document is in Phase 3** (confirmation names the N linked expenses that stay; the same `documentId`
+  can be imported again). The detail page shows the first 20,000 characters of the OCR text with "Show all".
+
+Implementation notes (2026-10-20), where the build differs from the plan text:
+
+- The types that cross the bridge are flat: a plain enum `ScanJsonErrorKind` plus detail fields, and `created_at_utc_ms` /
+  `created_at_local` instead of an enum with data. The code generator needs the `freezed` package for a data-carrying
+  enum, and no new dependency was approved for it.
+- The file chooser has no type filter in this build (a filter can hide `.json` files that a provider labels with
+  another type). Trying the JSON-only filter on the emulator is step 2 of the manual validation; the switch is
+  `FileSelectorImportFilePicker(jsonOnly: true)`.
+- `file_selector` ^1.1.0 and, in `rust/Cargo.toml`, `serde =1.0.229`, `serde_json =1.0.154`, `sha2 =0.11.1` (pinned).
+
+## ADR-002 and the Rust/Dart division (owner's proposal, 2026-10-20)
+
+ADR-002 (`docs/architecture-decisions.md`) says "Rust for Business Logic: Rust handles parsing and analytics". Read together
+with the table above, it means:
+
+- **In Rust (ADR-002):** the rule engine, categorisation, parsing of import files (Scan JSON now), statistics and
+  prediction.
+- **In Dart, behind a domain interface:** the income engine (`ScheduleEngine`, payments, holidays) and the cash flow.
+  They may move to Rust later without changing the callers.
+- **"Analytics Engine" in the brainstorming** means aggregated data prepared by the domain, which charts only display
+  (Phase 6). It is not a separate engine.
+
+Points where the documents do not agree (noted, NOT decided; the owner decides):
+
+1. ADR-002's title says "Business Logic" and its reason says "Shared compute layer across platforms", which read
+   broader than the list above; the income engine and the cash flow are business logic that stays in Dart.
+   `CLAUDE.md` already says income schedule logic stays in Dart.
+2. ADR-002 says Rust handles "analytics", while Phase 6 in the table above computes dashboards with drift aggregate queries
+   in Dart and uses Rust only for Phase 9 (prediction, anomalies). Does Phase 6 aggregation stay in Dart (my reading)?
+3. The "Division" table has a line for Phase 6 and for the "shared compute layer" that the ADR names; no phase moves
+   the cash flow to Rust. If "later" has to be planned, it needs a phase.
+
+## Rules for the Rust code (owner, 2026-10-20; they apply from Phase 3)
+
+a. Rust never opens the database. Dart passes the data in and Rust returns a result.
+b. No `unwrap` or `expect` in Rust code that processes external data (files, JSON, OCR text). Errors are typed values.
+c. Every new field is added to the Rust struct, the bridge and the domain, with a test of the whole path: sample ->
+   parser -> database -> read back.
 
 ## Phase 4b - Direct import of JPEG/PDF with on-device OCR (Pro)
 
@@ -268,11 +335,9 @@ manual entry.
     when it starts on an empty database (accidental uninstall or reinstall). Open: file format of the copy,
     spreadsheet format (CSV or XLSX), when the copy is made, and how the restore offer works.
 
-16. **File references in Scan JSON (`pdfPath`, `imagePaths`) (before Phase 3 code; needed for the document detail
-    screen).** Open, asked to the owner. Proposal: file NAMES relative to the files the user selects together with
-    the JSON (or, in Phase 8, shared storage). See `docs/scan-json-schema.md`.
-17. **File picking package for Phase 3.** Proposed, not added: `file_selector` (flutter.dev). Waiting for approval
-    (`docs/phase-3-plan.md`).
+16. **File references in Scan JSON (`pdfPath`, `imagePaths`): decided (2026-10-20), option A, names only.** How the
+    files travel (picker, shared folder, intents) is decided in Phase 8. See `docs/scan-json-schema.md`.
+17. **File picking package for Phase 3: decided (2026-10-20), `file_selector`.**
 
 ## Rules for every phase
 

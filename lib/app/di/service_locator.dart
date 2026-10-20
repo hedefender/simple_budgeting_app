@@ -5,6 +5,14 @@ import 'package:simple_budgeting_app/app/bootstrap/bootstrapper.dart';
 import 'package:simple_budgeting_app/core/clock.dart';
 import 'package:simple_budgeting_app/core/database/app_database.dart';
 import 'package:simple_budgeting_app/core/id_generator.dart';
+import 'package:simple_budgeting_app/features/documents/data/document_repository_impl.dart';
+import 'package:simple_budgeting_app/features/documents/data/file_selector_import.dart';
+import 'package:simple_budgeting_app/features/documents/data/rust_scan_json_parser.dart';
+import 'package:simple_budgeting_app/features/documents/domain/repositories/document_repository.dart';
+import 'package:simple_budgeting_app/features/documents/domain/repositories/import_file_picker.dart';
+import 'package:simple_budgeting_app/features/documents/domain/repositories/scan_json_parser.dart';
+import 'package:simple_budgeting_app/features/documents/domain/usecases/document_usecases.dart';
+import 'package:simple_budgeting_app/features/documents/domain/usecases/import_scan_files.dart';
 import 'package:simple_budgeting_app/features/foundation/data/app_status_repository_impl.dart';
 import 'package:simple_budgeting_app/features/expenses/data/category_repository_impl.dart';
 import 'package:simple_budgeting_app/features/expenses/data/expense_repository_impl.dart';
@@ -159,6 +167,42 @@ void configureDependencies(
     )
     ..registerFactory<ListExpenseCategories>(
       () => ListExpenseCategories(locator<CategoryRepository>()),
+    )
+    ..registerLazySingleton<DocumentRepository>(
+      () => DocumentRepositoryImpl(locator<AppDatabase>()),
+    )
+    ..registerLazySingleton<ScanJsonParser>(() => const RustScanJsonParser())
+    ..registerLazySingleton<ImportFilePicker>(
+      () => const FileSelectorImportFilePicker(),
+    )
+    ..registerFactory<ImportScanFiles>(
+      () => ImportScanFiles(
+        locator<ScanJsonParser>(),
+        locator<DocumentRepository>(),
+        now,
+        newId,
+      ),
+    )
+    ..registerFactory<ListDocuments>(
+      () => ListDocuments(locator<DocumentRepository>()),
+    )
+    ..registerFactory<GetDocument>(
+      () => GetDocument(locator<DocumentRepository>()),
+    )
+    ..registerFactory<GetImportBatch>(
+      () => GetImportBatch(locator<DocumentRepository>()),
+    )
+    ..registerFactory<ListDocumentExpenses>(
+      () => ListDocumentExpenses(locator<ExpenseRepository>()),
+    )
+    ..registerFactory<ListDocumentIdsWithExpenses>(
+      () => ListDocumentIdsWithExpenses(locator<ExpenseRepository>()),
+    )
+    ..registerFactory<DeleteDocument>(
+      () => DeleteDocument(
+        locator<DocumentRepository>(),
+        locator<ExpenseRepository>(),
+      ),
     )
     ..registerLazySingleton<SettingsRepository>(
       () => SettingsRepositoryImpl(locator<AppDatabase>()),

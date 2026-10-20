@@ -2,6 +2,11 @@ import 'package:get_it/get_it.dart';
 import 'package:simple_budgeting_app/core/clock.dart';
 import 'package:simple_budgeting_app/core/id_generator.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
+import 'package:simple_budgeting_app/features/documents/domain/repositories/document_repository.dart';
+import 'package:simple_budgeting_app/features/documents/domain/repositories/import_file_picker.dart';
+import 'package:simple_budgeting_app/features/documents/domain/repositories/scan_json_parser.dart';
+import 'package:simple_budgeting_app/features/documents/domain/usecases/document_usecases.dart';
+import 'package:simple_budgeting_app/features/documents/domain/usecases/import_scan_files.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/repositories/category_repository.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/usecases/create_expense.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/usecases/delete_expense.dart';
@@ -29,6 +34,7 @@ import 'package:simple_budgeting_app/features/settings/domain/usecases/list_know
 import 'package:simple_budgeting_app/features/settings/domain/usecases/set_primary_currency.dart';
 import 'package:simple_budgeting_app/features/settings/domain/usecases/setup_status.dart';
 
+import 'document_fakes.dart';
 import 'expense_fakes.dart';
 import 'settings_fakes.dart';
 
@@ -121,12 +127,18 @@ IdGenerator sequentialIds() {
   FakeBalanceAnchorRepository anchors,
   FakeSettingsRepository settings,
   FakeExpenseRepository expenses,
+  FakeDocumentRepository documents,
+  FakeScanJsonParser parser,
+  FakeImportFilePicker picker,
 })
 registerIncomeFakes(GetIt locator, {required Clock clock}) {
   final income = FakeIncomeRepository();
   final anchors = FakeBalanceAnchorRepository();
   final settings = FakeSettingsRepository();
   final expenses = FakeExpenseRepository();
+  final documents = FakeDocumentRepository(expenses: expenses);
+  final parser = FakeScanJsonParser();
+  final picker = FakeImportFilePicker();
   final categories = FakeCategoryRepository();
   final newId = sequentialIds();
   const calculator = IncomeCalculator(ScheduleEngine());
@@ -137,6 +149,28 @@ registerIncomeFakes(GetIt locator, {required Clock clock}) {
     ..registerSingleton<SettingsRepository>(settings)
     ..registerSingleton<ExpenseRepository>(expenses)
     ..registerSingleton<CategoryRepository>(categories)
+    ..registerSingleton<DocumentRepository>(documents)
+    ..registerSingleton<ScanJsonParser>(parser)
+    ..registerSingleton<ImportFilePicker>(picker)
+    ..registerFactory<ImportScanFiles>(
+      () => ImportScanFiles(
+        parser,
+        documents,
+        clock,
+        newId,
+        localToUtc: (local) => DateTime.parse('${local}Z'),
+      ),
+    )
+    ..registerFactory<ListDocuments>(() => ListDocuments(documents))
+    ..registerFactory<GetDocument>(() => GetDocument(documents))
+    ..registerFactory<GetImportBatch>(() => GetImportBatch(documents))
+    ..registerFactory<ListDocumentExpenses>(
+      () => ListDocumentExpenses(expenses),
+    )
+    ..registerFactory<ListDocumentIdsWithExpenses>(
+      () => ListDocumentIdsWithExpenses(expenses),
+    )
+    ..registerFactory<DeleteDocument>(() => DeleteDocument(documents, expenses))
     ..registerFactory<GetPrimaryCurrency>(
       () => GetPrimaryCurrency(settings, income),
     )
@@ -186,5 +220,8 @@ registerIncomeFakes(GetIt locator, {required Clock clock}) {
     anchors: anchors,
     settings: settings,
     expenses: expenses,
+    documents: documents,
+    parser: parser,
+    picker: picker,
   );
 }

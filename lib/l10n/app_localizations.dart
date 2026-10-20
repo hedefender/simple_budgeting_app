@@ -1148,6 +1148,12 @@ abstract class AppLocalizations {
   /// **'This expense no longer exists'**
   String get errorExpenseNotFound;
 
+  /// No description provided for @errorExpenseDocumentNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The document of this expense no longer exists'**
+  String get errorExpenseDocumentNotFound;
+
   /// No description provided for @expenseAdd.
   ///
   /// In en, this message translates to:
@@ -1285,6 +1291,360 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The default currency of new income sources. Existing sources keep their currency. Amounts in different currencies are never added together.'**
   String get settingsPrimaryCurrencyHelp;
+
+  /// No description provided for @navDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get navDocuments;
+
+  /// No description provided for @documentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get documentsTitle;
+
+  /// No description provided for @documentsImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get documentsImport;
+
+  /// No description provided for @documentsImportTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Scan JSON files'**
+  String get documentsImportTooltip;
+
+  /// No description provided for @documentsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No documents yet'**
+  String get documentsEmptyTitle;
+
+  /// No description provided for @documentsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Import the JSON files that Scan exports. Your documents stay on this device.'**
+  String get documentsEmptyBody;
+
+  /// No description provided for @documentLinkedChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense linked'**
+  String get documentLinkedChip;
+
+  /// No description provided for @documentLegacyChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy format'**
+  String get documentLegacyChip;
+
+  /// No description provided for @documentNoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'(no text)'**
+  String get documentNoTitle;
+
+  /// No description provided for @importInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing…'**
+  String get importInProgress;
+
+  /// No description provided for @importReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import report'**
+  String get importReportTitle;
+
+  /// No description provided for @importSummaryImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported: {count}'**
+  String importSummaryImported(int count);
+
+  /// No description provided for @importSummaryDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Already imported: {count}'**
+  String importSummaryDuplicate(int count);
+
+  /// No description provided for @importSummaryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed: {count}'**
+  String importSummaryFailed(int count);
+
+  /// No description provided for @importSummarySkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped: {count}'**
+  String importSummarySkipped(int count);
+
+  /// No description provided for @importResultImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported'**
+  String get importResultImported;
+
+  /// No description provided for @importResultDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Already imported'**
+  String get importResultDuplicate;
+
+  /// No description provided for @importResultSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped: not a JSON file'**
+  String get importResultSkipped;
+
+  /// No description provided for @importTooManyFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many files: choose at most {limit} at a time.'**
+  String importTooManyFiles(int limit);
+
+  /// No description provided for @importPickError.
+  ///
+  /// In en, this message translates to:
+  /// **'The file chooser could not be opened.'**
+  String get importPickError;
+
+  /// No description provided for @importDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get importDone;
+
+  /// No description provided for @importErrorEmptyFile.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is empty.'**
+  String get importErrorEmptyFile;
+
+  /// No description provided for @importErrorTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is too large ({size}; the limit is {limit}).'**
+  String importErrorTooLarge(String size, String limit);
+
+  /// No description provided for @importErrorNotUtf8.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is not valid UTF-8 text.'**
+  String get importErrorNotUtf8;
+
+  /// No description provided for @importErrorInvalidJson.
+  ///
+  /// In en, this message translates to:
+  /// **'Not valid JSON.'**
+  String get importErrorInvalidJson;
+
+  /// No description provided for @importErrorInvalidJsonAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Not valid JSON (line {line}, column {column}).'**
+  String importErrorInvalidJsonAt(int line, int column);
+
+  /// No description provided for @importErrorNotAnObject.
+  ///
+  /// In en, this message translates to:
+  /// **'The file must contain a JSON object.'**
+  String get importErrorNotAnObject;
+
+  /// No description provided for @importErrorMissingField.
+  ///
+  /// In en, this message translates to:
+  /// **'The field {field} is missing.'**
+  String importErrorMissingField(String field);
+
+  /// No description provided for @importErrorWrongType.
+  ///
+  /// In en, this message translates to:
+  /// **'The field {field} has the wrong type.'**
+  String importErrorWrongType(String field);
+
+  /// No description provided for @importErrorEmptyOcrText.
+  ///
+  /// In en, this message translates to:
+  /// **'The OCR text is empty.'**
+  String get importErrorEmptyOcrText;
+
+  /// No description provided for @importErrorInvalidDocumentId.
+  ///
+  /// In en, this message translates to:
+  /// **'The documentId is empty or longer than 128 characters.'**
+  String get importErrorInvalidDocumentId;
+
+  /// No description provided for @importErrorInvalidDate.
+  ///
+  /// In en, this message translates to:
+  /// **'createdAt is not a valid ISO 8601 date and time.'**
+  String get importErrorInvalidDate;
+
+  /// No description provided for @importErrorEmptyFileName.
+  ///
+  /// In en, this message translates to:
+  /// **'The file name in {field} is empty.'**
+  String importErrorEmptyFileName(String field);
+
+  /// No description provided for @importErrorUnsupportedVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'This file uses schema version {found}; this app understands up to version {known}. Update the app. Nothing was imported.'**
+  String importErrorUnsupportedVersion(int found, int known);
+
+  /// No description provided for @importErrorReadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be read.'**
+  String get importErrorReadError;
+
+  /// No description provided for @importErrorStorageError.
+  ///
+  /// In en, this message translates to:
+  /// **'The document could not be saved.'**
+  String get importErrorStorageError;
+
+  /// No description provided for @importErrorUnexpected.
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected error.'**
+  String get importErrorUnexpected;
+
+  /// No description provided for @documentDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Document'**
+  String get documentDetailTitle;
+
+  /// No description provided for @documentNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This document no longer exists.'**
+  String get documentNotFound;
+
+  /// No description provided for @documentCreatedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get documentCreatedLabel;
+
+  /// No description provided for @documentIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Document id'**
+  String get documentIdLabel;
+
+  /// No description provided for @documentSourceLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported from {file} on {date}'**
+  String documentSourceLine(String file, DateTime date);
+
+  /// No description provided for @documentLegacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Read from the legacy Scan format.'**
+  String get documentLegacyNote;
+
+  /// No description provided for @documentLanguageLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Language: {code}'**
+  String documentLanguageLine(String code);
+
+  /// No description provided for @documentPdfLine.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF: {name}'**
+  String documentPdfLine(String name);
+
+  /// No description provided for @documentImagesLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Images ({count}): {names}'**
+  String documentImagesLine(int count, String names);
+
+  /// No description provided for @documentFilesNotStored.
+  ///
+  /// In en, this message translates to:
+  /// **'These files are not stored in the app.'**
+  String get documentFilesNotStored;
+
+  /// No description provided for @documentOcrHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Text (OCR)'**
+  String get documentOcrHeader;
+
+  /// No description provided for @documentTextTruncated.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the first {shown} of {total} characters.'**
+  String documentTextTruncated(int shown, int total);
+
+  /// No description provided for @documentShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get documentShowAll;
+
+  /// No description provided for @documentCreateExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Create expense'**
+  String get documentCreateExpense;
+
+  /// No description provided for @documentExpensesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses from this document'**
+  String get documentExpensesHeader;
+
+  /// No description provided for @documentDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete document'**
+  String get documentDelete;
+
+  /// No description provided for @documentDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this document?'**
+  String get documentDeleteTitle;
+
+  /// No description provided for @documentDeleteBodyPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'The document and its text are removed from this device. You can import it again later.'**
+  String get documentDeleteBodyPlain;
+
+  /// No description provided for @documentDeleteBodyExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 linked expense stays, without the link to the document.} other{{count} linked expenses stay, without the link to the document.}}'**
+  String documentDeleteBodyExpenses(int count);
+
+  /// No description provided for @documentDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Document deleted'**
+  String get documentDeleted;
+
+  /// No description provided for @expenseFromDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'From the document of {date}'**
+  String expenseFromDocument(DateTime date);
+
+  /// No description provided for @expenseOpenDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'View document'**
+  String get expenseOpenDocument;
 }
 
 class _AppLocalizationsDelegate

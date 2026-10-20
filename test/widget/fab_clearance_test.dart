@@ -5,6 +5,8 @@ import 'package:get_it/get_it.dart';
 import 'package:simple_budgeting_app/app/di/providers.dart';
 import 'package:simple_budgeting_app/core/money/money.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
+import 'package:simple_budgeting_app/features/documents/domain/entities/scan_document.dart';
+import 'package:simple_budgeting_app/features/documents/presentation/documents_page.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/entities/expense.dart';
 import 'package:simple_budgeting_app/features/expenses/presentation/expenses_page.dart';
 import 'package:simple_budgeting_app/features/income/domain/entities/income_schedule.dart';
@@ -119,6 +121,34 @@ void main() {
       tester,
       find.byKey(const Key('source-s20')),
       const Key('income-add'),
+    );
+  });
+
+  testWidgets('Documents: the last document is not under the button', (
+    tester,
+  ) async {
+    for (var i = 1; i <= 25; i++) {
+      await fakes.documents.add(
+        ScanDocument(
+          id: 'doc$i',
+          documentId: 'scan$i',
+          importId: 'b1',
+          sourceFileName: 'f$i.json',
+          createdAt: DateTime.utc(2026, 10, 1, 12).add(Duration(hours: i)),
+          ocrText: 'Document ${i.toString().padLeft(2, '0')}',
+          schemaVersion: 1,
+          wasLegacy: false,
+        ),
+      );
+    }
+    await pump(tester, const DocumentsPage());
+    await scrollToEnd(tester);
+
+    // The oldest document is the last row.
+    expectClear(
+      tester,
+      find.byKey(const Key('document-tile-doc1')),
+      const Key('document-import'),
     );
   });
 }

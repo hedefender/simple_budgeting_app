@@ -637,6 +637,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorExpenseNotFound => 'This expense no longer exists';
 
   @override
+  String get errorExpenseDocumentNotFound =>
+      'The document of this expense no longer exists';
+
+  @override
   String get expenseAdd => 'Add expense';
 
   @override
@@ -724,4 +728,233 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsPrimaryCurrencyHelp =>
       'The default currency of new income sources. Existing sources keep their currency. Amounts in different currencies are never added together.';
+
+  @override
+  String get navDocuments => 'Documents';
+
+  @override
+  String get documentsTitle => 'Documents';
+
+  @override
+  String get documentsImport => 'Import';
+
+  @override
+  String get documentsImportTooltip => 'Import Scan JSON files';
+
+  @override
+  String get documentsEmptyTitle => 'No documents yet';
+
+  @override
+  String get documentsEmptyBody =>
+      'Import the JSON files that Scan exports. Your documents stay on this device.';
+
+  @override
+  String get documentLinkedChip => 'Expense linked';
+
+  @override
+  String get documentLegacyChip => 'Legacy format';
+
+  @override
+  String get documentNoTitle => '(no text)';
+
+  @override
+  String get importInProgress => 'Importing…';
+
+  @override
+  String get importReportTitle => 'Import report';
+
+  @override
+  String importSummaryImported(int count) {
+    return 'Imported: $count';
+  }
+
+  @override
+  String importSummaryDuplicate(int count) {
+    return 'Already imported: $count';
+  }
+
+  @override
+  String importSummaryFailed(int count) {
+    return 'Failed: $count';
+  }
+
+  @override
+  String importSummarySkipped(int count) {
+    return 'Skipped: $count';
+  }
+
+  @override
+  String get importResultImported => 'Imported';
+
+  @override
+  String get importResultDuplicate => 'Already imported';
+
+  @override
+  String get importResultSkipped => 'Skipped: not a JSON file';
+
+  @override
+  String importTooManyFiles(int limit) {
+    return 'Too many files: choose at most $limit at a time.';
+  }
+
+  @override
+  String get importPickError => 'The file chooser could not be opened.';
+
+  @override
+  String get importDone => 'Done';
+
+  @override
+  String get importErrorEmptyFile => 'The file is empty.';
+
+  @override
+  String importErrorTooLarge(String size, String limit) {
+    return 'The file is too large ($size; the limit is $limit).';
+  }
+
+  @override
+  String get importErrorNotUtf8 => 'The file is not valid UTF-8 text.';
+
+  @override
+  String get importErrorInvalidJson => 'Not valid JSON.';
+
+  @override
+  String importErrorInvalidJsonAt(int line, int column) {
+    return 'Not valid JSON (line $line, column $column).';
+  }
+
+  @override
+  String get importErrorNotAnObject => 'The file must contain a JSON object.';
+
+  @override
+  String importErrorMissingField(String field) {
+    return 'The field $field is missing.';
+  }
+
+  @override
+  String importErrorWrongType(String field) {
+    return 'The field $field has the wrong type.';
+  }
+
+  @override
+  String get importErrorEmptyOcrText => 'The OCR text is empty.';
+
+  @override
+  String get importErrorInvalidDocumentId =>
+      'The documentId is empty or longer than 128 characters.';
+
+  @override
+  String get importErrorInvalidDate =>
+      'createdAt is not a valid ISO 8601 date and time.';
+
+  @override
+  String importErrorEmptyFileName(String field) {
+    return 'The file name in $field is empty.';
+  }
+
+  @override
+  String importErrorUnsupportedVersion(int found, int known) {
+    return 'This file uses schema version $found; this app understands up to version $known. Update the app. Nothing was imported.';
+  }
+
+  @override
+  String get importErrorReadError => 'The file could not be read.';
+
+  @override
+  String get importErrorStorageError => 'The document could not be saved.';
+
+  @override
+  String get importErrorUnexpected => 'Unexpected error.';
+
+  @override
+  String get documentDetailTitle => 'Document';
+
+  @override
+  String get documentNotFound => 'This document no longer exists.';
+
+  @override
+  String get documentCreatedLabel => 'Created';
+
+  @override
+  String get documentIdLabel => 'Document id';
+
+  @override
+  String documentSourceLine(String file, DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Imported from $file on $dateString';
+  }
+
+  @override
+  String get documentLegacyNote => 'Read from the legacy Scan format.';
+
+  @override
+  String documentLanguageLine(String code) {
+    return 'Language: $code';
+  }
+
+  @override
+  String documentPdfLine(String name) {
+    return 'PDF: $name';
+  }
+
+  @override
+  String documentImagesLine(int count, String names) {
+    return 'Images ($count): $names';
+  }
+
+  @override
+  String get documentFilesNotStored => 'These files are not stored in the app.';
+
+  @override
+  String get documentOcrHeader => 'Text (OCR)';
+
+  @override
+  String documentTextTruncated(int shown, int total) {
+    return 'Showing the first $shown of $total characters.';
+  }
+
+  @override
+  String get documentShowAll => 'Show all';
+
+  @override
+  String get documentCreateExpense => 'Create expense';
+
+  @override
+  String get documentExpensesHeader => 'Expenses from this document';
+
+  @override
+  String get documentDelete => 'Delete document';
+
+  @override
+  String get documentDeleteTitle => 'Delete this document?';
+
+  @override
+  String get documentDeleteBodyPlain =>
+      'The document and its text are removed from this device. You can import it again later.';
+
+  @override
+  String documentDeleteBodyExpenses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count linked expenses stay, without the link to the document.',
+      one: '1 linked expense stays, without the link to the document.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentDeleted => 'Document deleted';
+
+  @override
+  String expenseFromDocument(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'From the document of $dateString';
+  }
+
+  @override
+  String get expenseOpenDocument => 'View document';
 }

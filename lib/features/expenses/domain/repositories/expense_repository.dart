@@ -19,6 +19,12 @@ abstract interface class ExpenseRepository {
     String? categoryId,
   });
 
+  /// The expenses linked to a document, newest first.
+  Future<List<Expense>> listByDocument(String documentId);
+
+  /// The ids of the documents that have at least one expense.
+  Future<Set<String>> documentIdsWithExpenses();
+
   /// The currencies of all expenses, pending ones included.
   Future<Set<String>> listCurrencyCodes();
 }

@@ -637,6 +637,10 @@ class AppLocalizationsEl extends AppLocalizations {
   String get errorExpenseNotFound => 'Αυτό το έξοδο δεν υπάρχει πια';
 
   @override
+  String get errorExpenseDocumentNotFound =>
+      'Το έγγραφο αυτού του εξόδου δεν υπάρχει πια';
+
+  @override
   String get expenseAdd => 'Προσθήκη εξόδου';
 
   @override
@@ -723,4 +727,237 @@ class AppLocalizationsEl extends AppLocalizations {
   @override
   String get settingsPrimaryCurrencyHelp =>
       'Το προεπιλεγμένο νόμισμα των νέων πηγών εισοδήματος. Οι υπάρχουσες πηγές κρατούν το νόμισμά τους. Ποσά σε διαφορετικά νομίσματα δεν αθροίζονται ποτέ.';
+
+  @override
+  String get navDocuments => 'Έγγραφα';
+
+  @override
+  String get documentsTitle => 'Έγγραφα';
+
+  @override
+  String get documentsImport => 'Εισαγωγή';
+
+  @override
+  String get documentsImportTooltip => 'Εισαγωγή αρχείων JSON του Scan';
+
+  @override
+  String get documentsEmptyTitle => 'Δεν υπάρχουν έγγραφα ακόμα';
+
+  @override
+  String get documentsEmptyBody =>
+      'Εισάγετε τα αρχεία JSON που εξάγει το Scan. Τα έγγραφά σας μένουν σε αυτή τη συσκευή.';
+
+  @override
+  String get documentLinkedChip => 'Συνδεδεμένο έξοδο';
+
+  @override
+  String get documentLegacyChip => 'Παλιά μορφή';
+
+  @override
+  String get documentNoTitle => '(χωρίς κείμενο)';
+
+  @override
+  String get importInProgress => 'Εισαγωγή…';
+
+  @override
+  String get importReportTitle => 'Αναφορά εισαγωγής';
+
+  @override
+  String importSummaryImported(int count) {
+    return 'Εισήχθησαν: $count';
+  }
+
+  @override
+  String importSummaryDuplicate(int count) {
+    return 'Ήδη εισαγμένα: $count';
+  }
+
+  @override
+  String importSummaryFailed(int count) {
+    return 'Με σφάλμα: $count';
+  }
+
+  @override
+  String importSummarySkipped(int count) {
+    return 'Παραλείφθηκαν: $count';
+  }
+
+  @override
+  String get importResultImported => 'Εισήχθη';
+
+  @override
+  String get importResultDuplicate => 'Ήδη εισαγμένο';
+
+  @override
+  String get importResultSkipped => 'Παραλείφθηκε: δεν είναι αρχείο JSON';
+
+  @override
+  String importTooManyFiles(int limit) {
+    return 'Πάρα πολλά αρχεία: επιλέξτε το πολύ $limit τη φορά.';
+  }
+
+  @override
+  String get importPickError => 'Δεν ήταν δυνατό να ανοίξει η επιλογή αρχείων.';
+
+  @override
+  String get importDone => 'Τέλος';
+
+  @override
+  String get importErrorEmptyFile => 'Το αρχείο είναι κενό.';
+
+  @override
+  String importErrorTooLarge(String size, String limit) {
+    return 'Το αρχείο είναι πολύ μεγάλο ($size, όριο $limit).';
+  }
+
+  @override
+  String get importErrorNotUtf8 => 'Το αρχείο δεν είναι έγκυρο κείμενο UTF-8.';
+
+  @override
+  String get importErrorInvalidJson => 'Μη έγκυρο JSON.';
+
+  @override
+  String importErrorInvalidJsonAt(int line, int column) {
+    return 'Μη έγκυρο JSON (γραμμή $line, στήλη $column).';
+  }
+
+  @override
+  String get importErrorNotAnObject =>
+      'Το αρχείο πρέπει να περιέχει αντικείμενο JSON.';
+
+  @override
+  String importErrorMissingField(String field) {
+    return 'Λείπει το πεδίο $field.';
+  }
+
+  @override
+  String importErrorWrongType(String field) {
+    return 'Το πεδίο $field έχει λάθος τύπο.';
+  }
+
+  @override
+  String get importErrorEmptyOcrText => 'Το κείμενο OCR είναι κενό.';
+
+  @override
+  String get importErrorInvalidDocumentId =>
+      'Το documentId είναι κενό ή μεγαλύτερο από 128 χαρακτήρες.';
+
+  @override
+  String get importErrorInvalidDate =>
+      'Το createdAt δεν είναι έγκυρη ημερομηνία και ώρα ISO 8601.';
+
+  @override
+  String importErrorEmptyFileName(String field) {
+    return 'Το όνομα αρχείου στο $field είναι κενό.';
+  }
+
+  @override
+  String importErrorUnsupportedVersion(int found, int known) {
+    return 'Το αρχείο έχει έκδοση σχήματος $found· αυτή η εφαρμογή υποστηρίζει έως την έκδοση $known. Ενημερώστε την εφαρμογή. Δεν έγινε εισαγωγή.';
+  }
+
+  @override
+  String get importErrorReadError => 'Το αρχείο δεν μπόρεσε να διαβαστεί.';
+
+  @override
+  String get importErrorStorageError =>
+      'Το έγγραφο δεν μπόρεσε να αποθηκευτεί.';
+
+  @override
+  String get importErrorUnexpected => 'Μη αναμενόμενο σφάλμα.';
+
+  @override
+  String get documentDetailTitle => 'Έγγραφο';
+
+  @override
+  String get documentNotFound => 'Αυτό το έγγραφο δεν υπάρχει πια.';
+
+  @override
+  String get documentCreatedLabel => 'Δημιουργήθηκε';
+
+  @override
+  String get documentIdLabel => 'Αναγνωριστικό εγγράφου';
+
+  @override
+  String documentSourceLine(String file, DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Εισήχθη από $file στις $dateString';
+  }
+
+  @override
+  String get documentLegacyNote => 'Διαβάστηκε από την παλιά μορφή του Scan.';
+
+  @override
+  String documentLanguageLine(String code) {
+    return 'Γλώσσα: $code';
+  }
+
+  @override
+  String documentPdfLine(String name) {
+    return 'PDF: $name';
+  }
+
+  @override
+  String documentImagesLine(int count, String names) {
+    return 'Εικόνες ($count): $names';
+  }
+
+  @override
+  String get documentFilesNotStored =>
+      'Αυτά τα αρχεία δεν αποθηκεύονται στην εφαρμογή.';
+
+  @override
+  String get documentOcrHeader => 'Κείμενο (OCR)';
+
+  @override
+  String documentTextTruncated(int shown, int total) {
+    return 'Εμφανίζονται οι πρώτοι $shown από $total χαρακτήρες.';
+  }
+
+  @override
+  String get documentShowAll => 'Εμφάνιση όλου';
+
+  @override
+  String get documentCreateExpense => 'Δημιουργία εξόδου';
+
+  @override
+  String get documentExpensesHeader => 'Έξοδα από αυτό το έγγραφο';
+
+  @override
+  String get documentDelete => 'Διαγραφή εγγράφου';
+
+  @override
+  String get documentDeleteTitle => 'Διαγραφή αυτού του εγγράφου;';
+
+  @override
+  String get documentDeleteBodyPlain =>
+      'Το έγγραφο και το κείμενό του αφαιρούνται από αυτή τη συσκευή. Μπορείτε να το εισαγάγετε ξανά αργότερα.';
+
+  @override
+  String documentDeleteBodyExpenses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Παραμένουν $count συνδεδεμένα έξοδα, χωρίς τον σύνδεσμο με το έγγραφο.',
+      one: 'Παραμένει 1 συνδεδεμένο έξοδο, χωρίς τον σύνδεσμο με το έγγραφο.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentDeleted => 'Το έγγραφο διαγράφηκε';
+
+  @override
+  String expenseFromDocument(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Από το έγγραφο της $dateString';
+  }
+
+  @override
+  String get expenseOpenDocument => 'Προβολή εγγράφου';
 }

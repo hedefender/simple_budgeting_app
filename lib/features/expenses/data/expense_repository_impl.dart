@@ -4,6 +4,7 @@ import 'package:simple_budgeting_app/core/money/money.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/entities/expense.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/repositories/expense_repository.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/usecases/expense_validation.dart';
 
 class ExpenseRepositoryImpl implements ExpenseRepository {
   ExpenseRepositoryImpl(this._db);
@@ -12,11 +13,13 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<void> add(Expense expense) async {
+    await _requireDocument(expense.documentId);
     await _db.into(_db.expenses).insert(_companion(expense));
   }
 
   @override
   Future<void> update(Expense expense) async {
+    await _requireDocument(expense.documentId);
     await (_db.update(
       _db.expenses,
     )..where((t) => t.id.equals(expense.id))).write(_companion(expense));
@@ -60,6 +63,40 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   }
 
   @override
+  Future<List<Expense>> listByDocument(String documentId) async {
+    final query = _db.select(_db.expenses)
+      ..where((t) => t.documentId.equals(documentId))
+      ..orderBy([
+        (t) => OrderingTerm.desc(t.expenseDate),
+        (t) => OrderingTerm.desc(t.createdAt),
+      ]);
+    return (await query.get()).map(_toExpense).toList();
+  }
+
+  @override
+  Future<Set<String>> documentIdsWithExpenses() async {
+    final query = _db.selectOnly(_db.expenses, distinct: true)
+      ..addColumns([_db.expenses.documentId])
+      ..where(_db.expenses.documentId.isNotNull());
+    final rows = await query.get();
+    return rows.map((r) => r.read(_db.expenses.documentId)!).toSet();
+  }
+
+  /// A typed error instead of a foreign key crash for a link to a document
+  /// that does not exist.
+  Future<void> _requireDocument(String? documentId) async {
+    if (documentId == null) return;
+    final found = await (_db.select(
+      _db.documents,
+    )..where((t) => t.id.equals(documentId))).getSingleOrNull();
+    if (found == null) {
+      throw const ExpenseValidationException(
+        ExpenseValidationError.documentNotFound,
+      );
+    }
+  }
+
+  @override
   Future<Set<String>> listCurrencyCodes() async {
     final query = _db.selectOnly(_db.expenses, distinct: true)
       ..addColumns([_db.expenses.currencyCode]);
@@ -78,6 +115,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
       originalAmountMinor: Value(e.original?.amount.minorUnits),
       originalCurrencyCode: Value(e.original?.currencyCode),
       taxAmountMinor: Value(e.tax?.minorUnits),
+      documentId: Value(e.documentId),
       createdAt: Value(e.createdAt),
       updatedAt: Value(e.updatedAt),
     );
@@ -97,6 +135,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
           ? null
           : OriginalAmount(Money(originalMinor), originalCurrency),
       tax: row.taxAmountMinor == null ? null : Money(row.taxAmountMinor!),
+      documentId: row.documentId,
       createdAt: row.createdAt.toUtc(),
       updatedAt: row.updatedAt.toUtc(),
     );

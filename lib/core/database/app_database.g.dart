@@ -2107,6 +2107,1239 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
   }
 }
 
+class $ImportsTable extends Imports with TableInfo<$ImportsTable, ImportRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ImportsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _importedAtMeta = const VerificationMeta(
+    'importedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> importedAt = GeneratedColumn<DateTime>(
+    'imported_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fileCountMeta = const VerificationMeta(
+    'fileCount',
+  );
+  @override
+  late final GeneratedColumn<int> fileCount = GeneratedColumn<int>(
+    'file_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _importedCountMeta = const VerificationMeta(
+    'importedCount',
+  );
+  @override
+  late final GeneratedColumn<int> importedCount = GeneratedColumn<int>(
+    'imported_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _duplicateCountMeta = const VerificationMeta(
+    'duplicateCount',
+  );
+  @override
+  late final GeneratedColumn<int> duplicateCount = GeneratedColumn<int>(
+    'duplicate_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _failedCountMeta = const VerificationMeta(
+    'failedCount',
+  );
+  @override
+  late final GeneratedColumn<int> failedCount = GeneratedColumn<int>(
+    'failed_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    importedAt,
+    source,
+    fileCount,
+    importedCount,
+    duplicateCount,
+    failedCount,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'imports';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ImportRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('imported_at')) {
+      context.handle(
+        _importedAtMeta,
+        importedAt.isAcceptableOrUnknown(data['imported_at']!, _importedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_importedAtMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('file_count')) {
+      context.handle(
+        _fileCountMeta,
+        fileCount.isAcceptableOrUnknown(data['file_count']!, _fileCountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fileCountMeta);
+    }
+    if (data.containsKey('imported_count')) {
+      context.handle(
+        _importedCountMeta,
+        importedCount.isAcceptableOrUnknown(
+          data['imported_count']!,
+          _importedCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_importedCountMeta);
+    }
+    if (data.containsKey('duplicate_count')) {
+      context.handle(
+        _duplicateCountMeta,
+        duplicateCount.isAcceptableOrUnknown(
+          data['duplicate_count']!,
+          _duplicateCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_duplicateCountMeta);
+    }
+    if (data.containsKey('failed_count')) {
+      context.handle(
+        _failedCountMeta,
+        failedCount.isAcceptableOrUnknown(
+          data['failed_count']!,
+          _failedCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_failedCountMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ImportRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ImportRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      importedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}imported_at'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      fileCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}file_count'],
+      )!,
+      importedCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}imported_count'],
+      )!,
+      duplicateCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duplicate_count'],
+      )!,
+      failedCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}failed_count'],
+      )!,
+    );
+  }
+
+  @override
+  $ImportsTable createAlias(String alias) {
+    return $ImportsTable(attachedDatabase, alias);
+  }
+}
+
+class ImportRow extends DataClass implements Insertable<ImportRow> {
+  final String id;
+  final DateTime importedAt;
+
+  /// Where the batch came from. `file_picker` for now.
+  final String source;
+
+  /// Files picked. Skipped files (not JSON) are
+  /// `file_count - imported - duplicate - failed`.
+  final int fileCount;
+  final int importedCount;
+  final int duplicateCount;
+  final int failedCount;
+  const ImportRow({
+    required this.id,
+    required this.importedAt,
+    required this.source,
+    required this.fileCount,
+    required this.importedCount,
+    required this.duplicateCount,
+    required this.failedCount,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['imported_at'] = Variable<DateTime>(importedAt);
+    map['source'] = Variable<String>(source);
+    map['file_count'] = Variable<int>(fileCount);
+    map['imported_count'] = Variable<int>(importedCount);
+    map['duplicate_count'] = Variable<int>(duplicateCount);
+    map['failed_count'] = Variable<int>(failedCount);
+    return map;
+  }
+
+  ImportsCompanion toCompanion(bool nullToAbsent) {
+    return ImportsCompanion(
+      id: Value(id),
+      importedAt: Value(importedAt),
+      source: Value(source),
+      fileCount: Value(fileCount),
+      importedCount: Value(importedCount),
+      duplicateCount: Value(duplicateCount),
+      failedCount: Value(failedCount),
+    );
+  }
+
+  factory ImportRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ImportRow(
+      id: serializer.fromJson<String>(json['id']),
+      importedAt: serializer.fromJson<DateTime>(json['importedAt']),
+      source: serializer.fromJson<String>(json['source']),
+      fileCount: serializer.fromJson<int>(json['fileCount']),
+      importedCount: serializer.fromJson<int>(json['importedCount']),
+      duplicateCount: serializer.fromJson<int>(json['duplicateCount']),
+      failedCount: serializer.fromJson<int>(json['failedCount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'importedAt': serializer.toJson<DateTime>(importedAt),
+      'source': serializer.toJson<String>(source),
+      'fileCount': serializer.toJson<int>(fileCount),
+      'importedCount': serializer.toJson<int>(importedCount),
+      'duplicateCount': serializer.toJson<int>(duplicateCount),
+      'failedCount': serializer.toJson<int>(failedCount),
+    };
+  }
+
+  ImportRow copyWith({
+    String? id,
+    DateTime? importedAt,
+    String? source,
+    int? fileCount,
+    int? importedCount,
+    int? duplicateCount,
+    int? failedCount,
+  }) => ImportRow(
+    id: id ?? this.id,
+    importedAt: importedAt ?? this.importedAt,
+    source: source ?? this.source,
+    fileCount: fileCount ?? this.fileCount,
+    importedCount: importedCount ?? this.importedCount,
+    duplicateCount: duplicateCount ?? this.duplicateCount,
+    failedCount: failedCount ?? this.failedCount,
+  );
+  ImportRow copyWithCompanion(ImportsCompanion data) {
+    return ImportRow(
+      id: data.id.present ? data.id.value : this.id,
+      importedAt: data.importedAt.present
+          ? data.importedAt.value
+          : this.importedAt,
+      source: data.source.present ? data.source.value : this.source,
+      fileCount: data.fileCount.present ? data.fileCount.value : this.fileCount,
+      importedCount: data.importedCount.present
+          ? data.importedCount.value
+          : this.importedCount,
+      duplicateCount: data.duplicateCount.present
+          ? data.duplicateCount.value
+          : this.duplicateCount,
+      failedCount: data.failedCount.present
+          ? data.failedCount.value
+          : this.failedCount,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportRow(')
+          ..write('id: $id, ')
+          ..write('importedAt: $importedAt, ')
+          ..write('source: $source, ')
+          ..write('fileCount: $fileCount, ')
+          ..write('importedCount: $importedCount, ')
+          ..write('duplicateCount: $duplicateCount, ')
+          ..write('failedCount: $failedCount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    importedAt,
+    source,
+    fileCount,
+    importedCount,
+    duplicateCount,
+    failedCount,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ImportRow &&
+          other.id == this.id &&
+          other.importedAt == this.importedAt &&
+          other.source == this.source &&
+          other.fileCount == this.fileCount &&
+          other.importedCount == this.importedCount &&
+          other.duplicateCount == this.duplicateCount &&
+          other.failedCount == this.failedCount);
+}
+
+class ImportsCompanion extends UpdateCompanion<ImportRow> {
+  final Value<String> id;
+  final Value<DateTime> importedAt;
+  final Value<String> source;
+  final Value<int> fileCount;
+  final Value<int> importedCount;
+  final Value<int> duplicateCount;
+  final Value<int> failedCount;
+  final Value<int> rowid;
+  const ImportsCompanion({
+    this.id = const Value.absent(),
+    this.importedAt = const Value.absent(),
+    this.source = const Value.absent(),
+    this.fileCount = const Value.absent(),
+    this.importedCount = const Value.absent(),
+    this.duplicateCount = const Value.absent(),
+    this.failedCount = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ImportsCompanion.insert({
+    required String id,
+    required DateTime importedAt,
+    required String source,
+    required int fileCount,
+    required int importedCount,
+    required int duplicateCount,
+    required int failedCount,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       importedAt = Value(importedAt),
+       source = Value(source),
+       fileCount = Value(fileCount),
+       importedCount = Value(importedCount),
+       duplicateCount = Value(duplicateCount),
+       failedCount = Value(failedCount);
+  static Insertable<ImportRow> custom({
+    Expression<String>? id,
+    Expression<DateTime>? importedAt,
+    Expression<String>? source,
+    Expression<int>? fileCount,
+    Expression<int>? importedCount,
+    Expression<int>? duplicateCount,
+    Expression<int>? failedCount,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (importedAt != null) 'imported_at': importedAt,
+      if (source != null) 'source': source,
+      if (fileCount != null) 'file_count': fileCount,
+      if (importedCount != null) 'imported_count': importedCount,
+      if (duplicateCount != null) 'duplicate_count': duplicateCount,
+      if (failedCount != null) 'failed_count': failedCount,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ImportsCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? importedAt,
+    Value<String>? source,
+    Value<int>? fileCount,
+    Value<int>? importedCount,
+    Value<int>? duplicateCount,
+    Value<int>? failedCount,
+    Value<int>? rowid,
+  }) {
+    return ImportsCompanion(
+      id: id ?? this.id,
+      importedAt: importedAt ?? this.importedAt,
+      source: source ?? this.source,
+      fileCount: fileCount ?? this.fileCount,
+      importedCount: importedCount ?? this.importedCount,
+      duplicateCount: duplicateCount ?? this.duplicateCount,
+      failedCount: failedCount ?? this.failedCount,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (importedAt.present) {
+      map['imported_at'] = Variable<DateTime>(importedAt.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (fileCount.present) {
+      map['file_count'] = Variable<int>(fileCount.value);
+    }
+    if (importedCount.present) {
+      map['imported_count'] = Variable<int>(importedCount.value);
+    }
+    if (duplicateCount.present) {
+      map['duplicate_count'] = Variable<int>(duplicateCount.value);
+    }
+    if (failedCount.present) {
+      map['failed_count'] = Variable<int>(failedCount.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportsCompanion(')
+          ..write('id: $id, ')
+          ..write('importedAt: $importedAt, ')
+          ..write('source: $source, ')
+          ..write('fileCount: $fileCount, ')
+          ..write('importedCount: $importedCount, ')
+          ..write('duplicateCount: $duplicateCount, ')
+          ..write('failedCount: $failedCount, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DocumentsTable extends Documents
+    with TableInfo<$DocumentsTable, DocumentRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DocumentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _documentIdMeta = const VerificationMeta(
+    'documentId',
+  );
+  @override
+  late final GeneratedColumn<String> documentId = GeneratedColumn<String>(
+    'document_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _importIdMeta = const VerificationMeta(
+    'importId',
+  );
+  @override
+  late final GeneratedColumn<String> importId = GeneratedColumn<String>(
+    'import_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES imports (id)',
+    ),
+  );
+  static const VerificationMeta _sourceFileNameMeta = const VerificationMeta(
+    'sourceFileName',
+  );
+  @override
+  late final GeneratedColumn<String> sourceFileName = GeneratedColumn<String>(
+    'source_file_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtUtcMeta = const VerificationMeta(
+    'createdAtUtc',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAtUtc = GeneratedColumn<DateTime>(
+    'created_at_utc',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ocrTextMeta = const VerificationMeta(
+    'ocrText',
+  );
+  @override
+  late final GeneratedColumn<String> ocrText = GeneratedColumn<String>(
+    'ocr_text',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _languageMeta = const VerificationMeta(
+    'language',
+  );
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+    'language',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _documentTypeMeta = const VerificationMeta(
+    'documentType',
+  );
+  @override
+  late final GeneratedColumn<String> documentType = GeneratedColumn<String>(
+    'document_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('unknown'),
+  );
+  static const VerificationMeta _pdfNameMeta = const VerificationMeta(
+    'pdfName',
+  );
+  @override
+  late final GeneratedColumn<String> pdfName = GeneratedColumn<String>(
+    'pdf_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _imageNamesMeta = const VerificationMeta(
+    'imageNames',
+  );
+  @override
+  late final GeneratedColumn<String> imageNames = GeneratedColumn<String>(
+    'image_names',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _schemaVersionMeta = const VerificationMeta(
+    'schemaVersion',
+  );
+  @override
+  late final GeneratedColumn<int> schemaVersion = GeneratedColumn<int>(
+    'schema_version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _wasLegacyMeta = const VerificationMeta(
+    'wasLegacy',
+  );
+  @override
+  late final GeneratedColumn<bool> wasLegacy = GeneratedColumn<bool>(
+    'was_legacy',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("was_legacy" IN (0, 1))',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    documentId,
+    importId,
+    sourceFileName,
+    createdAtUtc,
+    ocrText,
+    language,
+    documentType,
+    pdfName,
+    imageNames,
+    schemaVersion,
+    wasLegacy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'documents';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DocumentRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('document_id')) {
+      context.handle(
+        _documentIdMeta,
+        documentId.isAcceptableOrUnknown(data['document_id']!, _documentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_documentIdMeta);
+    }
+    if (data.containsKey('import_id')) {
+      context.handle(
+        _importIdMeta,
+        importId.isAcceptableOrUnknown(data['import_id']!, _importIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_importIdMeta);
+    }
+    if (data.containsKey('source_file_name')) {
+      context.handle(
+        _sourceFileNameMeta,
+        sourceFileName.isAcceptableOrUnknown(
+          data['source_file_name']!,
+          _sourceFileNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceFileNameMeta);
+    }
+    if (data.containsKey('created_at_utc')) {
+      context.handle(
+        _createdAtUtcMeta,
+        createdAtUtc.isAcceptableOrUnknown(
+          data['created_at_utc']!,
+          _createdAtUtcMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtUtcMeta);
+    }
+    if (data.containsKey('ocr_text')) {
+      context.handle(
+        _ocrTextMeta,
+        ocrText.isAcceptableOrUnknown(data['ocr_text']!, _ocrTextMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ocrTextMeta);
+    }
+    if (data.containsKey('language')) {
+      context.handle(
+        _languageMeta,
+        language.isAcceptableOrUnknown(data['language']!, _languageMeta),
+      );
+    }
+    if (data.containsKey('document_type')) {
+      context.handle(
+        _documentTypeMeta,
+        documentType.isAcceptableOrUnknown(
+          data['document_type']!,
+          _documentTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('pdf_name')) {
+      context.handle(
+        _pdfNameMeta,
+        pdfName.isAcceptableOrUnknown(data['pdf_name']!, _pdfNameMeta),
+      );
+    }
+    if (data.containsKey('image_names')) {
+      context.handle(
+        _imageNamesMeta,
+        imageNames.isAcceptableOrUnknown(data['image_names']!, _imageNamesMeta),
+      );
+    }
+    if (data.containsKey('schema_version')) {
+      context.handle(
+        _schemaVersionMeta,
+        schemaVersion.isAcceptableOrUnknown(
+          data['schema_version']!,
+          _schemaVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_schemaVersionMeta);
+    }
+    if (data.containsKey('was_legacy')) {
+      context.handle(
+        _wasLegacyMeta,
+        wasLegacy.isAcceptableOrUnknown(data['was_legacy']!, _wasLegacyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_wasLegacyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DocumentRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DocumentRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      documentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}document_id'],
+      )!,
+      importId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}import_id'],
+      )!,
+      sourceFileName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_file_name'],
+      )!,
+      createdAtUtc: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at_utc'],
+      )!,
+      ocrText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ocr_text'],
+      )!,
+      language: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}language'],
+      ),
+      documentType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}document_type'],
+      )!,
+      pdfName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pdf_name'],
+      ),
+      imageNames: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_names'],
+      )!,
+      schemaVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}schema_version'],
+      )!,
+      wasLegacy: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}was_legacy'],
+      )!,
+    );
+  }
+
+  @override
+  $DocumentsTable createAlias(String alias) {
+    return $DocumentsTable(attachedDatabase, alias);
+  }
+}
+
+class DocumentRow extends DataClass implements Insertable<DocumentRow> {
+  final String id;
+
+  /// The `documentId` of the Scan JSON: the duplicate key.
+  final String documentId;
+  final String importId;
+
+  /// The JSON file the document came from.
+  final String sourceFileName;
+
+  /// The `createdAt` instant, UTC.
+  final DateTime createdAtUtc;
+  final String ocrText;
+
+  /// BCP-47 tag, or null when the file did not say.
+  final String? language;
+
+  /// `DocumentType.name`. No constraint: a value written by a newer version
+  /// of the app must not make the row unreadable (it reads as `unknown`).
+  final String documentType;
+
+  /// File names (labels, never paths), cut to their last segment.
+  final String? pdfName;
+
+  /// A JSON array of strings.
+  final String imageNames;
+
+  /// The `schemaVersion` of the file; 1 for a legacy file.
+  final int schemaVersion;
+  final bool wasLegacy;
+  const DocumentRow({
+    required this.id,
+    required this.documentId,
+    required this.importId,
+    required this.sourceFileName,
+    required this.createdAtUtc,
+    required this.ocrText,
+    this.language,
+    required this.documentType,
+    this.pdfName,
+    required this.imageNames,
+    required this.schemaVersion,
+    required this.wasLegacy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['document_id'] = Variable<String>(documentId);
+    map['import_id'] = Variable<String>(importId);
+    map['source_file_name'] = Variable<String>(sourceFileName);
+    map['created_at_utc'] = Variable<DateTime>(createdAtUtc);
+    map['ocr_text'] = Variable<String>(ocrText);
+    if (!nullToAbsent || language != null) {
+      map['language'] = Variable<String>(language);
+    }
+    map['document_type'] = Variable<String>(documentType);
+    if (!nullToAbsent || pdfName != null) {
+      map['pdf_name'] = Variable<String>(pdfName);
+    }
+    map['image_names'] = Variable<String>(imageNames);
+    map['schema_version'] = Variable<int>(schemaVersion);
+    map['was_legacy'] = Variable<bool>(wasLegacy);
+    return map;
+  }
+
+  DocumentsCompanion toCompanion(bool nullToAbsent) {
+    return DocumentsCompanion(
+      id: Value(id),
+      documentId: Value(documentId),
+      importId: Value(importId),
+      sourceFileName: Value(sourceFileName),
+      createdAtUtc: Value(createdAtUtc),
+      ocrText: Value(ocrText),
+      language: language == null && nullToAbsent
+          ? const Value.absent()
+          : Value(language),
+      documentType: Value(documentType),
+      pdfName: pdfName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pdfName),
+      imageNames: Value(imageNames),
+      schemaVersion: Value(schemaVersion),
+      wasLegacy: Value(wasLegacy),
+    );
+  }
+
+  factory DocumentRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DocumentRow(
+      id: serializer.fromJson<String>(json['id']),
+      documentId: serializer.fromJson<String>(json['documentId']),
+      importId: serializer.fromJson<String>(json['importId']),
+      sourceFileName: serializer.fromJson<String>(json['sourceFileName']),
+      createdAtUtc: serializer.fromJson<DateTime>(json['createdAtUtc']),
+      ocrText: serializer.fromJson<String>(json['ocrText']),
+      language: serializer.fromJson<String?>(json['language']),
+      documentType: serializer.fromJson<String>(json['documentType']),
+      pdfName: serializer.fromJson<String?>(json['pdfName']),
+      imageNames: serializer.fromJson<String>(json['imageNames']),
+      schemaVersion: serializer.fromJson<int>(json['schemaVersion']),
+      wasLegacy: serializer.fromJson<bool>(json['wasLegacy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'documentId': serializer.toJson<String>(documentId),
+      'importId': serializer.toJson<String>(importId),
+      'sourceFileName': serializer.toJson<String>(sourceFileName),
+      'createdAtUtc': serializer.toJson<DateTime>(createdAtUtc),
+      'ocrText': serializer.toJson<String>(ocrText),
+      'language': serializer.toJson<String?>(language),
+      'documentType': serializer.toJson<String>(documentType),
+      'pdfName': serializer.toJson<String?>(pdfName),
+      'imageNames': serializer.toJson<String>(imageNames),
+      'schemaVersion': serializer.toJson<int>(schemaVersion),
+      'wasLegacy': serializer.toJson<bool>(wasLegacy),
+    };
+  }
+
+  DocumentRow copyWith({
+    String? id,
+    String? documentId,
+    String? importId,
+    String? sourceFileName,
+    DateTime? createdAtUtc,
+    String? ocrText,
+    Value<String?> language = const Value.absent(),
+    String? documentType,
+    Value<String?> pdfName = const Value.absent(),
+    String? imageNames,
+    int? schemaVersion,
+    bool? wasLegacy,
+  }) => DocumentRow(
+    id: id ?? this.id,
+    documentId: documentId ?? this.documentId,
+    importId: importId ?? this.importId,
+    sourceFileName: sourceFileName ?? this.sourceFileName,
+    createdAtUtc: createdAtUtc ?? this.createdAtUtc,
+    ocrText: ocrText ?? this.ocrText,
+    language: language.present ? language.value : this.language,
+    documentType: documentType ?? this.documentType,
+    pdfName: pdfName.present ? pdfName.value : this.pdfName,
+    imageNames: imageNames ?? this.imageNames,
+    schemaVersion: schemaVersion ?? this.schemaVersion,
+    wasLegacy: wasLegacy ?? this.wasLegacy,
+  );
+  DocumentRow copyWithCompanion(DocumentsCompanion data) {
+    return DocumentRow(
+      id: data.id.present ? data.id.value : this.id,
+      documentId: data.documentId.present
+          ? data.documentId.value
+          : this.documentId,
+      importId: data.importId.present ? data.importId.value : this.importId,
+      sourceFileName: data.sourceFileName.present
+          ? data.sourceFileName.value
+          : this.sourceFileName,
+      createdAtUtc: data.createdAtUtc.present
+          ? data.createdAtUtc.value
+          : this.createdAtUtc,
+      ocrText: data.ocrText.present ? data.ocrText.value : this.ocrText,
+      language: data.language.present ? data.language.value : this.language,
+      documentType: data.documentType.present
+          ? data.documentType.value
+          : this.documentType,
+      pdfName: data.pdfName.present ? data.pdfName.value : this.pdfName,
+      imageNames: data.imageNames.present
+          ? data.imageNames.value
+          : this.imageNames,
+      schemaVersion: data.schemaVersion.present
+          ? data.schemaVersion.value
+          : this.schemaVersion,
+      wasLegacy: data.wasLegacy.present ? data.wasLegacy.value : this.wasLegacy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DocumentRow(')
+          ..write('id: $id, ')
+          ..write('documentId: $documentId, ')
+          ..write('importId: $importId, ')
+          ..write('sourceFileName: $sourceFileName, ')
+          ..write('createdAtUtc: $createdAtUtc, ')
+          ..write('ocrText: $ocrText, ')
+          ..write('language: $language, ')
+          ..write('documentType: $documentType, ')
+          ..write('pdfName: $pdfName, ')
+          ..write('imageNames: $imageNames, ')
+          ..write('schemaVersion: $schemaVersion, ')
+          ..write('wasLegacy: $wasLegacy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    documentId,
+    importId,
+    sourceFileName,
+    createdAtUtc,
+    ocrText,
+    language,
+    documentType,
+    pdfName,
+    imageNames,
+    schemaVersion,
+    wasLegacy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DocumentRow &&
+          other.id == this.id &&
+          other.documentId == this.documentId &&
+          other.importId == this.importId &&
+          other.sourceFileName == this.sourceFileName &&
+          other.createdAtUtc == this.createdAtUtc &&
+          other.ocrText == this.ocrText &&
+          other.language == this.language &&
+          other.documentType == this.documentType &&
+          other.pdfName == this.pdfName &&
+          other.imageNames == this.imageNames &&
+          other.schemaVersion == this.schemaVersion &&
+          other.wasLegacy == this.wasLegacy);
+}
+
+class DocumentsCompanion extends UpdateCompanion<DocumentRow> {
+  final Value<String> id;
+  final Value<String> documentId;
+  final Value<String> importId;
+  final Value<String> sourceFileName;
+  final Value<DateTime> createdAtUtc;
+  final Value<String> ocrText;
+  final Value<String?> language;
+  final Value<String> documentType;
+  final Value<String?> pdfName;
+  final Value<String> imageNames;
+  final Value<int> schemaVersion;
+  final Value<bool> wasLegacy;
+  final Value<int> rowid;
+  const DocumentsCompanion({
+    this.id = const Value.absent(),
+    this.documentId = const Value.absent(),
+    this.importId = const Value.absent(),
+    this.sourceFileName = const Value.absent(),
+    this.createdAtUtc = const Value.absent(),
+    this.ocrText = const Value.absent(),
+    this.language = const Value.absent(),
+    this.documentType = const Value.absent(),
+    this.pdfName = const Value.absent(),
+    this.imageNames = const Value.absent(),
+    this.schemaVersion = const Value.absent(),
+    this.wasLegacy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DocumentsCompanion.insert({
+    required String id,
+    required String documentId,
+    required String importId,
+    required String sourceFileName,
+    required DateTime createdAtUtc,
+    required String ocrText,
+    this.language = const Value.absent(),
+    this.documentType = const Value.absent(),
+    this.pdfName = const Value.absent(),
+    this.imageNames = const Value.absent(),
+    required int schemaVersion,
+    required bool wasLegacy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       documentId = Value(documentId),
+       importId = Value(importId),
+       sourceFileName = Value(sourceFileName),
+       createdAtUtc = Value(createdAtUtc),
+       ocrText = Value(ocrText),
+       schemaVersion = Value(schemaVersion),
+       wasLegacy = Value(wasLegacy);
+  static Insertable<DocumentRow> custom({
+    Expression<String>? id,
+    Expression<String>? documentId,
+    Expression<String>? importId,
+    Expression<String>? sourceFileName,
+    Expression<DateTime>? createdAtUtc,
+    Expression<String>? ocrText,
+    Expression<String>? language,
+    Expression<String>? documentType,
+    Expression<String>? pdfName,
+    Expression<String>? imageNames,
+    Expression<int>? schemaVersion,
+    Expression<bool>? wasLegacy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (documentId != null) 'document_id': documentId,
+      if (importId != null) 'import_id': importId,
+      if (sourceFileName != null) 'source_file_name': sourceFileName,
+      if (createdAtUtc != null) 'created_at_utc': createdAtUtc,
+      if (ocrText != null) 'ocr_text': ocrText,
+      if (language != null) 'language': language,
+      if (documentType != null) 'document_type': documentType,
+      if (pdfName != null) 'pdf_name': pdfName,
+      if (imageNames != null) 'image_names': imageNames,
+      if (schemaVersion != null) 'schema_version': schemaVersion,
+      if (wasLegacy != null) 'was_legacy': wasLegacy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DocumentsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? documentId,
+    Value<String>? importId,
+    Value<String>? sourceFileName,
+    Value<DateTime>? createdAtUtc,
+    Value<String>? ocrText,
+    Value<String?>? language,
+    Value<String>? documentType,
+    Value<String?>? pdfName,
+    Value<String>? imageNames,
+    Value<int>? schemaVersion,
+    Value<bool>? wasLegacy,
+    Value<int>? rowid,
+  }) {
+    return DocumentsCompanion(
+      id: id ?? this.id,
+      documentId: documentId ?? this.documentId,
+      importId: importId ?? this.importId,
+      sourceFileName: sourceFileName ?? this.sourceFileName,
+      createdAtUtc: createdAtUtc ?? this.createdAtUtc,
+      ocrText: ocrText ?? this.ocrText,
+      language: language ?? this.language,
+      documentType: documentType ?? this.documentType,
+      pdfName: pdfName ?? this.pdfName,
+      imageNames: imageNames ?? this.imageNames,
+      schemaVersion: schemaVersion ?? this.schemaVersion,
+      wasLegacy: wasLegacy ?? this.wasLegacy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (documentId.present) {
+      map['document_id'] = Variable<String>(documentId.value);
+    }
+    if (importId.present) {
+      map['import_id'] = Variable<String>(importId.value);
+    }
+    if (sourceFileName.present) {
+      map['source_file_name'] = Variable<String>(sourceFileName.value);
+    }
+    if (createdAtUtc.present) {
+      map['created_at_utc'] = Variable<DateTime>(createdAtUtc.value);
+    }
+    if (ocrText.present) {
+      map['ocr_text'] = Variable<String>(ocrText.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    if (documentType.present) {
+      map['document_type'] = Variable<String>(documentType.value);
+    }
+    if (pdfName.present) {
+      map['pdf_name'] = Variable<String>(pdfName.value);
+    }
+    if (imageNames.present) {
+      map['image_names'] = Variable<String>(imageNames.value);
+    }
+    if (schemaVersion.present) {
+      map['schema_version'] = Variable<int>(schemaVersion.value);
+    }
+    if (wasLegacy.present) {
+      map['was_legacy'] = Variable<bool>(wasLegacy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DocumentsCompanion(')
+          ..write('id: $id, ')
+          ..write('documentId: $documentId, ')
+          ..write('importId: $importId, ')
+          ..write('sourceFileName: $sourceFileName, ')
+          ..write('createdAtUtc: $createdAtUtc, ')
+          ..write('ocrText: $ocrText, ')
+          ..write('language: $language, ')
+          ..write('documentType: $documentType, ')
+          ..write('pdfName: $pdfName, ')
+          ..write('imageNames: $imageNames, ')
+          ..write('schemaVersion: $schemaVersion, ')
+          ..write('wasLegacy: $wasLegacy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ExpensesTable extends Expenses
     with TableInfo<$ExpensesTable, ExpenseRow> {
   @override
@@ -2212,6 +3445,20 @@ class $ExpensesTable extends Expenses
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _documentIdMeta = const VerificationMeta(
+    'documentId',
+  );
+  @override
+  late final GeneratedColumn<String> documentId = GeneratedColumn<String>(
+    'document_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES documents (id) ON DELETE SET NULL',
+    ),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -2245,6 +3492,7 @@ class $ExpensesTable extends Expenses
     originalAmountMinor,
     originalCurrencyCode,
     taxAmountMinor,
+    documentId,
     createdAt,
     updatedAt,
   ];
@@ -2340,6 +3588,12 @@ class $ExpensesTable extends Expenses
         ),
       );
     }
+    if (data.containsKey('document_id')) {
+      context.handle(
+        _documentIdMeta,
+        documentId.isAcceptableOrUnknown(data['document_id']!, _documentIdMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -2401,6 +3655,10 @@ class $ExpensesTable extends Expenses
         DriftSqlType.int,
         data['${effectivePrefix}tax_amount_minor'],
       ),
+      documentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}document_id'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -2441,6 +3699,10 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
   /// Informational: the part of [amountMinor] that is VAT/taxes. Added to no
   /// sum.
   final int? taxAmountMinor;
+
+  /// The scanned document this expense was made from (Phase 3), or null.
+  /// Deleting the document keeps the expense and clears the link.
+  final String? documentId;
   final DateTime createdAt;
   final DateTime updatedAt;
   const ExpenseRow({
@@ -2453,6 +3715,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
     this.originalAmountMinor,
     this.originalCurrencyCode,
     this.taxAmountMinor,
+    this.documentId,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -2477,6 +3740,9 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
     }
     if (!nullToAbsent || taxAmountMinor != null) {
       map['tax_amount_minor'] = Variable<int>(taxAmountMinor);
+    }
+    if (!nullToAbsent || documentId != null) {
+      map['document_id'] = Variable<String>(documentId);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -2504,6 +3770,9 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
       taxAmountMinor: taxAmountMinor == null && nullToAbsent
           ? const Value.absent()
           : Value(taxAmountMinor),
+      documentId: documentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(documentId),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -2528,6 +3797,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
         json['originalCurrencyCode'],
       ),
       taxAmountMinor: serializer.fromJson<int?>(json['taxAmountMinor']),
+      documentId: serializer.fromJson<String?>(json['documentId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -2545,6 +3815,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
       'originalAmountMinor': serializer.toJson<int?>(originalAmountMinor),
       'originalCurrencyCode': serializer.toJson<String?>(originalCurrencyCode),
       'taxAmountMinor': serializer.toJson<int?>(taxAmountMinor),
+      'documentId': serializer.toJson<String?>(documentId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -2560,6 +3831,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
     Value<int?> originalAmountMinor = const Value.absent(),
     Value<String?> originalCurrencyCode = const Value.absent(),
     Value<int?> taxAmountMinor = const Value.absent(),
+    Value<String?> documentId = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => ExpenseRow(
@@ -2578,6 +3850,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
     taxAmountMinor: taxAmountMinor.present
         ? taxAmountMinor.value
         : this.taxAmountMinor,
+    documentId: documentId.present ? documentId.value : this.documentId,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -2608,6 +3881,9 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
       taxAmountMinor: data.taxAmountMinor.present
           ? data.taxAmountMinor.value
           : this.taxAmountMinor,
+      documentId: data.documentId.present
+          ? data.documentId.value
+          : this.documentId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -2625,6 +3901,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
           ..write('originalAmountMinor: $originalAmountMinor, ')
           ..write('originalCurrencyCode: $originalCurrencyCode, ')
           ..write('taxAmountMinor: $taxAmountMinor, ')
+          ..write('documentId: $documentId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2642,6 +3919,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
     originalAmountMinor,
     originalCurrencyCode,
     taxAmountMinor,
+    documentId,
     createdAt,
     updatedAt,
   );
@@ -2658,6 +3936,7 @@ class ExpenseRow extends DataClass implements Insertable<ExpenseRow> {
           other.originalAmountMinor == this.originalAmountMinor &&
           other.originalCurrencyCode == this.originalCurrencyCode &&
           other.taxAmountMinor == this.taxAmountMinor &&
+          other.documentId == this.documentId &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -2672,6 +3951,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
   final Value<int?> originalAmountMinor;
   final Value<String?> originalCurrencyCode;
   final Value<int?> taxAmountMinor;
+  final Value<String?> documentId;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -2685,6 +3965,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
     this.originalAmountMinor = const Value.absent(),
     this.originalCurrencyCode = const Value.absent(),
     this.taxAmountMinor = const Value.absent(),
+    this.documentId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2699,6 +3980,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
     this.originalAmountMinor = const Value.absent(),
     this.originalCurrencyCode = const Value.absent(),
     this.taxAmountMinor = const Value.absent(),
+    this.documentId = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -2718,6 +4000,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
     Expression<int>? originalAmountMinor,
     Expression<String>? originalCurrencyCode,
     Expression<int>? taxAmountMinor,
+    Expression<String>? documentId,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -2734,6 +4017,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
       if (originalCurrencyCode != null)
         'original_currency_code': originalCurrencyCode,
       if (taxAmountMinor != null) 'tax_amount_minor': taxAmountMinor,
+      if (documentId != null) 'document_id': documentId,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -2750,6 +4034,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
     Value<int?>? originalAmountMinor,
     Value<String?>? originalCurrencyCode,
     Value<int?>? taxAmountMinor,
+    Value<String?>? documentId,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -2764,6 +4049,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
       originalAmountMinor: originalAmountMinor ?? this.originalAmountMinor,
       originalCurrencyCode: originalCurrencyCode ?? this.originalCurrencyCode,
       taxAmountMinor: taxAmountMinor ?? this.taxAmountMinor,
+      documentId: documentId ?? this.documentId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -2802,6 +4088,9 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
     if (taxAmountMinor.present) {
       map['tax_amount_minor'] = Variable<int>(taxAmountMinor.value);
     }
+    if (documentId.present) {
+      map['document_id'] = Variable<String>(documentId.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2826,6 +4115,7 @@ class ExpensesCompanion extends UpdateCompanion<ExpenseRow> {
           ..write('originalAmountMinor: $originalAmountMinor, ')
           ..write('originalCurrencyCode: $originalCurrencyCode, ')
           ..write('taxAmountMinor: $taxAmountMinor, ')
+          ..write('documentId: $documentId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -2842,6 +4132,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $IncomeEntriesTable incomeEntries = $IncomeEntriesTable(this);
   late final $BalanceAnchorsTable balanceAnchors = $BalanceAnchorsTable(this);
   late final $CategoriesTable categories = $CategoriesTable(this);
+  late final $ImportsTable imports = $ImportsTable(this);
+  late final $DocumentsTable documents = $DocumentsTable(this);
   late final $ExpensesTable expenses = $ExpensesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -2853,8 +4145,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     incomeEntries,
     balanceAnchors,
     categories,
+    imports,
+    documents,
     expenses,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'documents',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('expenses', kind: UpdateKind.update)],
+    ),
+  ]);
 }
 
 typedef $$AppSettingsTableCreateCompanionBuilder =
@@ -4316,6 +5620,899 @@ typedef $$CategoriesTableProcessedTableManager =
       CategoryRow,
       PrefetchHooks Function({bool expensesRefs})
     >;
+typedef $$ImportsTableCreateCompanionBuilder =
+    ImportsCompanion Function({
+      required String id,
+      required DateTime importedAt,
+      required String source,
+      required int fileCount,
+      required int importedCount,
+      required int duplicateCount,
+      required int failedCount,
+      Value<int> rowid,
+    });
+typedef $$ImportsTableUpdateCompanionBuilder =
+    ImportsCompanion Function({
+      Value<String> id,
+      Value<DateTime> importedAt,
+      Value<String> source,
+      Value<int> fileCount,
+      Value<int> importedCount,
+      Value<int> duplicateCount,
+      Value<int> failedCount,
+      Value<int> rowid,
+    });
+
+final class $$ImportsTableReferences
+    extends BaseReferences<_$AppDatabase, $ImportsTable, ImportRow> {
+  $$ImportsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$DocumentsTable, List<DocumentRow>>
+  _documentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.documents,
+    aliasName: 'imports__id__documents__import_id',
+  );
+
+  $$DocumentsTableProcessedTableManager get documentsRefs {
+    final manager = $$DocumentsTableTableManager(
+      $_db,
+      $_db.documents,
+    ).filter((f) => f.importId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_documentsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$ImportsTableFilterComposer
+    extends Composer<_$AppDatabase, $ImportsTable> {
+  $$ImportsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get fileCount => $composableBuilder(
+    column: $table.fileCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get importedCount => $composableBuilder(
+    column: $table.importedCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get duplicateCount => $composableBuilder(
+    column: $table.duplicateCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get failedCount => $composableBuilder(
+    column: $table.failedCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> documentsRefs(
+    Expression<bool> Function($$DocumentsTableFilterComposer f) f,
+  ) {
+    final $$DocumentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.importId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableFilterComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ImportsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ImportsTable> {
+  $$ImportsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get fileCount => $composableBuilder(
+    column: $table.fileCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get importedCount => $composableBuilder(
+    column: $table.importedCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get duplicateCount => $composableBuilder(
+    column: $table.duplicateCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get failedCount => $composableBuilder(
+    column: $table.failedCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ImportsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ImportsTable> {
+  $$ImportsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<int> get fileCount =>
+      $composableBuilder(column: $table.fileCount, builder: (column) => column);
+
+  GeneratedColumn<int> get importedCount => $composableBuilder(
+    column: $table.importedCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get duplicateCount => $composableBuilder(
+    column: $table.duplicateCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get failedCount => $composableBuilder(
+    column: $table.failedCount,
+    builder: (column) => column,
+  );
+
+  Expression<T> documentsRefs<T extends Object>(
+    Expression<T> Function($$DocumentsTableAnnotationComposer a) f,
+  ) {
+    final $$DocumentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.importId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ImportsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ImportsTable,
+          ImportRow,
+          $$ImportsTableFilterComposer,
+          $$ImportsTableOrderingComposer,
+          $$ImportsTableAnnotationComposer,
+          $$ImportsTableCreateCompanionBuilder,
+          $$ImportsTableUpdateCompanionBuilder,
+          (ImportRow, $$ImportsTableReferences),
+          ImportRow,
+          PrefetchHooks Function({bool documentsRefs})
+        > {
+  $$ImportsTableTableManager(_$AppDatabase db, $ImportsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ImportsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ImportsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ImportsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> importedAt = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<int> fileCount = const Value.absent(),
+                Value<int> importedCount = const Value.absent(),
+                Value<int> duplicateCount = const Value.absent(),
+                Value<int> failedCount = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImportsCompanion(
+                id: id,
+                importedAt: importedAt,
+                source: source,
+                fileCount: fileCount,
+                importedCount: importedCount,
+                duplicateCount: duplicateCount,
+                failedCount: failedCount,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime importedAt,
+                required String source,
+                required int fileCount,
+                required int importedCount,
+                required int duplicateCount,
+                required int failedCount,
+                Value<int> rowid = const Value.absent(),
+              }) => ImportsCompanion.insert(
+                id: id,
+                importedAt: importedAt,
+                source: source,
+                fileCount: fileCount,
+                importedCount: importedCount,
+                duplicateCount: duplicateCount,
+                failedCount: failedCount,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ImportsTable, ImportRow>(table),
+                  $$ImportsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({documentsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (documentsRefs) db.documents],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (documentsRefs)
+                    await $_getPrefetchedData<
+                      ImportRow,
+                      $ImportsTable,
+                      DocumentRow
+                    >(
+                      currentTable: table,
+                      referencedTable: $$ImportsTableReferences
+                          ._documentsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$ImportsTableReferences(db, table, p0).documentsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.importId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ImportsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ImportsTable,
+      ImportRow,
+      $$ImportsTableFilterComposer,
+      $$ImportsTableOrderingComposer,
+      $$ImportsTableAnnotationComposer,
+      $$ImportsTableCreateCompanionBuilder,
+      $$ImportsTableUpdateCompanionBuilder,
+      (ImportRow, $$ImportsTableReferences),
+      ImportRow,
+      PrefetchHooks Function({bool documentsRefs})
+    >;
+typedef $$DocumentsTableCreateCompanionBuilder =
+    DocumentsCompanion Function({
+      required String id,
+      required String documentId,
+      required String importId,
+      required String sourceFileName,
+      required DateTime createdAtUtc,
+      required String ocrText,
+      Value<String?> language,
+      Value<String> documentType,
+      Value<String?> pdfName,
+      Value<String> imageNames,
+      required int schemaVersion,
+      required bool wasLegacy,
+      Value<int> rowid,
+    });
+typedef $$DocumentsTableUpdateCompanionBuilder =
+    DocumentsCompanion Function({
+      Value<String> id,
+      Value<String> documentId,
+      Value<String> importId,
+      Value<String> sourceFileName,
+      Value<DateTime> createdAtUtc,
+      Value<String> ocrText,
+      Value<String?> language,
+      Value<String> documentType,
+      Value<String?> pdfName,
+      Value<String> imageNames,
+      Value<int> schemaVersion,
+      Value<bool> wasLegacy,
+      Value<int> rowid,
+    });
+
+final class $$DocumentsTableReferences
+    extends BaseReferences<_$AppDatabase, $DocumentsTable, DocumentRow> {
+  $$DocumentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ImportsTable _importIdTable(_$AppDatabase db) =>
+      db.imports.createAlias('documents__import_id__imports__id');
+
+  $$ImportsTableProcessedTableManager get importId {
+    final $_column = $_itemColumn<String>('import_id')!;
+
+    final manager = $$ImportsTableTableManager(
+      $_db,
+      $_db.imports,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_importIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$ExpensesTable, List<ExpenseRow>>
+  _expensesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.expenses,
+    aliasName: 'documents__id__expenses__document_id',
+  );
+
+  $$ExpensesTableProcessedTableManager get expensesRefs {
+    final manager = $$ExpensesTableTableManager(
+      $_db,
+      $_db.expenses,
+    ).filter((f) => f.documentId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_expensesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$DocumentsTableFilterComposer
+    extends Composer<_$AppDatabase, $DocumentsTable> {
+  $$DocumentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get documentId => $composableBuilder(
+    column: $table.documentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceFileName => $composableBuilder(
+    column: $table.sourceFileName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAtUtc => $composableBuilder(
+    column: $table.createdAtUtc,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ocrText => $composableBuilder(
+    column: $table.ocrText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pdfName => $composableBuilder(
+    column: $table.pdfName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageNames => $composableBuilder(
+    column: $table.imageNames,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get schemaVersion => $composableBuilder(
+    column: $table.schemaVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get wasLegacy => $composableBuilder(
+    column: $table.wasLegacy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ImportsTableFilterComposer get importId {
+    final $$ImportsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.importId,
+      referencedTable: $db.imports,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportsTableFilterComposer(
+            $db: $db,
+            $table: $db.imports,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> expensesRefs(
+    Expression<bool> Function($$ExpensesTableFilterComposer f) f,
+  ) {
+    final $$ExpensesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.expenses,
+      getReferencedColumn: (t) => t.documentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExpensesTableFilterComposer(
+            $db: $db,
+            $table: $db.expenses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$DocumentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DocumentsTable> {
+  $$DocumentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get documentId => $composableBuilder(
+    column: $table.documentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceFileName => $composableBuilder(
+    column: $table.sourceFileName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAtUtc => $composableBuilder(
+    column: $table.createdAtUtc,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ocrText => $composableBuilder(
+    column: $table.ocrText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pdfName => $composableBuilder(
+    column: $table.pdfName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imageNames => $composableBuilder(
+    column: $table.imageNames,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get schemaVersion => $composableBuilder(
+    column: $table.schemaVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get wasLegacy => $composableBuilder(
+    column: $table.wasLegacy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ImportsTableOrderingComposer get importId {
+    final $$ImportsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.importId,
+      referencedTable: $db.imports,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportsTableOrderingComposer(
+            $db: $db,
+            $table: $db.imports,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DocumentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DocumentsTable> {
+  $$DocumentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get documentId => $composableBuilder(
+    column: $table.documentId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sourceFileName => $composableBuilder(
+    column: $table.sourceFileName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAtUtc => $composableBuilder(
+    column: $table.createdAtUtc,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get ocrText =>
+      $composableBuilder(column: $table.ocrText, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get pdfName =>
+      $composableBuilder(column: $table.pdfName, builder: (column) => column);
+
+  GeneratedColumn<String> get imageNames => $composableBuilder(
+    column: $table.imageNames,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get schemaVersion => $composableBuilder(
+    column: $table.schemaVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get wasLegacy =>
+      $composableBuilder(column: $table.wasLegacy, builder: (column) => column);
+
+  $$ImportsTableAnnotationComposer get importId {
+    final $$ImportsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.importId,
+      referencedTable: $db.imports,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.imports,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> expensesRefs<T extends Object>(
+    Expression<T> Function($$ExpensesTableAnnotationComposer a) f,
+  ) {
+    final $$ExpensesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.expenses,
+      getReferencedColumn: (t) => t.documentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExpensesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.expenses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$DocumentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DocumentsTable,
+          DocumentRow,
+          $$DocumentsTableFilterComposer,
+          $$DocumentsTableOrderingComposer,
+          $$DocumentsTableAnnotationComposer,
+          $$DocumentsTableCreateCompanionBuilder,
+          $$DocumentsTableUpdateCompanionBuilder,
+          (DocumentRow, $$DocumentsTableReferences),
+          DocumentRow,
+          PrefetchHooks Function({bool importId, bool expensesRefs})
+        > {
+  $$DocumentsTableTableManager(_$AppDatabase db, $DocumentsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DocumentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DocumentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DocumentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> documentId = const Value.absent(),
+                Value<String> importId = const Value.absent(),
+                Value<String> sourceFileName = const Value.absent(),
+                Value<DateTime> createdAtUtc = const Value.absent(),
+                Value<String> ocrText = const Value.absent(),
+                Value<String?> language = const Value.absent(),
+                Value<String> documentType = const Value.absent(),
+                Value<String?> pdfName = const Value.absent(),
+                Value<String> imageNames = const Value.absent(),
+                Value<int> schemaVersion = const Value.absent(),
+                Value<bool> wasLegacy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DocumentsCompanion(
+                id: id,
+                documentId: documentId,
+                importId: importId,
+                sourceFileName: sourceFileName,
+                createdAtUtc: createdAtUtc,
+                ocrText: ocrText,
+                language: language,
+                documentType: documentType,
+                pdfName: pdfName,
+                imageNames: imageNames,
+                schemaVersion: schemaVersion,
+                wasLegacy: wasLegacy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String documentId,
+                required String importId,
+                required String sourceFileName,
+                required DateTime createdAtUtc,
+                required String ocrText,
+                Value<String?> language = const Value.absent(),
+                Value<String> documentType = const Value.absent(),
+                Value<String?> pdfName = const Value.absent(),
+                Value<String> imageNames = const Value.absent(),
+                required int schemaVersion,
+                required bool wasLegacy,
+                Value<int> rowid = const Value.absent(),
+              }) => DocumentsCompanion.insert(
+                id: id,
+                documentId: documentId,
+                importId: importId,
+                sourceFileName: sourceFileName,
+                createdAtUtc: createdAtUtc,
+                ocrText: ocrText,
+                language: language,
+                documentType: documentType,
+                pdfName: pdfName,
+                imageNames: imageNames,
+                schemaVersion: schemaVersion,
+                wasLegacy: wasLegacy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$DocumentsTable, DocumentRow>(table),
+                  $$DocumentsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({importId = false, expensesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (expensesRefs) db.expenses],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (importId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.importId,
+                                referencedTable: $$DocumentsTableReferences
+                                    ._importIdTable(db),
+                                referencedColumn: $$DocumentsTableReferences
+                                    ._importIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (expensesRefs)
+                    await $_getPrefetchedData<
+                      DocumentRow,
+                      $DocumentsTable,
+                      ExpenseRow
+                    >(
+                      currentTable: table,
+                      referencedTable: $$DocumentsTableReferences
+                          ._expensesRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$DocumentsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).expensesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.documentId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$DocumentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DocumentsTable,
+      DocumentRow,
+      $$DocumentsTableFilterComposer,
+      $$DocumentsTableOrderingComposer,
+      $$DocumentsTableAnnotationComposer,
+      $$DocumentsTableCreateCompanionBuilder,
+      $$DocumentsTableUpdateCompanionBuilder,
+      (DocumentRow, $$DocumentsTableReferences),
+      DocumentRow,
+      PrefetchHooks Function({bool importId, bool expensesRefs})
+    >;
 typedef $$ExpensesTableCreateCompanionBuilder =
     ExpensesCompanion Function({
       required String id,
@@ -4327,6 +6524,7 @@ typedef $$ExpensesTableCreateCompanionBuilder =
       Value<int?> originalAmountMinor,
       Value<String?> originalCurrencyCode,
       Value<int?> taxAmountMinor,
+      Value<String?> documentId,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<int> rowid,
@@ -4342,6 +6540,7 @@ typedef $$ExpensesTableUpdateCompanionBuilder =
       Value<int?> originalAmountMinor,
       Value<String?> originalCurrencyCode,
       Value<int?> taxAmountMinor,
+      Value<String?> documentId,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -4362,6 +6561,23 @@ final class $$ExpensesTableReferences
       $_db.categories,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_categoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $DocumentsTable _documentIdTable(_$AppDatabase db) =>
+      db.documents.createAlias('expenses__document_id__documents__id');
+
+  $$DocumentsTableProcessedTableManager? get documentId {
+    final $_column = $_itemColumn<String>('document_id');
+    if ($_column == null) return null;
+    final manager = $$DocumentsTableTableManager(
+      $_db,
+      $_db.documents,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_documentIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -4442,6 +6658,29 @@ class $$ExpensesTableFilterComposer
           }) => $$CategoriesTableFilterComposer(
             $db: $db,
             $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DocumentsTableFilterComposer get documentId {
+    final $$DocumentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.documentId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableFilterComposer(
+            $db: $db,
+            $table: $db.documents,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -4533,6 +6772,29 @@ class $$ExpensesTableOrderingComposer
     );
     return composer;
   }
+
+  $$DocumentsTableOrderingComposer get documentId {
+    final $$DocumentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.documentId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$ExpensesTableAnnotationComposer
@@ -4610,6 +6872,29 @@ class $$ExpensesTableAnnotationComposer
     );
     return composer;
   }
+
+  $$DocumentsTableAnnotationComposer get documentId {
+    final $$DocumentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.documentId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$ExpensesTableTableManager
@@ -4625,7 +6910,7 @@ class $$ExpensesTableTableManager
           $$ExpensesTableUpdateCompanionBuilder,
           (ExpenseRow, $$ExpensesTableReferences),
           ExpenseRow,
-          PrefetchHooks Function({bool categoryId})
+          PrefetchHooks Function({bool categoryId, bool documentId})
         > {
   $$ExpensesTableTableManager(_$AppDatabase db, $ExpensesTable table)
     : super(
@@ -4649,6 +6934,7 @@ class $$ExpensesTableTableManager
                 Value<int?> originalAmountMinor = const Value.absent(),
                 Value<String?> originalCurrencyCode = const Value.absent(),
                 Value<int?> taxAmountMinor = const Value.absent(),
+                Value<String?> documentId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -4662,6 +6948,7 @@ class $$ExpensesTableTableManager
                 originalAmountMinor: originalAmountMinor,
                 originalCurrencyCode: originalCurrencyCode,
                 taxAmountMinor: taxAmountMinor,
+                documentId: documentId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -4677,6 +6964,7 @@ class $$ExpensesTableTableManager
                 Value<int?> originalAmountMinor = const Value.absent(),
                 Value<String?> originalCurrencyCode = const Value.absent(),
                 Value<int?> taxAmountMinor = const Value.absent(),
+                Value<String?> documentId = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
@@ -4690,6 +6978,7 @@ class $$ExpensesTableTableManager
                 originalAmountMinor: originalAmountMinor,
                 originalCurrencyCode: originalCurrencyCode,
                 taxAmountMinor: taxAmountMinor,
+                documentId: documentId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -4702,7 +6991,7 @@ class $$ExpensesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({categoryId = false}) {
+          prefetchHooksCallback: ({categoryId = false, documentId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -4735,6 +7024,19 @@ class $$ExpensesTableTableManager
                               )
                               as T;
                     }
+                    if (documentId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.documentId,
+                                referencedTable: $$ExpensesTableReferences
+                                    ._documentIdTable(db),
+                                referencedColumn: $$ExpensesTableReferences
+                                    ._documentIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
 
                     return state;
                   },
@@ -4759,7 +7061,7 @@ typedef $$ExpensesTableProcessedTableManager =
       $$ExpensesTableUpdateCompanionBuilder,
       (ExpenseRow, $$ExpensesTableReferences),
       ExpenseRow,
-      PrefetchHooks Function({bool categoryId})
+      PrefetchHooks Function({bool categoryId, bool documentId})
     >;
 
 class $AppDatabaseManager {
@@ -4775,6 +7077,10 @@ class $AppDatabaseManager {
       $$BalanceAnchorsTableTableManager(_db, _db.balanceAnchors);
   $$CategoriesTableTableManager get categories =>
       $$CategoriesTableTableManager(_db, _db.categories);
+  $$ImportsTableTableManager get imports =>
+      $$ImportsTableTableManager(_db, _db.imports);
+  $$DocumentsTableTableManager get documents =>
+      $$DocumentsTableTableManager(_db, _db.documents);
   $$ExpensesTableTableManager get expenses =>
       $$ExpensesTableTableManager(_db, _db.expenses);
 }

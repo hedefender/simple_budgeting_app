@@ -163,6 +163,32 @@ Feature `lib/features/expenses/{domain,data,presentation}`, same layering as `in
   in `_balanceAt`; an expense dated on the anchor day is inside the anchor. `MonthlyCashFlow.expenses` is all
   non-pending expenses of the month (like `receivedIncome`, it ignores the anchor); `pendingExpenseCount` feeds the
   indicator on the card.
-- **Navigation:** `HomeShell` has three tabs: Home, Income, Expenses. The month and the category filter of the
+- **Navigation:** `HomeShell` has three tabs in Phase 2 (Documents is the fourth since Phase 3): Home, Income, Expenses. The month and the category filter of the
   Expenses page are their own providers. Shared widget: `lib/core/presentation/month_selector.dart`.
 - **Future:** a table `expense_lines` can point to `expenses.id`; a nullable `vendor` column arrives with Scan JSON.
+
+## Documents and Scan JSON import (Phase 3)
+
+Feature `lib/features/documents/{domain,data,presentation}`. Decisions: `docs/roadmap.md` ("Phase 3 decisions"); the
+file format: `docs/scan-json-schema.md`; plan: `docs/phase-3-plan.md`.
+
+- **Parsing is in Rust** (ADR-002): `rust/src/api/scan_json.rs`, `parse_scan_json(text) -> Result<ParsedScan,
+  ScanJsonError>`. It validates schema v1, converts the legacy format (stable id from the content) and strips a BOM. It
+  has `deny(clippy::unwrap_used, expect_used, indexing_slicing)`. The types that cross the bridge are flat (a plain
+  enum `ScanJsonErrorKind` plus detail fields; `ParsedScan` has `created_at_utc_ms` OR `created_at_local`) because a
+  data-carrying enum would need the `freezed` package in the generated Dart code. Dart applies the device time zone to a
+  `createdAt` without offset (`ImportScanFiles`, injectable `LocalTimeToUtc`).
+- **Domain:** `ScanJsonParser` and `ImportFilePicker` and `ImportSource` are interfaces; `RustScanJsonParser` and
+  `FileSelectorImportFilePicker` are the adapters (`data/`), thin mappings with no logic. `ImportScanFiles` reads the
+  files one at a time, never lets one file stop the others and never throws for a file (only `TooManyFilesException`,
+  before anything is read). Results: `Imported`, `Duplicate`, `Skipped` (not `.json`: neutral), `Failed(ImportFailure)`.
+- **Schema v5:** `imports` (one row per batch, with counts), `documents` (the OCR text, `import_id`, `source_file_name`,
+  `language`, `document_type` default `unknown`, file names as labels) and `expenses.document_id` (nullable FK, `ON DELETE
+  SET NULL`; the database turns foreign keys on in `beforeOpen`). `customConstraints` must be string LITERALS: drift
+  drops an entry it cannot evaluate at build time (an interpolated constant disappeared from the dump once).
+- **No analysis in Phase 3:** the text is stored and shown. The expense made from a document gets the date (local day of
+  `createdAt`) and the first line as description, never an amount or a category. Deleting a document keeps its expenses.
+- **Navigation:** `HomeShell` has four tabs: Home, Income, Expenses, Documents (the last free slot of a `NavigationBar`,
+  which allows five).
+- **Providers:** the expenses of a document and the ids of documents with expenses live in `expense_providers.dart`,
+  so `ExpenseActions` can refresh them; the documents screens import the expenses providers, never the reverse.

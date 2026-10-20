@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_budgeting_app/app/bootstrap/bootstrapper.dart';
+import 'package:simple_budgeting_app/features/documents/presentation/documents_page.dart';
 import 'package:simple_budgeting_app/features/expenses/presentation/expenses_page.dart';
 import 'package:simple_budgeting_app/features/foundation/presentation/home_page.dart';
 import 'package:simple_budgeting_app/features/income/presentation/income_page.dart';
@@ -9,7 +10,8 @@ import 'package:simple_budgeting_app/features/setup/presentation/setup_wizard_pa
 import 'package:simple_budgeting_app/l10n/app_localizations.dart';
 
 /// The main screen once the app is ready: bottom navigation between Home,
-/// Income and Expenses. Both tabs stay alive so their state survives tab switches. On a
+/// Income, Expenses and Documents. All tabs stay alive so their state survives
+/// tab switches. On a
 /// fresh install it opens the setup wizard once.
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key, required this.result});
@@ -47,6 +49,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
           HomePage(result: widget.result),
           const IncomePage(),
           const ExpensesPage(),
+          const DocumentsPage(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -70,6 +73,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
             icon: const Icon(Icons.receipt_long_outlined),
             selectedIcon: const Icon(Icons.receipt_long),
             label: l10n.navExpenses,
+          ),
+          NavigationDestination(
+            key: const Key('nav-documents'),
+            icon: const Icon(Icons.description_outlined),
+            selectedIcon: const Icon(Icons.description),
+            label: l10n.navDocuments,
           ),
         ],
       ),

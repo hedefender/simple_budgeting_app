@@ -32,6 +32,7 @@ class CreateExpense {
     String? originalCurrencyCode,
     Money? tax,
     String? description,
+    String? documentId,
   }) async {
     final money = validateExpenseMoney(
       currencyCode: currencyCode,
@@ -51,6 +52,7 @@ class CreateExpense {
       amount: money.amount,
       original: money.original,
       tax: money.tax,
+      documentId: documentId,
       createdAt: now,
       updatedAt: now,
     );

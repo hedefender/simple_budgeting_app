@@ -1,24 +1,54 @@
-# Phase 3 plan: JSON import (waiting for the owner's approval)
+# Phase 3 plan: JSON import (approved by the owner, 2026-10-20, with the changes below)
 
-Status: PLAN ONLY. No code is written before approval. Decisions: `docs/roadmap.md`, "Phase 3 decisions". Shared
+Status: approved. Where a section further down disagrees with "Approved changes", the approved changes win. Decisions: `docs/roadmap.md`, "Phase 3 decisions". Shared
 schema: `docs/scan-json-schema.md`. Report at the end: `docs/reports/phase-3-report.md`.
 
 Phase 2 is Done (2026-10-20). The schema dump of v4 was checked while planning: a fresh dump of the current code is
 identical to `drift_schemas/drift_schema_v4.json`.
 
-## Questions for the owner (need an answer before or with the approval)
+## Approved changes (owner, 2026-10-20; they override the text further down)
 
-1. **File references** (`pdfPath`, `imagePaths`): do you agree with option A of `docs/scan-json-schema.md` (plain file
-   names, resolved against the files delivered together; Phase 3 stores the names only)? This is also open decision #16.
-2. **Package for picking files: `file_selector`** (published by flutter.dev) is proposed. I add nothing to `pubspec.yaml`
-   until you approve. See "File picking" below, including the alternative.
-3. **Do you have your working Scan JSON parser** (the roadmap says "reuse the owner's working parser")? If yes, send
-   it or its location, and I adapt it to schema v1. If not, I write the parser from scratch from the schema document.
-4. **Where does parsing live: Rust or Dart?** The roadmap puts "parse and validate Scan JSON" in Rust. I propose it
-   (below), with the cost that it needs one new Rust dependency, `sha2`, for the legacy id, plus the bridge codegen.
-   A Dart-only parser is smaller (the `crypto` package, from dart.dev, would give the hash). Which one?
-5. **Size limit: 5 MiB per file** and **at most 50 files per import**. OK? (An OCR page is a few KB, so 5 MiB is very
-   generous and still safe in memory.)
+1. **File references:** option A (names only). Phase 3 does not copy, read or show PDF/images (A8 stands).
+2. **Package `file_selector`.** Try a JSON type filter on the emulator first; if it hides files, accept every type.
+   A picked file whose name does not end in `.json` (any case) gives a NEUTRAL result "Skipped: not a JSON file"
+   (Παραλείφθηκε: δεν είναι αρχείο JSON), not an error. It is counted as skipped, not failed.
+3. **No parser from the owner:** I define it from the schema.
+4. **Parser in Rust** (`rust/src/api/scan_json.rs`, `parse_scan_json(text) -> Result<ParsedScan, ScanJsonError>`, typed
+   error enum), following ADR-002 (`docs/architecture-decisions.md`). `ParsedScan.created_at` is an enum:
+   `Instant { utc_ms }` when the file has an offset or `Z`; `Local { text }` (`yyyy-MM-ddTHH:mm:ss`, no zone) when it
+   has none. Dart applies the device zone to `Local`. Dependencies `serde`, `serde_json`, `sha2` are approved; versions
+   are chosen for Rust 1.95 and pinned with `=` in step 2. The cargokit build for x86_64 and i686 is checked and the
+   codegen is run. Dart: domain interface `ScanJsonParser`, adapter `RustScanJsonParser` (thin mapping), a fake in host
+   tests. The real parser is tested by `cargo test` and by the on-device integration test.
+5. **Limits:** 5 MiB per file, 50 files per batch, files read one at a time. The parser strips a UTF-8 BOM (with a
+   test). A sample over 5 MiB is NOT in the repo; the test creates it.
+6. **Schema v5, `imports` per batch:** `id`, `imported_at`, `source` (for now `"file_picker"`), `file_count`,
+   `imported_count`, `duplicate_count`, `failed_count`. `documents` gets `import_id` (FK -> `imports.id`) and
+   `source_file_name`. `documents.imported_at` is removed (the batch has it). The one-time report stays as planned.
+   Skipped (non-JSON) files are `file_count - imported - duplicate - failed`; no separate column.
+7. **`language`** (optional BCP-47 string) in the schema and `documents.language` (nullable). `schemaVersion`
+   unchanged. The legacy reader leaves it null.
+8. **`documents.document_type`** (text NOT NULL, default `'unknown'`), domain enum `DocumentType`: `unknown, receipt,
+   utilityBill, invoice, statement, contract, genericDocument`. No classification and no UI in Phase 3. An unknown
+   value in the database reads as `unknown` (tested). The Scan JSON schema does not change.
+9. **Deleting a document is in Phase 3** (reverses A5): from the detail page, with a confirmation that says that N
+   linked expenses stay (their `document_id` becomes NULL). After deletion the same `documentId` can be imported
+   again. Tests: use case, repository, widget.
+10. **File names** (`pdfPath`, `imagePaths`) are cut to the last segment in the canonical format too, when they
+    contain `/` or `\`. Used only as labels, never to build a path.
+11. **Detail page:** the OCR text is shown cut to the first 20,000 characters with a button "Show all"
+    (Εμφάνιση όλου).
+12. **Docs only:** roadmap note that reconciles ADR-002 with the Rust/Dart table, and a line in `CLAUDE.md`.
+13. **Rust rules** are recorded in the roadmap next to ADR-002: (a) Rust never opens the database; Dart passes data in
+    and Rust returns a result; (b) no `unwrap`/`expect` in Rust code that processes external data; (c) every new field
+    is added to the struct, the bridge and the domain with a whole-path test (sample -> parser -> database -> read).
+- **A3 approved** (no offset = device local time). Scan will export `createdAt` with an offset.
+- The v4 -> v5 migration test also checks `expenses.document_id` (a FK that accepts NULL) **with foreign keys
+  enabled**.
+- **Location of the ADR file:** the owner wrote `docs/adr/architecture-decisions.md`; the file is at
+  `docs/architecture-decisions.md`. I used the real path and did not move it.
+
+Answers to my five questions: 1 = A; 2 = `file_selector`; 3 = I define the parser; 4 = Rust; 5 = 5 MiB / 50 files.
 
 ## Architecture
 
@@ -90,32 +120,44 @@ migration tests to v5 and add v4 -> v5. The commands are the ones in `CLAUDE.md`
 | --- | --- |
 | `id` | text PK (UUID, local) |
 | `document_id` | text NOT NULL, UNIQUE (the Scan `documentId`; the duplicate key) |
-| `created_at_utc` | datetime NOT NULL (the `createdAt` instant, UTC) |
+| `import_id` | text NOT NULL, FK -> `imports.id` |
+| `source_file_name` | text NOT NULL (the JSON file the document came from) |
+| `created_at_utc` | datetime NOT NULL (the `createdAt` instant, UTC; for a file without offset Dart applied the device zone) |
 | `ocr_text` | text NOT NULL |
+| `language` | text, nullable (BCP-47) |
+| `document_type` | text NOT NULL, default `'unknown'` (domain enum `DocumentType`, stored by name; unknown values read as `unknown`) |
 | `pdf_name` | text, nullable |
-| `image_names` | text NOT NULL, a JSON array of strings (default `[]`); they are references, never queried |
+| `image_names` | text NOT NULL, a JSON array of strings (default `[]`); labels, never queried |
 | `schema_version` | int NOT NULL (the `schemaVersion` the file had; legacy files are stored as 1) |
 | `was_legacy` | bool NOT NULL |
-| `imported_at` | datetime NOT NULL |
 
-CHECK constraints: `length(trim(ocr_text)) > 0`, `length(trim(document_id)) > 0`, `schema_version >= 1`.
+No `imported_at` here: the batch in `imports` has it.
 
-**`imports`** (one row per import event of one file that created a document; the history of where documents came from)
+CHECK constraints: `length(trim(ocr_text)) > 0`, `length(trim(document_id)) > 0`, `schema_version >= 1`,
+`language IS NULL OR length(trim(language)) > 0`. There is no CHECK on `document_type` (so an unknown value from a
+newer app version cannot make a row unreadable).
+
+**`imports`** (one row per import batch, i.e. one press of the picker)
 
 | Column | Type |
 | --- | --- |
 | `id` | text PK (UUID) |
-| `document_row_id` | text NOT NULL, FK -> `documents.id` (ON DELETE CASCADE) |
-| `source_file_name` | text NOT NULL |
 | `imported_at` | datetime NOT NULL |
+| `source` | text NOT NULL (`"file_picker"` for now) |
+| `file_count` | int NOT NULL (files picked) |
+| `imported_count` | int NOT NULL |
+| `duplicate_count` | int NOT NULL |
+| `failed_count` | int NOT NULL |
 
-Only successful imports and nothing else are stored (a duplicate or an error creates no row, because the user sees
-it in the report). The initial description of the tables (`documents`, `imports`) is not in the repository's docs;
-these columns are my proposal and are part of what you approve.
+CHECKs: all counts `>= 0`, and `imported_count + duplicate_count + failed_count <= file_count`. The row is inserted
+at the start of the batch (counts 0) and updated at the end, so documents can point to it; a batch that crashes in the
+middle keeps counts that are too low (accepted). Per-file failures are not stored: they live in the one-time report.
+Deleting a document does not delete or change its batch row (history).
 
 **`expenses.document_id`**: a nullable text column, FK -> `documents.id`, `ON DELETE SET NULL`. This is an additive
-migration (`addColumn`; a nullable column needs no default). Deleting a document is not in Phase 3, but the FK is
-defined so that it cannot leave a dangling link. One document can have several expenses (the user may split it); an
+migration (`addColumn`; a nullable column needs no default). Deleting a document is in Phase 3 (decision 9). SQLite enforces foreign keys only when
+`PRAGMA foreign_keys = ON`; step 4 checks that `beforeOpen` turns it on (and adds it if not, with a test), and the
+migration test runs with it enabled. One document can have several expenses (the user may split it); an
 expense has at most one document. The expense stays valid without the document.
 
 This column is the only change to an existing table. If you prefer a link table instead (`document_expenses`), say
@@ -258,10 +300,9 @@ The picker and Android storage cannot be fully tested on the host, so section 13
 - A3. A `createdAt` without an offset is read as device local time. (Old Scan files probably have none; treating them as
   UTC would shift the day for users in Greece by up to three hours.)
 - A4. The expense pre-fill date is the local day of `createdAt`.
-- A5. A document is never overwritten or deleted in Phase 3 (no edit/delete of documents). Deleting is small to add; I
-  left it out because a deleted document must decide what happens to linked expenses (the FK already says `SET NULL`).
+- A5. (Reversed by decision 9) A document is never overwritten or edited; it CAN be deleted.
 - A6. The expense-document link cannot be removed in Phase 3.
-- A7. The `imports` table stores successful imports only. Failed and duplicate attempts live only in the one-time report.
+- A7. (Changed by decision 6) `imports` has one row per batch with counts. Failure details live only in the one-time report.
 - A8. PDF and image files are not read, copied or displayed in Phase 3 (question 1).
 - A9. No analysis of the OCR text: no amount, no vendor, no category detection. The `vendor` column of expenses
   (roadmap, Phase 2 notes) is NOT added in Phase 3 either, because nothing fills it before Phase 4.
@@ -284,3 +325,40 @@ providers label `.json` as `application/octet-stream`). If so, the type group ac
 non-JSON content. I have not checked this yet.
 
 Either way, nothing is added until you approve.
+
+## Additions to the steps and tests (from the approved changes)
+
+Domain and screens:
+
+- New use case `DeleteDocument` (and `CountLinkedExpenses` for the confirmation text). The detail page has a delete
+  action with a confirmation that names the number N of linked expenses that stay.
+- `ImportOutcome` gets a fourth case `Skipped` (not a `.json` file). The report shows skipped rows in a neutral style and
+  the summary line counts them separately.
+- `ScanDocument` gets `language`, `documentType` (`DocumentType`), `sourceFileName`, `importId`; it loses `importedAt`.
+  The import batch (`ImportBatch`: id, importedAt, source, counts) is its own small entity.
+- `ParsedScan` mirrors the Rust struct; `CreatedAt` is a sealed class (`InstantCreatedAt`, `LocalCreatedAt`). The use
+  case turns `LocalCreatedAt` into UTC with the device zone through an injected function (so tests control the zone).
+- The detail page cuts the OCR text at 20,000 characters and offers "Show all".
+
+Extra tests:
+
+- Rust: BOM removed; `language` present, absent, empty string, null; `pdfPath`/`imagePaths` with `/` and `\` cut to the last
+  segment, and a value like `folder/` rejected; `createdAt` as `Instant` and `Local`; no `unwrap`/`expect` on external
+  data (checked by a grep in review and by a clippy lint `unwrap_used`/`expect_used` on the module if it works);
+  a 5 MiB + 1 byte text built inside the test is refused, 5 MiB exactly is accepted (no big fixture file in the repo).
+- `ImportScanFiles`: a `.json` check that is case-insensitive (`A.JSON`), a PDF in the same selection gives `Skipped`
+  and does not count as failed; 51 files are refused with a clear message before any is read; files are read one at a time
+  (the fake source records the order and that two reads never overlap).
+- Repository: `document_type` unknown string reads as `DocumentType.unknown`; `language` null and set; `import_id` FK;
+  batch counts; delete document -> linked expenses get `document_id = NULL` and stay; the same `documentId` imports
+  again after deletion; the `imports` CHECKs.
+- Migration v4 -> v5 with foreign keys enabled: an old expense has `document_id` NULL (the FK accepts NULL); an expense
+  linked to a document keeps its link after deleting nothing; deleting the document sets it to NULL.
+- Whole-path tests (Rust rule c): a sample JSON -> the real parser (integration test on the device; in host tests the
+  Dart side uses fixtures through the fake) -> database -> read back, for every field including `language` and
+  `documentType`.
+- Widget: delete confirmation with N; "Show all"; skipped row in the report.
+
+Additional step 3b: check that cargokit builds `x86_64-linux-android` and `i686-linux-android` with the new crates
+(`flutter build apk --debug --target-platform android-x64` as a build check; the Gradle ABI limit stays as it is), and
+pin the crate versions with `=`.

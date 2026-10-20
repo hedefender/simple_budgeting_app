@@ -36,6 +36,7 @@ class Expense {
     this.amount,
     this.original,
     this.tax,
+    this.documentId,
   });
 
   final String id;
@@ -55,6 +56,10 @@ class Expense {
 
   /// Informational: the part of [amount] that is VAT/taxes. Added to no sum.
   final Money? tax;
+
+  /// The scanned document this expense was made from (Phase 3), or null.
+  /// Deleting the document clears the link; the expense stays.
+  final String? documentId;
 
   /// UTC instants.
   final DateTime createdAt;

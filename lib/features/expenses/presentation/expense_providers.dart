@@ -3,6 +3,7 @@ import 'package:simple_budgeting_app/app/di/providers.dart';
 import 'package:simple_budgeting_app/core/money/money.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
 import 'package:simple_budgeting_app/core/time/year_month.dart';
+import 'package:simple_budgeting_app/features/documents/domain/usecases/document_usecases.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/entities/expense.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/entities/expense_category.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/entities/expense_totals.dart';
@@ -70,6 +71,25 @@ final FutureProvider<List<String>> knownCurrenciesProvider =
       );
     });
 
+// The expenses of a document live here, not with the documents, because
+// creating or editing an expense refreshes them and the documents screens
+// depend on the expenses ones, never the other way round.
+
+/// The ids of the documents that have at least one expense.
+final FutureProvider<Set<String>> documentIdsWithExpensesProvider =
+    FutureProvider.autoDispose<Set<String>>(
+      (Ref ref) => ref
+          .watch(serviceLocatorProvider)
+          .get<ListDocumentIdsWithExpenses>()(),
+    );
+
+/// The expenses made from one document.
+final documentExpensesProvider = FutureProvider.autoDispose
+    .family<List<Expense>, String>(
+      (Ref ref, String id) =>
+          ref.watch(serviceLocatorProvider).get<ListDocumentExpenses>()(id),
+    );
+
 final Provider<ExpenseActions> expenseActionsProvider =
     Provider<ExpenseActions>((Ref ref) => ExpenseActions(ref));
 
@@ -86,6 +106,8 @@ class ExpenseActions {
     _ref
       ..invalidate(expenseListProvider)
       ..invalidate(knownCurrenciesProvider)
+      ..invalidate(documentIdsWithExpensesProvider)
+      ..invalidate(documentExpensesProvider)
       ..invalidate(monthlyCashFlowProvider);
   }
 
@@ -98,6 +120,7 @@ class ExpenseActions {
     String? originalCurrencyCode,
     Money? tax,
     String? description,
+    String? documentId,
   }) async {
     final expense = await _use<CreateExpense>()(
       categoryId: categoryId,
@@ -108,6 +131,7 @@ class ExpenseActions {
       originalCurrencyCode: originalCurrencyCode,
       tax: tax,
       description: description,
+      documentId: documentId,
     );
     _refresh();
     return expense;

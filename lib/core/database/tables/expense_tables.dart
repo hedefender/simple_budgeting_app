@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:simple_budgeting_app/core/database/tables/document_tables.dart';
 
 // Domain tables use UUID text primary keys, with one documented exception:
 // built-in categories use their stable key as id (the same on every device,
@@ -55,6 +56,14 @@ class Expenses extends Table {
   /// Informational: the part of [amountMinor] that is VAT/taxes. Added to no
   /// sum.
   IntColumn get taxAmountMinor => integer().nullable()();
+
+  /// The scanned document this expense was made from (Phase 3), or null.
+  /// Deleting the document keeps the expense and clears the link.
+  TextColumn get documentId => text().nullable().references(
+    Documents,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
 
   DateTimeColumn get createdAt => dateTime()();
 

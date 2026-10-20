@@ -4,6 +4,9 @@ import 'package:simple_budgeting_app/app/di/providers.dart';
 import 'package:simple_budgeting_app/core/money/money.dart';
 import 'package:simple_budgeting_app/core/money/money_parser.dart';
 import 'package:simple_budgeting_app/core/time/calendar_date.dart';
+import 'package:simple_budgeting_app/features/documents/domain/entities/scan_document.dart';
+import 'package:simple_budgeting_app/features/documents/presentation/document_detail_page.dart';
+import 'package:simple_budgeting_app/features/documents/presentation/document_providers.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/entities/expense.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/entities/expense_category.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/usecases/expense_validation.dart';
@@ -23,10 +26,15 @@ import 'package:simple_budgeting_app/l10n/app_localizations.dart';
 /// One total and one category. The amount charged is in the currency of the
 /// account; the original amount and the VAT/taxes are informational. With only
 /// an original amount the expense is saved as "awaiting amount".
+///
+/// [fromDocument] (only when adding) pre-fills the date (the local day of the
+/// document) and the description (the first line of its text) and links the
+/// new expense to the document. The amount and the category are not guessed.
 class ExpenseFormPage extends ConsumerStatefulWidget {
-  const ExpenseFormPage({super.key, this.expense});
+  const ExpenseFormPage({super.key, this.expense, this.fromDocument});
 
   final Expense? expense;
+  final ScanDocument? fromDocument;
 
   @override
   ConsumerState<ExpenseFormPage> createState() => _ExpenseFormPageState();
@@ -46,6 +54,9 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage> {
   bool _saving = false;
 
   Expense? get _expense => widget.expense;
+
+  /// The document this expense comes from (or will come from), if any.
+  String? get _documentId => _expense?.documentId ?? widget.fromDocument?.id;
 
   /// Existing expense: its own. New: the picked one, else the primary currency
   /// (the device currency while that is still loading).
@@ -71,9 +82,12 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage> {
   void initState() {
     super.initState();
     final e = _expense;
-    _date = e?.date ?? ref.read(todayProvider);
+    final doc = e == null ? widget.fromDocument : null;
+    _date = e?.date ?? doc?.createdLocalDay ?? ref.read(todayProvider);
     _categoryId = e?.categoryId;
-    _description = TextEditingController(text: e?.description ?? '');
+    _description = TextEditingController(
+      text: e?.description ?? doc?.firstLine() ?? '',
+    );
     _amount = TextEditingController();
     _originalAmount = TextEditingController();
     _tax = TextEditingController();
@@ -172,6 +186,7 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage> {
           originalCurrencyCode: original,
           tax: tax,
           description: _description.text,
+          documentId: widget.fromDocument?.id,
         );
       } else {
         await actions.update(
@@ -254,6 +269,7 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: <Widget>[
+            if (_documentId != null) _DocumentBanner(documentId: _documentId!),
             TextFormField(
               key: const Key('expense-description'),
               controller: _description,
@@ -470,6 +486,40 @@ class _BeforeBalanceWarning extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "From the document of `date`" with a way to open it. Shown for a new
+/// expense made from a document and for an expense that is linked to one.
+class _DocumentBanner extends ConsumerWidget {
+  const _DocumentBanner({required this.documentId});
+
+  final String documentId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final document = ref.watch(documentProvider(documentId)).value;
+    if (document == null) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
+    return Card(
+      key: const Key('expense-document-banner'),
+      margin: const EdgeInsets.only(bottom: 16),
+      child: ListTile(
+        leading: const Icon(Icons.description_outlined),
+        title: Text(
+          l10n.expenseFromDocument(document.createdLocalDay.toUtcDateTime()),
+        ),
+        trailing: TextButton(
+          key: const Key('expense-open-document'),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => DocumentDetailPage(documentId: document.id),
+            ),
+          ),
+          child: Text(l10n.expenseOpenDocument),
         ),
       ),
     );

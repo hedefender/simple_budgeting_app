@@ -17,6 +17,9 @@ enum ExpenseValidationError {
   taxExceedsTotal,
   categoryNotFound,
   expenseNotFound,
+
+  /// The expense points to a document that does not exist.
+  documentNotFound,
 }
 
 class ExpenseValidationException implements Exception {

@@ -245,6 +245,86 @@ tests. Start from the data of section 11 (or press "Skip for now" in the wizard 
 20. Long lists: add enough expenses (or sources) to fill the screen and scroll to the end on the Expenses and Income
     tabs: the last row can be scrolled completely above the "+" button.
 
+## 13. Phase 3: Scan JSON import and documents
+
+Prerequisite: `flutter analyze`, `flutter test` and `cargo test` pass. The app is installed on the emulator or phone
+(a build over the Phase 2 data, so that step 15 can check the upgrade). Remember the warning at the top.
+
+Put the sample files on the device (PowerShell, project root; the files are in `test/fixtures/scan_json/`, none is bigger
+than a few hundred bytes):
+
+    adb push test/fixtures/scan_json /sdcard/Download/scan_json
+
+and make three more files that are not in the repository:
+
+    # 1. a file over 5 MiB
+    $big = '{"schemaVersion":1,"documentId":"big","createdAt":"2026-10-18T09:41:07Z","ocrText":"' + ('a' * 5300000) + '"}'
+    [IO.File]::WriteAllText("$PWD\big.json", $big)
+    # 2. a long text (25,000 characters)
+    $long = '{"schemaVersion":1,"documentId":"long","createdAt":"2026-10-18T09:41:07Z","ocrText":"START ' + ('b' * 25000) + ' END"}'
+    [IO.File]::WriteAllText("$PWD\long.json", $long)
+    # 3. 51 small files
+    1..51 | ForEach-Object { [IO.File]::WriteAllText("$PWD\many-$_.json", '{"schemaVersion":1,"documentId":"many-' + $_ + '","createdAt":"2026-10-18T09:41:07Z","ocrText":"File ' + $_ + '"}') }
+    adb push big.json /sdcard/Download/scan_json/
+    adb push long.json /sdcard/Download/scan_json/
+    adb shell mkdir -p /sdcard/Download/scan_json/many
+    Get-ChildItem many-*.json | ForEach-Object { adb push $_.FullName /sdcard/Download/scan_json/many/ }
+
+Also copy any PDF into `/sdcard/Download/scan_json/` (named `receipt.pdf`).
+
+1. Bottom bar: four tabs, the fourth is "Έγγραφα" (Documents). It shows "Δεν υπάρχουν έγγραφα ακόμα", an explanation and
+   an "Εισαγωγή" button. The round button at the bottom right does the same.
+2. File chooser and the type filter (decision 2 of Phase 3): press the button. The chooser opens (no storage permission is
+   asked). Open `Download/scan_json`: all the files are visible and can be selected, including `receipt.pdf`. This build does
+   NOT filter by type. To try the JSON-only filter, change `FileSelectorImportFilePicker()` to
+   `FileSelectorImportFilePicker(jsonOnly: true)` in `lib/app/di/service_locator.dart`, run again and check that the `.json`
+   files are still shown. If some are hidden, the filter stays off. Write the result in the report.
+3. Single import: pick `valid_v1_full.json`. The import report opens: "Εισήχθησαν: 1" and one row with the file name and
+   "Εισήχθη". Press "Τέλος": the list shows a row "ΔΕΗ Α.Ε." with `18 Οκτ 2026 · valid_v1_full.json`.
+4. Open the document. Check: the creation date and the time in the time zone of the phone (the file says 09:41 at +03:00),
+   "Εισήχθη από valid_v1_full.json στις <today>", "Γλώσσα: el", the document id, "PDF: scan-2026-10-18-0941.pdf", "Εικόνες (2): ...",
+   the note that the files are not stored, and the Greek text. No PDF or image is opened or shown.
+5. "Δημιουργία εξόδου": the form opens with the date 18 Oct 2026, the description "ΔΕΗ Α.Ε." and a card "Από το έγγραφο της 18 Οκτ 2026" with
+   "Προβολή εγγράφου". The amount is EMPTY and the category is the default (nothing is guessed). Enter `84,20` and save. The
+   document now lists the expense; the Expenses tab has it; the Documents list shows "Συνδεδεμένο έξοδο" on the row.
+   Edit the expense: the card is still there.
+6. Duplicate: import `valid_v1_full.json` again. The report says "Ήδη εισαγμένα: 1", the row says "Ήδη εισαγμένο", the list still has ONE
+   document.
+7. Several files at once (Multi Scan): select `valid_v1_minimal.json`, `legacy_full.json`, `legacy_no_paths.json`,
+   `receipt.pdf`, `malformed_invalid_json.json`, `malformed_empty_file.json`, `valid_v1_unknown_fields.json` (in this order).
+   The report lists one row per file in this order. The valid files are imported although a failing file is between them,
+   the PDF is "Παραλείφθηκε: δεν είναι αρχείο JSON" (not an error), the summary counts imported / failed / skipped.
+8. Messages (one import with all of them, or one at a time). None may close the app:
+   `malformed_invalid_json.json` "Μη έγκυρο JSON (γραμμή 4, στήλη ...)";
+   `malformed_empty_file.json` "Το αρχείο είναι κενό.";
+   `malformed_not_object.json` "Το αρχείο πρέπει να περιέχει αντικείμενο JSON.";
+   `malformed_wrong_type.json` "Το πεδίο ocrText έχει λάθος τύπο.";
+   `malformed_empty_ocr.json` "Το κείμενο OCR είναι κενό.";
+   `malformed_schema_v2.json` "Το αρχείο έχει έκδοση σχήματος 2· ... Ενημερώστε την εφαρμογή. Δεν έγινε εισαγωγή.";
+   `big.json` "Το αρχείο είναι πολύ μεγάλο (5.1 MB, όριο 5.0 MB).".
+9. Legacy: `legacy_full.json` is in the list marked "Παλιά μορφή" and its detail says it was read from the legacy format, with no
+   language line. Import it again: "Ήδη εισαγμένο" (the id is made from the content). `legacy_absolute_paths.json` shows
+   only the names `receipt.pdf`, `page1.jpg`, `page2.jpg`.
+10. Long text: import `long.json`. The detail shows "Εμφανίζονται οι πρώτοι 20000 από 25010 χαρακτήρες." and "Εμφάνιση όλου" ABOVE the
+    text; the text starts with START and does not reach END. After "Εμφάνιση όλου" the text ends with END and the note is gone. Scrolling is
+    smooth enough.
+11. Limit of the batch: open `Download/scan_json/many` and select all 51 files. The app says "Πάρα πολλά αρχεία: επιλέξτε το πολύ 50 τη φορά." and
+    imports nothing. Select 50 of them: all are imported.
+12. Delete: open the document of step 3 (it has one expense). The delete icon asks "Διαγραφή αυτού του εγγράφου;" and says "Παραμένει 1
+    συνδεδεμένο έξοδο, χωρίς τον σύνδεσμο με το έγγραφο." "Ακύρωση" keeps everything. "Διαγραφή" removes the document, shows a
+    message, and the expense is still in the Expenses tab (the card "Από το έγγραφο" is gone). Import `valid_v1_full.json` again: it is
+    imported as new.
+13. Dates: edit a copy of `valid_v1_full.json` so that `createdAt` is `2026-10-18T23:30:00-05:00` (Greece is 7 or 8 hours
+    ahead: the local day is the 19th). The detail and the expense date show 19 Οκτ. A `createdAt` without an offset
+    (`legacy_full.json`) is shown as written (09:41 on the 18th).
+14. Balance start: with a balance anchor dated after the document day, "Δημιουργία εξόδου" shows the warning of Phase 2 under the date.
+15. Force-close and reopen: documents, links and the Expenses are still there. Install this build over a Phase 2 build that
+    has income and expenses: nothing is lost and the Documents tab starts empty.
+16. Privacy: switch on airplane mode and repeat steps 3 and 7: everything works the same. The app asks for no new permission.
+17. Long lists: import enough files (the 50 of step 11) and scroll to the end of the Documents tab: the last row can be
+    scrolled completely above the round button.
+18. Greek and English: change the phone language and look at the tab, the report and the detail in both.
+
 ## Checklist
 
 - [ ] `flutter analyze` clean
@@ -262,4 +342,5 @@ tests. Start from the data of section 11 (or press "Skip for now" in the wizard 
 - [ ] Phase 1c steps 1-11 pass
 - [ ] Phase 1d steps 1-12 pass
 - [ ] Phase 2 steps 1-20 pass
+- [ ] Phase 3 steps 1-18 pass
 - [ ] Cold start time noted (profile build): ______ ms

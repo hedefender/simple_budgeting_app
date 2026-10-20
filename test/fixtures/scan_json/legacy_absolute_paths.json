@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "created": "2026-10-16T12:00:00",
+  "ocr_text": "Cosmote 29.90",
+  "image_paths": ["/data/user/0/com.example.scan/files/page1.jpg", "C:\\Scans\\page2.jpg"],
+  "pdf_path": "/data/user/0/com.example.scan/files/receipt.pdf"
+}

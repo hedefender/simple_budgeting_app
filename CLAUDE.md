@@ -106,6 +106,10 @@ Run `flutter analyze` and `flutter test` (and `cargo test` once Rust exists) aft
 - In Riverpod 3, do not write `<Override>` on `overrides` lists; let Dart infer the type.
 - Widget tests that fake the device locale set both `localesTestValue` and `clearLocalesTestValue` (via `addTearDown`).
 - `l10n.yaml` has `nullable-getter: false`, so `AppLocalizations.of(context)` is non-null.
+- Drift `customConstraints` entries must be string LITERALS. An interpolated constant is dropped silently from the table and from the schema dump; check the dump after adding a CHECK.
+- Bridge types must not be enums with data (the generator then wants the `freezed` package): use a plain enum plus fields.
+
+- Read `docs/architecture-decisions.md` (the ADRs) before architecture changes. ADRs change only with the owner's approval.
 
 ## Roadmap
 

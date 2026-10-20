@@ -50,6 +50,8 @@ class UpdateExpense {
       amount: money.amount,
       original: money.original,
       tax: money.tax,
+      // The link to the document is kept when the expense is edited.
+      documentId: existing.documentId,
       createdAt: existing.createdAt,
       updatedAt: _clock().toUtc(),
     );

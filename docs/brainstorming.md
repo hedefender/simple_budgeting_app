@@ -590,3 +590,365 @@ Users gain better visibility into their finances
 without surrendering ownership of their data.
 
 Everything else is secondary.
+
+
+# Architecture and Product Evolution Notes
+
+These notes were produced during architecture review and long-term product planning.
+
+They do not represent immediate implementation tasks.
+
+They serve as guidance for future architectural decisions.
+
+---
+
+# LLM Separation Principle
+
+Different AI systems should be used for different responsibilities.
+
+Implementation assistants (Claude Code, Antigravity, IDE agents) are responsible for:
+
+- code generation
+- implementation details
+- migrations
+- testing
+- refactoring
+
+Architecture assistants are responsible for:
+
+- product direction
+- long-term design review
+- scope control
+- boundary validation
+- ecosystem consistency
+
+Reason:
+
+Implementation-focused agents may naturally prefer preserving existing code and decisions.
+
+Architecture reviews should periodically challenge assumptions and re-evaluate long-term goals.
+
+---
+
+# Brainstorming as a First-Class Artifact
+
+The project should permanently maintain a dedicated brainstorming document.
+
+This document exists independently from:
+
+- roadmap
+- implementation plans
+- source code
+- technical documentation
+
+Purpose:
+
+Capture product philosophy and design intent.
+
+Questions it should answer:
+
+Why does the product exist?
+
+What problem does it solve?
+
+What should the product never become?
+
+---
+
+# Product Transformation
+
+Original concept:
+
+Budget App
+
+Current direction:
+
+Document Driven Personal Finance Platform
+
+The system is gradually evolving into:
+
+Documents
+↓
+OCR
+↓
+Structured Data
+↓
+Financial Knowledge
+↓
+Reports
+↓
+Insights
+
+This evolution should be acknowledged explicitly in future planning.
+
+---
+
+# Scan and Budget Relationship
+
+The applications are not dependencies.
+
+The applications are companions.
+
+Incorrect model:
+
+Scan
+↓
+Budget
+
+Correct model:
+
+Scan
+
+Budget
+
+Shared Exchange Format
+
+The exchange format is the integration point.
+
+Not direct application coupling.
+
+---
+
+# Shared Exchange Philosophy
+
+JSON exchange is a product boundary.
+
+The schema should be treated as a contract.
+
+Breaking schema compatibility should be considered a major version change.
+
+Goals:
+
+- long-term stability
+- backward compatibility
+- future application interoperability
+
+Future applications may consume the same schema.
+
+---
+
+# Budget Independence Principle
+
+Budget must remain usable without Scan.
+
+Supported input sources:
+
+- Manual entry
+- OCR import
+- PDF import
+- Image import
+- JSON import
+- Future CSV import
+
+Scan is an accelerator.
+
+Not a requirement.
+
+---
+
+# Scan Independence Principle
+
+Scan must remain useful without Budget.
+
+Primary value:
+
+- OCR
+- PDF generation
+- Email delivery
+- Document archive creation
+
+Budget integration is additional functionality.
+
+Not the primary purpose.
+
+---
+
+# Document Type Awareness
+
+Future planning should include a document classification layer.
+
+Suggested enum:
+
+- Unknown
+- Receipt
+- UtilityBill
+- Invoice
+- Statement
+- Contract
+- GenericDocument
+
+Reason:
+
+Different document types require different parsing strategies.
+
+This is expected to become valuable before advanced rule engines and local AI processing.
+
+---
+
+# Data Ownership Manifesto
+
+User owns:
+
+- Documents
+- OCR output
+- Financial data
+- Reports
+- Backups
+
+Developer owns:
+
+- Application code
+
+Only.
+
+Developer should never require ownership of user-generated financial content.
+
+---
+
+# Product Boundaries
+
+In Scope
+
+- Personal budgeting
+- Household budgeting
+- Freelance finance tracking
+- OCR-based expense capture
+- Financial reporting
+- Spending analytics
+
+Out of Scope
+
+- Full ERP
+- Business accounting software
+- Banking platform
+- Crypto trading platform
+- Tax filing platform
+- Developer-controlled cloud storage
+
+---
+
+# Cloud Philosophy
+
+Developer-owned cloud infrastructure remains rejected.
+
+Reasons:
+
+- Increased operational costs
+- Privacy concerns
+- Data ownership concerns
+- Legal obligations
+- Vendor lock-in
+
+Accepted alternatives:
+
+- Local storage
+- OneDrive
+- Google Drive
+- Dropbox
+- User-controlled storage providers
+
+---
+
+# Team Sharing Philosophy
+
+Future collaboration should not require developer-controlled servers.
+
+Preferred solutions:
+
+- Shared cloud folders
+- Shared exports
+- Encrypted exchange packages
+- User-controlled synchronization
+
+The default assumption remains:
+
+Users control the storage.
+
+---
+
+# Budget as Knowledge System
+
+The long-term goal is not merely expense tracking.
+
+The system should gradually evolve towards:
+
+Financial Knowledge Management
+
+Examples:
+
+- Spending analysis
+- Cost trend identification
+- Obligation tracking
+- Recurring payment awareness
+- Financial summaries
+
+Without becoming a banking application.
+
+---
+
+# AI Philosophy
+
+AI is a processing component.
+
+AI is not a product feature.
+
+Primary purpose:
+
+- categorization
+- normalization
+- document interpretation
+
+The system should never depend on conversational AI to perform its core functions.
+
+The application must remain useful even if AI is disabled entirely.
+
+---
+
+# Guiding Principle
+
+The ecosystem succeeds when:
+
+Users gain visibility into their finances
+
+without surrendering ownership of their data.
+
+Everything else is secondary.
+
+# Analytics Engine First
+
+Charts must never calculate business data.
+
+Charts are presentation components only.
+
+All financial calculations must be performed inside the Analytics Engine.
+
+The Analytics Engine produces normalized summary datasets.
+
+Flutter visualizes those datasets.
+
+This ensures:
+
+- platform independence
+- consistent reporting
+- reusable business logic
+- desktop/mobile parity
+
+Examples:
+
+- Monthly Expense Summary
+- Income vs Expense Summary
+- Category Breakdown
+- Vendor Breakdown
+- Recurring Obligation Summary
+
+# Scan: document type and soft filter
+
+Design idea only, nothing is implemented. It belongs to Phase 8 (Scan). Added 2026-10-21 at the owner's request.
+
+- Scan gets a type choice: Receipt or Document. In Document mode it keeps only the PDF and does not create a JSON file.
+- Optional field `documentType` in the Scan JSON schema, with values such as `receipt`, `utilityBill`, `invoice`,
+  `genericDocument`. It is an addition that breaks nothing (unknown fields are ignored) and the schema stays at v1.
+  When the field is absent the type is `unknown`.
+- The soft filter for receipts is a WARNING, not a block. The user can choose "save anyway".
+- The check stays minimal: an amount and a date, or a keyword. If it grows, it belongs to a shared rules package and not
+  to a copy of the rule engine inside Scan, so that ADR-003 (independence) is not broken.

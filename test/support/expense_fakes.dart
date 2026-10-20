@@ -4,18 +4,55 @@ import 'package:simple_budgeting_app/features/expenses/domain/entities/expense.d
 import 'package:simple_budgeting_app/features/expenses/domain/entities/expense_category.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/repositories/category_repository.dart';
 import 'package:simple_budgeting_app/features/expenses/domain/repositories/expense_repository.dart';
+import 'package:simple_budgeting_app/features/expenses/domain/usecases/expense_validation.dart';
 
 /// In-memory expense repository for tests that must not touch SQLite.
 class FakeExpenseRepository implements ExpenseRepository {
   final Map<String, Expense> expenses = <String, Expense>{};
 
+  /// When set, a link to any other document id fails like the real
+  /// repository does. Null: links are not checked.
+  Set<String>? knownDocumentIds;
+
+  void _requireDocument(String? documentId) {
+    final known = knownDocumentIds;
+    if (documentId == null || known == null || known.contains(documentId)) {
+      return;
+    }
+    throw const ExpenseValidationException(
+      ExpenseValidationError.documentNotFound,
+    );
+  }
+
+  /// What the database does when a document is deleted: the link is cleared.
+  void clearDocumentLink(String documentId) {
+    for (final e in expenses.values.toList()) {
+      if (e.documentId == documentId) {
+        expenses[e.id] = Expense(
+          id: e.id,
+          description: e.description,
+          categoryId: e.categoryId,
+          date: e.date,
+          currencyCode: e.currencyCode,
+          amount: e.amount,
+          original: e.original,
+          tax: e.tax,
+          createdAt: e.createdAt,
+          updatedAt: e.updatedAt,
+        );
+      }
+    }
+  }
+
   @override
   Future<void> add(Expense expense) async {
+    _requireDocument(expense.documentId);
     expenses[expense.id] = expense;
   }
 
   @override
   Future<void> update(Expense expense) async {
+    _requireDocument(expense.documentId);
     expenses[expense.id] = expense;
   }
 
@@ -45,6 +82,16 @@ class FakeExpenseRepository implements ExpenseRepository {
     });
     return result;
   }
+
+  @override
+  Future<List<Expense>> listByDocument(String documentId) async =>
+      (await list()).where((e) => e.documentId == documentId).toList();
+
+  @override
+  Future<Set<String>> documentIdsWithExpenses() async => {
+    for (final e in expenses.values)
+      if (e.documentId != null) e.documentId!,
+  };
 
   @override
   Future<Set<String>> listCurrencyCodes() async =>
