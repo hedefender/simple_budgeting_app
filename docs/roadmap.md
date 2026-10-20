@@ -12,8 +12,9 @@
 | Phase 1b: full schedule engine | Done (2026-10-19) |
 | Phase 1c: currency handling (primary currency, per-source currency, no hidden data) | Done (2026-10-19) |
 | Phase 1d: worker profiles and extra payments | Done (2026-10-19) |
-| Phase 2: expenses | Implemented, waiting for the owner's manual check (`docs/manual-validation.md` section 12). Plan: `docs/phase-2-plan.md`. Report: `docs/reports/phase-2-report.md` |
-| Phase 2b and later | Not started |
+| Phase 2: expenses | Done (2026-10-20; the owner's manual check of `docs/manual-validation.md` section 12 passed). Plan: `docs/phase-2-plan.md`. Report: `docs/reports/phase-2-report.md` |
+| Phase 3: JSON import | Next (planning). Decisions: "Phase 3 decisions" below. Schema: `docs/scan-json-schema.md`. Plan, waiting for approval: `docs/phase-3-plan.md` |
+| Phase 2b and Phase 4 onward | Not started |
 
 Each step starts only after the owner confirms the previous one compiles and passes.
 
@@ -156,7 +157,7 @@ Rust is a stateless compute engine. Dart owns persistence (drift) and the UI.
 - Research on the rules: `docs/extra-payments.md` (read 2026-10-19). Finding that affects the design: the Easter
   bonus is due on Holy Wednesday, which is relative to Orthodox Easter, so a fixed month and day is not enough.
 
-## Phase 2 decisions (owner, 2026-10-19; plan approved: docs/phase-2-plan.md)
+## Phase 2 decisions (owner, 2026-10-19; Done 2026-10-20; plan: docs/phase-2-plan.md)
 
 Notes added with the approval of the plan:
 
@@ -202,6 +203,30 @@ Notes added with the approval of the plan:
   means on or before the anchor day (the anchor day is inside the anchor) and the button proposes the next day; with a
   start taken from a source it means before that day and the button proposes that day.
 
+## Phase 3 decisions (owner, 2026-10-20; plan waiting for approval: docs/phase-3-plan.md)
+
+The shared schema is described in `docs/scan-json-schema.md`.
+
+1. **Canonical schema v1 (camelCase):** `schemaVersion` (int), `documentId` (string, unique), `createdAt` (ISO 8601),
+   `ocrText` (string), `pdfPath` (string, optional), `imagePaths` (list of strings, optional). Unknown extra fields are
+   ignored. A `schemaVersion` greater than the known one gives a clear error and nothing is imported.
+2. **Legacy format** (`version`, `created`, `ocr_text`, `image_paths`, `pdf_path`): read by a small converter (the
+   legacy reader), never written. It has no `documentId`, so the converter builds a stable id from the content (a hash
+   of `created` and `ocr_text`).
+3. **Importing the same `documentId` twice** creates no duplicate; the user is told.
+4. **Phase 3 stores documents** (tables `documents` and `imports`) **and the OCR text. It does NOT analyse the text**
+   (rule engine = Phase 4, LLM = Phase 7). The user creates an expense from a document with pre-filled fields (date
+   from `createdAt`, description), and the expense is linked to the document.
+5. **One or many JSON files at once** (Single Scan, Multi Scan). A failing file does not stop the others; the user sees
+   a report per file (imported, duplicate, error with the reason).
+6. **Malformed input** (invalid JSON, wrong types, empty `ocrText`, unsupported `schemaVersion`, a file over the size
+   limit, an empty file) gives understandable messages and never crashes.
+7. **Privacy:** nothing is sent over the network.
+
+Open question to the owner (recorded, NOT decided): what `pdfPath` and `imagePaths` mean when Scan and Budget are
+separate Android apps that cannot read each other's private files. Options and the consequences for Phase 8 are in
+`docs/scan-json-schema.md`, section "Open question: file references". Listed below as open decision #16.
+
 ## Phase 4b - Direct import of JPEG/PDF with on-device OCR (Pro)
 
 Goal: the user does not need Scan to import documents.
@@ -232,8 +257,8 @@ manual entry.
     long as no personal data is sent. Conversion: manual exchange rates are always available (offline), plus an
     optional automatic download from a public source chosen later. The result is a total in the primary currency.
     Phase 1c does not convert.
-12. **Shared Scan/Budget JSON schema (before Phase 3).** Open. Field names and a stable `documentId`, agreed
-    between both apps.
+12. **Shared Scan/Budget JSON schema (before Phase 3).** Decided by the owner on 2026-10-20: see "Phase 3 decisions"
+    and `docs/scan-json-schema.md`. Scan has to be changed to write schema v1; the file references are open (#16).
 13. **Several profiles per household.** Open. Is it one database file per profile?
 14. **OCR engine and Greek (Phase 4b, see #7).** Open. ML Kit does not list Greek on its official list of
     supported languages, so it needs a test with real documents before it is a candidate.
@@ -242,6 +267,12 @@ manual entry.
     app produces the database file and can export to a spreadsheet. The app should also offer to restore a copy
     when it starts on an empty database (accidental uninstall or reinstall). Open: file format of the copy,
     spreadsheet format (CSV or XLSX), when the copy is made, and how the restore offer works.
+
+16. **File references in Scan JSON (`pdfPath`, `imagePaths`) (before Phase 3 code; needed for the document detail
+    screen).** Open, asked to the owner. Proposal: file NAMES relative to the files the user selects together with
+    the JSON (or, in Phase 8, shared storage). See `docs/scan-json-schema.md`.
+17. **File picking package for Phase 3.** Proposed, not added: `file_selector` (flutter.dev). Waiting for approval
+    (`docs/phase-3-plan.md`).
 
 ## Rules for every phase
 
